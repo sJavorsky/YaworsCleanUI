@@ -1,0 +1,73 @@
+# YaworsCleanUI
+
+WoW retail addon. This folder is the project root. Do NOT create a wrapping subfolder.
+
+## Project
+
+A personal UI cleanup addon replacing functionality previously handled by WeakAuras (which lost support in The War Within / Midnight transition). Focuses on hiding specific UI elements and filtering chat spam, with settings integrated directly into the Blizzard Interface Options panel (not a separate window).
+
+## Structure
+
+Modular — one file per feature/concern. New features get their own file, registered in the TOC.
+
+```
+YaworsCleanUI.toc       -- addon manifest
+Core.lua                -- addon table, SavedVariables init, event backbone
+Settings.lua            -- Blizzard Interface Options panel registration
+modules/
+  HideElements.lua      -- hiding loot window, bag icons, etc.
+  ChatFilter.lua        -- filtering chat spam (spell learned/unlearned, etc.)
+```
+
+Add new modules under `modules/`. Register them in the TOC after Core.lua and Settings.lua.
+
+## Lua conventions
+
+- **Indentation**: 4 spaces
+- **Naming**:
+  - Addon namespace/table: `YaworsCleanUI` (single global, used as the addon table)
+  - Module tables: PascalCase (`HideElements`, `ChatFilter`)
+  - Functions: camelCase (`hideDefaultBags`, `onEvent`)
+  - Local variables: camelCase (`isHidden`, `savedVars`)
+  - Constants: UPPER_SNAKE_CASE (`DEFAULT_HIDE_BAGS`)
+  - WoW API calls follow Blizzard's own casing (they already use PascalCase/mixed — don't fight it)
+- **Locals**: Always `local`. Minimize globals — only `YaworsCleanUI` should be global.
+- **Module pattern**: Each module file declares a local table, attaches it to `YaworsCleanUI`, and returns nothing.
+
+```lua
+local mod = {}
+YaworsCleanUI.HideElements = mod
+
+function mod.init()
+  -- ...
+end
+```
+
+- **No libraries**: No AceAddon, LibStub, or external dependencies. Pure Lua + Blizzard API only.
+
+## Comments
+
+Code should be self-explanatory through naming and structure.
+
+WoW API calls may be commented freely — even when the usage is readable, it's fine to note what an API call does or how it behaves. This is reference documentation, not noise.
+
+For non-API code: Do not narrate code. Comments only when:
+- The reason isn't obvious
+- A workaround exists for a Blizzard quirk
+- Something looks wrong but is intentional
+
+Do NOT comment what code does. Comment why it does it, only when that isn't obvious.
+
+## Settings
+
+Use `Settings.RegisterAddOnCategory` (retail API, TWW+). Settings panel must appear inside the standard Blizzard Interface Options. No separate popup window, no minimap button.
+
+Changes that can apply instantly should apply instantly via callback. If a reload is required, enable a "Reload UI" button only when pending changes exist.
+
+## Target version
+
+Retail WoW, current version. TOC: `## Interface: 120001`. Single number is fine for retail-only addons.
+
+## SavedVariables
+
+Named `YaworsCleanUIDB`. Initialized in Core.lua with defaults before any module reads them.

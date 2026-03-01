@@ -1,0 +1,4 @@
+# Copy this file to deploy.conf and set your paths.
+
+WINDOWS_DEST=...\World of Warcraft\_retail_\Interface\AddOns\YaworsCleanUI
+LINUX_DEST=.../World of Warcraft/_retail_/Interface/AddOns/YaworsCleanUI

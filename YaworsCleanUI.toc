@@ -1,0 +1,10 @@
+## Interface: 120001
+## Title: YaworsCleanUI
+## Notes: Cleans up the UI by hiding elements and filtering chat spam.
+## Author: Yawor
+## Version: 0.1.0
+## SavedVariables: YaworsCleanUIDB
+
+Core.lua
+Settings.lua
+modules/HideElements.lua

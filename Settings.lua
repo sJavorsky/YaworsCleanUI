@@ -1,0 +1,28 @@
+-- Settings.RegisterVerticalLayoutCategory creates a category with a vertical
+-- initializer layout, which is required for Settings.CreateCheckBox to work.
+local category = Settings.RegisterVerticalLayoutCategory("YaworsCleanUI")
+
+local function addCheckBox(key, name, tooltip)
+    -- RegisterProxySetting delegates storage to our own getter/setter rather
+    -- than a CVar; the key must be globally unique across all addons.
+    local setting = Settings.RegisterProxySetting(
+        category,
+        "YaworsCleanUI_" .. key,
+        Settings.VarType.Boolean,
+        name,
+        false,
+        function() return YaworsCleanUIDB[key] end,
+        function(_, value)
+            YaworsCleanUIDB[key] = value
+            YaworsCleanUI.HideElements.applySettings()
+        end
+    )
+    Settings.CreateCheckBox(category, setting, tooltip)
+end
+
+addCheckBox("hideLooting", "Hide looting window", "Hides the loot frame when looting.")
+addCheckBox("hideBags", "Hide bag icons", "Hides the bag bar icons.")
+
+-- RegisterAddOnCategory places the category under the AddOns section of the
+-- Blizzard Interface Options panel.
+Settings.RegisterAddOnCategory(category)

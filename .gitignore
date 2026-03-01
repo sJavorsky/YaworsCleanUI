@@ -1,0 +1,6 @@
+# deploy config with local paths
+deploy/deploy.conf
+
+# OS
+Thumbs.db
+.DS_Store
