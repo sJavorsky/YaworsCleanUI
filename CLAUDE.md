@@ -32,6 +32,7 @@ Add new modules under `modules/`. Register them in the TOC after Core.lua and Se
   - Constants: UPPER_SNAKE_CASE (`DEFAULT_HIDE_BAGS`)
   - WoW API calls follow Blizzard's own casing (they already use PascalCase/mixed — don't fight it)
 - **Locals**: Always `local`. Minimize globals — only `YaworsCleanUI` should be global.
+- **No abbreviations**: Use full words. Not `mod`, `db`, `f`, `fn`, `cb` — use `module`, `database`, `frame`, `callback`, etc. Only shorten if the full name collides with a Lua or WoW API reserved word.
 - **Module pattern**: Each module file declares a local table, attaches it to `YaworsCleanUI`, and returns nothing.
 
 ```lua
@@ -63,6 +64,10 @@ Do NOT comment what code does. Comment why it does it, only when that isn't obvi
 Use `Settings.RegisterAddOnCategory` (retail API, TWW+). Settings panel must appear inside the standard Blizzard Interface Options. No separate popup window, no minimap button.
 
 Changes that can apply instantly should apply instantly via callback. If a reload is required, enable a "Reload UI" button only when pending changes exist.
+
+## Debugging frame names
+
+If unsure what a UI element's frame is called, ask the user to hover over it in-game and run `/fstack` — it lists all frames under the cursor.
 
 ## Target version
 

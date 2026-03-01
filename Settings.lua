@@ -12,12 +12,12 @@ local function addCheckBox(key, name, tooltip)
         name,
         false,
         function() return YaworsCleanUIDB[key] end,
-        function(_, value)
+        function(value)
             YaworsCleanUIDB[key] = value
             YaworsCleanUI.HideElements.applySettings()
         end
     )
-    Settings.CreateCheckBox(category, setting, tooltip)
+    Settings.CreateCheckbox(category, setting, tooltip)
 end
 
 addCheckBox("hideLooting", "Hide looting window", "Hides the loot frame when looting.")
