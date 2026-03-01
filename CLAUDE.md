@@ -69,6 +69,13 @@ Changes that can apply instantly should apply instantly via callback. If a reloa
 
 If unsure what a UI element's frame is called, ask the user to hover over it in-game and run `/fstack` — it lists all frames under the cursor.
 
+## Git commits
+
+Stage files and write the commit message to `commit_msg.txt` in project root, 
+then run `git commit -F commit_msg.txt` and delete the file afterward.
+
+Do NOT add a Co-Authored-By line.
+
 ## Target version
 
 Retail WoW, current version. TOC: `## Interface: 120001`. Single number is fine for retail-only addons.
