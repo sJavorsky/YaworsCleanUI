@@ -10,3 +10,7 @@ A small World of Warcraft addon that hides specific UI elements.
 ## Settings
 
 Each feature can be applied separately. Open **Interface Options → AddOns → YaworsCleanUI**. Changes apply instantly, no reload needed.
+
+## Authorship
+
+The codebase was written by Anthropic's [Claude](https://claude.ai) under Yawor's supervision and direction.
