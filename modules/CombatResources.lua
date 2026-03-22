@@ -20,6 +20,9 @@ local classConfigs = {
     },
 }
 
+-- Saved once in init() so OnEnter/OnLeave can be restored when the setting is disabled
+local savedTooltipScripts = nil
+
 local function applyClassResources(config)
     local frame = config.frame()
     if not frame then return end
@@ -28,10 +31,16 @@ local function applyClassResources(config)
         frame:ClearAllPoints()
         -- UIParent spans the full screen; its center is the screen center
         frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        frame:SetScript("OnEnter", nil)
+        frame:SetScript("OnLeave", nil)
     else
         local anchor = config.restoreAnchor
         frame:ClearAllPoints()
         frame:SetPoint(anchor.point, _G[anchor.relativeTo], anchor.relativePoint, anchor.x, anchor.y)
+        if savedTooltipScripts then
+            frame:SetScript("OnEnter", savedTooltipScripts.onEnter)
+            frame:SetScript("OnLeave", savedTooltipScripts.onLeave)
+        end
     end
 end
 
@@ -50,6 +59,11 @@ function module.init()
 
     local frame = config.frame()
     if frame then
+        -- Save tooltip scripts before any override so they can be restored later
+        savedTooltipScripts = {
+            onEnter = frame:GetScript("OnEnter"),
+            onLeave = frame:GetScript("OnLeave"),
+        }
         -- WoW repositions managed frames on various events (zone change, combat, etc.);
         -- re-apply our position whenever the frame is shown
         frame:HookScript("OnShow", module.applySettings)

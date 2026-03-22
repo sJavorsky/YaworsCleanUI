@@ -76,3 +76,14 @@ Retail WoW, current version. TOC: `## Interface: 120001`. Single number is fine 
 ## SavedVariables
 
 Named `YaworsCleanUIDB`. Initialized in Core.lua with defaults before any module reads them.
+
+## WoW API Reference
+
+When implementing or modifying addon features, consult these resources for accurate API usage:
+
+- **WoW API index**: https://warcraft.wiki.gg/wiki/World_of_Warcraft_API
+- **Events**: https://warcraft.wiki.gg/wiki/Events
+- **Lua functions (WoW 5.1 subset)**: https://warcraft.wiki.gg/wiki/Lua_functions
+- **BlizzardInterfaceResources (enums, templates, globals)**: https://github.com/Ketho/BlizzardInterfaceResources
+
+Do not guess API function signatures, event names, or enum values. If unsure whether a function exists or what arguments it takes, say so rather than fabricating a plausible-looking call.
