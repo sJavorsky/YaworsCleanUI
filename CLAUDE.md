@@ -69,23 +69,6 @@ Changes that can apply instantly should apply instantly via callback. If a reloa
 
 If unsure what a UI element's frame is called, ask the user to hover over it in-game and run `/fstack` — it lists all frames under the cursor.
 
-## Git commits
-
-Run each git step as a single command (no `&&` chaining), except the final step:
-1. `git add <file>` for each file individually
-2. Write the commit message to `commit_msg.txt` in project root
-3. `git commit -F commit_msg.txt && rm commit_msg.txt` — the only place `&&` is used
-
-Do NOT add a Co-Authored-By line.
-
-### Commit message style
-
-Subject line: imperative mood, max 50 characters, capitalize first word only, no period.
-For a single simple change, just the subject line — no bullet list.
-For multiple changes or when detail adds value, add a blank line then a `-` bullet list.
-Bullets should be concise but specific — explain what changed and why if not obvious.
-Wrap bullet lines at 72 characters.
-
 ## Target version
 
 Retail WoW, current version. TOC: `## Interface: 120001`. Single number is fine for retail-only addons.

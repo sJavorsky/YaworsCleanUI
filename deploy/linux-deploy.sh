@@ -28,9 +28,9 @@ SRC="$DIR/.."
 rm -rf "$DEST"
 mkdir -p "$DEST/modules"
 
-cp "$SRC/YaworsCleanUI.toc"        "$DEST/"
-cp "$SRC/Core.lua"                 "$DEST/"
-cp "$SRC/Settings.lua"             "$DEST/"
-cp "$SRC/modules/HideElements.lua" "$DEST/modules/"
+cp "$SRC/YaworsCleanUI.toc" "$DEST/"
+cp "$SRC/Core.lua"         "$DEST/"
+cp "$SRC/Settings.lua"     "$DEST/"
+cp "$SRC"/modules/*.lua    "$DEST/modules/"
 
 echo "Done."

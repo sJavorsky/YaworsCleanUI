@@ -3,6 +3,7 @@ YaworsCleanUI = {}
 local DEFAULTS = {
     hideLooting = false,
     hideBags = false,
+    centerDKRunes = false,
 }
 
 local registeredModules = {}
