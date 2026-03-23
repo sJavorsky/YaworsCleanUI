@@ -30,7 +30,9 @@ local function applyClassResources(config)
     if YaworsCleanUIDB[config.settingKey] then
         frame:ClearAllPoints()
         -- UIParent spans the full screen; its center is the screen center
-        frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        frame:SetPoint("CENTER", UIParent, "CENTER",
+            YaworsCleanUIDB.classResourcePointsOffsetX,
+            YaworsCleanUIDB.classResourcePointsOffsetY)
         frame:SetScript("OnEnter", nil)
         frame:SetScript("OnLeave", nil)
     else

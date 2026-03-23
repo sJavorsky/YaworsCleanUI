@@ -39,7 +39,10 @@ local offsetYSetting = Settings.RegisterProxySetting(
     "Vertical offset",
     0,
     function() return YaworsCleanUIDB.classResourcePointsOffsetY end,
-    function(value) YaworsCleanUIDB.classResourcePointsOffsetY = value end
+    function(value)
+        YaworsCleanUIDB.classResourcePointsOffsetY = value
+        YaworsCleanUI.CombatResources.applySettings()
+    end
 )
 local screenHeight = math.floor(GetScreenHeight())
 local offsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
@@ -53,7 +56,10 @@ local offsetXSetting = Settings.RegisterProxySetting(
     "Horizontal offset",
     0,
     function() return YaworsCleanUIDB.classResourcePointsOffsetX end,
-    function(value) YaworsCleanUIDB.classResourcePointsOffsetX = value end
+    function(value)
+        YaworsCleanUIDB.classResourcePointsOffsetX = value
+        YaworsCleanUI.CombatResources.applySettings()
+    end
 )
 local screenWidth = math.floor(GetScreenWidth())
 local offsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
