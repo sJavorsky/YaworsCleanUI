@@ -9,7 +9,7 @@ YaworsCleanUI.registerModule(module)
 local classConfigs = {
     DEATHKNIGHT = {
         frame = function() return RuneFrame end,
-        settingKey = "centerDKRunes",
+        settingKey = "deathKnightRunes",
         restoreAnchor = {
             point = "TOP",
             relativeTo = "PlayerFrameBottomManagedFramesContainer",

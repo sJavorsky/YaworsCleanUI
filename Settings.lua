@@ -1,8 +1,9 @@
--- Settings.RegisterVerticalLayoutCategory creates a category with a vertical
--- initializer layout, which is required for Settings.CreateCheckBox to work.
-local category = Settings.RegisterVerticalLayoutCategory("YaworsCleanUI")
+-- Settings.RegisterVerticalLayoutCategory returns the category and its layout.
+-- The layout's AddInitializer is used for section headers; the category is
+-- passed to Settings.Create* functions and RegisterAddOnCategory.
+local category, layout = Settings.RegisterVerticalLayoutCategory("Yawor's Clean UI")
 
-local function addCheckBox(key, name, tooltip)
+local function addCheckBox(key, name, tooltip, callback)
     -- RegisterProxySetting delegates storage to our own getter/setter rather
     -- than a CVar; the key must be globally unique across all addons.
     local setting = Settings.RegisterProxySetting(
@@ -14,28 +15,67 @@ local function addCheckBox(key, name, tooltip)
         function() return YaworsCleanUIDB[key] end,
         function(value)
             YaworsCleanUIDB[key] = value
-            YaworsCleanUI.HideElements.applySettings()
+            callback()
         end
     )
     Settings.CreateCheckbox(category, setting, tooltip)
 end
 
-addCheckBox("hideLooting", "Hide looting window", "Hides the loot frame when looting.")
-addCheckBox("hideBags", "Hide bag icons", "Hides the bag bar icons.")
+layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Hide UI elements"))
 
-local centerDKRunesSetting = Settings.RegisterProxySetting(
+addCheckBox("hideLooting", "Hide looting window", "Hides the loot frame when looting.", function()
+    YaworsCleanUI.HideElements.applySettings()
+end)
+addCheckBox("hideBags", "Hide bag icons", "Hides the bag bar icons.", function()
+    YaworsCleanUI.HideElements.applySettings()
+end)
+
+layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Points Class Resources"))
+
+local offsetYSetting = Settings.RegisterProxySetting(
     category,
-    "YaworsCleanUI_centerDKRunes",
-    Settings.VarType.Boolean,
-    "Center DK rune bar",
-    false,
-    function() return YaworsCleanUIDB.centerDKRunes end,
-    function(value)
-        YaworsCleanUIDB.centerDKRunes = value
-        YaworsCleanUI.CombatResources.applySettings()
-    end
+    "YaworsCleanUI_classResourcePointsOffsetY",
+    Settings.VarType.Number,
+    "Vertical offset",
+    Settings.Default.Disabled,
+    function() return YaworsCleanUIDB.classResourcePointsOffsetY end,
+    function(value) YaworsCleanUIDB.classResourcePointsOffsetY = value end
 )
-Settings.CreateCheckbox(category, centerDKRunesSetting, "Move the Death Knight rune bar to the center of the screen.")
+local screenHeight = math.floor(GetScreenHeight())
+local offsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
+offsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, offsetYSetting, offsetYOptions, "Vertical offset for class resource frames.")
+
+local offsetXSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_classResourcePointsOffsetX",
+    Settings.VarType.Number,
+    "Horizontal offset",
+    Settings.Default.Disabled,
+    function() return YaworsCleanUIDB.classResourcePointsOffsetX end,
+    function(value) YaworsCleanUIDB.classResourcePointsOffsetX = value end
+)
+local screenWidth = math.floor(GetScreenWidth())
+local offsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
+offsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, offsetXSetting, offsetXOptions, "Horizontal offset for class resource frames.")
+
+local scaleSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_classResourcePointsScale",
+    Settings.VarType.Number,
+    "Scale",
+    Settings.Default.Disabled,
+    function() return YaworsCleanUIDB.classResourcePointsScale end,
+    function(value) YaworsCleanUIDB.classResourcePointsScale = value end
+)
+local scaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
+scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, scaleSetting, scaleOptions, "Scale of class resource frames (percentage).")
+
+addCheckBox("deathKnightRunes", "Death Knight runes", "Move the Death Knight runes to the center of the screen.", function()
+    YaworsCleanUI.CombatResources.applySettings()
+end)
 
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.
