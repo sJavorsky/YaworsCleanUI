@@ -87,3 +87,9 @@ When implementing or modifying addon features, consult these resources for accur
 - **BlizzardInterfaceResources (enums, templates, globals)**: https://github.com/Ketho/BlizzardInterfaceResources
 
 Do not guess API function signatures, event names, or enum values. If unsure whether a function exists or what arguments it takes, say so rather than fabricating a plausible-looking call.
+
+## Resource tracking reference addon
+
+- **Sensei Class Resource Bar**: https://github.com/Snsei987/SenseiClassResourceBar
+
+When implementing class resource tracking (combo points, runes, chi, etc.), review this addon's approach for reference on API usage and event handling. Do not copy code -- use it to understand which APIs and events are involved.

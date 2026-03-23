@@ -95,7 +95,10 @@ local barsOffsetYSetting = Settings.RegisterProxySetting(
     "Vertical offset",
     0,
     function() return YaworsCleanUIDB.classResourceBarsOffsetY end,
-    function(value) YaworsCleanUIDB.classResourceBarsOffsetY = value end
+    function(value)
+        YaworsCleanUIDB.classResourceBarsOffsetY = value
+        YaworsCleanUI.BarClassResources.applySettings()
+    end
 )
 local barsOffsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
 barsOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
@@ -108,7 +111,10 @@ local barsOffsetXSetting = Settings.RegisterProxySetting(
     "Horizontal offset",
     0,
     function() return YaworsCleanUIDB.classResourceBarsOffsetX end,
-    function(value) YaworsCleanUIDB.classResourceBarsOffsetX = value end
+    function(value)
+        YaworsCleanUIDB.classResourceBarsOffsetX = value
+        YaworsCleanUI.BarClassResources.applySettings()
+    end
 )
 local barsOffsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
 barsOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
@@ -121,13 +127,18 @@ local barsScaleSetting = Settings.RegisterProxySetting(
     "Scale",
     100,
     function() return YaworsCleanUIDB.classResourceBarsScale end,
-    function(value) YaworsCleanUIDB.classResourceBarsScale = value end
+    function(value)
+        YaworsCleanUIDB.classResourceBarsScale = value
+        YaworsCleanUI.BarClassResources.applySettings()
+    end
 )
 local barsScaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
 barsScaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, barsScaleSetting, barsScaleOptions, "Scale of class bar frames (percentage).")
 
-addCheckBox("deathKnightRunicPower", "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function() end)
+addCheckBox("deathKnightRunicPower", "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()
+    YaworsCleanUI.BarClassResources.applySettings()
+end)
 
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.
