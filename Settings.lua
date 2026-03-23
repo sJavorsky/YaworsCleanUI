@@ -73,7 +73,10 @@ local scaleSetting = Settings.RegisterProxySetting(
     "Scale",
     100,
     function() return YaworsCleanUIDB.classResourcePointsScale end,
-    function(value) YaworsCleanUIDB.classResourcePointsScale = value end
+    function(value)
+        YaworsCleanUIDB.classResourcePointsScale = value
+        YaworsCleanUI.CombatResources.applySettings()
+    end
 )
 local scaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
 scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)

@@ -20,8 +20,8 @@ local classConfigs = {
     },
 }
 
--- Saved once in init() so OnEnter/OnLeave can be restored when the setting is disabled
-local savedTooltipScripts = nil
+-- Saved once in init() so scripts and scale can be restored when the setting is disabled
+local savedState = nil
 
 local function applyClassResources(config)
     local frame = config.frame()
@@ -33,15 +33,17 @@ local function applyClassResources(config)
         frame:SetPoint("CENTER", UIParent, "CENTER",
             YaworsCleanUIDB.classResourcePointsOffsetX,
             YaworsCleanUIDB.classResourcePointsOffsetY)
+        frame:SetScale(YaworsCleanUIDB.classResourcePointsScale / 100)
         frame:SetScript("OnEnter", nil)
         frame:SetScript("OnLeave", nil)
     else
         local anchor = config.restoreAnchor
         frame:ClearAllPoints()
         frame:SetPoint(anchor.point, _G[anchor.relativeTo], anchor.relativePoint, anchor.x, anchor.y)
-        if savedTooltipScripts then
-            frame:SetScript("OnEnter", savedTooltipScripts.onEnter)
-            frame:SetScript("OnLeave", savedTooltipScripts.onLeave)
+        if savedState then
+            frame:SetScale(savedState.scale)
+            frame:SetScript("OnEnter", savedState.onEnter)
+            frame:SetScript("OnLeave", savedState.onLeave)
         end
     end
 end
@@ -61,10 +63,11 @@ function module.init()
 
     local frame = config.frame()
     if frame then
-        -- Save tooltip scripts before any override so they can be restored later
-        savedTooltipScripts = {
+        -- Save scripts and scale before any override so they can be restored later
+        savedState = {
             onEnter = frame:GetScript("OnEnter"),
             onLeave = frame:GetScript("OnLeave"),
+            scale   = frame:GetScale(),
         }
         -- WoW repositions managed frames on various events (zone change, combat, etc.);
         -- re-apply our position whenever the frame is shown
