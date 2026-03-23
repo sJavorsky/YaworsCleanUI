@@ -3,10 +3,14 @@ YaworsCleanUI = {}
 local DEFAULTS = {
     hideLooting = false,
     hideBags = false,
-    deathKnightRunes = false,
     classResourcePointsOffsetY = 0,
     classResourcePointsOffsetX = 0,
     classResourcePointsScale = 100,
+    deathKnightRunes = false,
+    classResourceBarsOffsetY = 0,
+    classResourceBarsOffsetX = 0,
+    classResourceBarsScale = 100,
+    deathKnightRunicPower = false,
 }
 
 local registeredModules = {}

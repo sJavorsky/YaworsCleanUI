@@ -82,9 +82,52 @@ local scaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
 scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, scaleSetting, scaleOptions, "Scale of class resource frames (percentage).")
 
-addCheckBox("deathKnightRunes", "Death Knight runes", "Move the Death Knight runes to the center of the screen.", function()
+addCheckBox("deathKnightRunes", "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", function()
     YaworsCleanUI.CombatResources.applySettings()
 end)
+
+layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Bars Class Resources"))
+
+local barsOffsetYSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_classResourceBarsOffsetY",
+    Settings.VarType.Number,
+    "Vertical offset",
+    0,
+    function() return YaworsCleanUIDB.classResourceBarsOffsetY end,
+    function(value) YaworsCleanUIDB.classResourceBarsOffsetY = value end
+)
+local barsOffsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
+barsOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, barsOffsetYSetting, barsOffsetYOptions, "Vertical offset for class bar frames.")
+
+local barsOffsetXSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_classResourceBarsOffsetX",
+    Settings.VarType.Number,
+    "Horizontal offset",
+    0,
+    function() return YaworsCleanUIDB.classResourceBarsOffsetX end,
+    function(value) YaworsCleanUIDB.classResourceBarsOffsetX = value end
+)
+local barsOffsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
+barsOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, barsOffsetXSetting, barsOffsetXOptions, "Horizontal offset for class bar frames.")
+
+local barsScaleSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_classResourceBarsScale",
+    Settings.VarType.Number,
+    "Scale",
+    100,
+    function() return YaworsCleanUIDB.classResourceBarsScale end,
+    function(value) YaworsCleanUIDB.classResourceBarsScale = value end
+)
+local barsScaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
+barsScaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, barsScaleSetting, barsScaleOptions, "Scale of class bar frames (percentage).")
+
+addCheckBox("deathKnightRunicPower", "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function() end)
 
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.
