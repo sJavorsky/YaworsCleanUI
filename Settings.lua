@@ -37,7 +37,7 @@ local offsetYSetting = Settings.RegisterProxySetting(
     "YaworsCleanUI_classResourcePointsOffsetY",
     Settings.VarType.Number,
     "Vertical offset",
-    Settings.Default.Disabled,
+    0,
     function() return YaworsCleanUIDB.classResourcePointsOffsetY end,
     function(value) YaworsCleanUIDB.classResourcePointsOffsetY = value end
 )
@@ -51,7 +51,7 @@ local offsetXSetting = Settings.RegisterProxySetting(
     "YaworsCleanUI_classResourcePointsOffsetX",
     Settings.VarType.Number,
     "Horizontal offset",
-    Settings.Default.Disabled,
+    0,
     function() return YaworsCleanUIDB.classResourcePointsOffsetX end,
     function(value) YaworsCleanUIDB.classResourcePointsOffsetX = value end
 )
@@ -65,7 +65,7 @@ local scaleSetting = Settings.RegisterProxySetting(
     "YaworsCleanUI_classResourcePointsScale",
     Settings.VarType.Number,
     "Scale",
-    Settings.Default.Disabled,
+    100,
     function() return YaworsCleanUIDB.classResourcePointsScale end,
     function(value) YaworsCleanUIDB.classResourcePointsScale = value end
 )
