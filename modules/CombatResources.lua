@@ -23,10 +23,15 @@ local classConfigs = {
 -- Saved once in init() so scripts and scale can be restored when the setting is disabled
 local savedState = nil
 
+-- Guard flag: true while our own code is calling SetPoint, so the hooksecurefunc
+-- callback knows to ignore the call and avoid infinite recursion.
+local isRepositioning = false
+
 local function applyClassResources(config)
     local frame = config.frame()
     if not frame then return end
 
+    isRepositioning = true
     if YaworsCleanUIDB[config.settingKey] then
         frame:ClearAllPoints()
         -- UIParent spans the full screen; its center is the screen center
@@ -46,6 +51,7 @@ local function applyClassResources(config)
             frame:SetScript("OnLeave", savedState.onLeave)
         end
     end
+    isRepositioning = false
 end
 
 function module.applySettings()
@@ -72,6 +78,21 @@ function module.init()
         -- WoW repositions managed frames on various events (zone change, combat, etc.);
         -- re-apply our position whenever the frame is shown
         frame:HookScript("OnShow", module.applySettings)
+
+        -- Intercept external SetPoint calls (e.g. WoW's layout manager restoring the
+        -- default anchor after UIParent is re-shown by addons like Dialogue UI).
+        -- hooksecurefunc fires after the original SetPoint completes; we revert to
+        -- our position unless the call came from our own code (guarded by isRepositioning).
+        hooksecurefunc(frame, "SetPoint", function()
+            if isRepositioning then return end
+            if not YaworsCleanUIDB[config.settingKey] then return end
+            isRepositioning = true
+            frame:ClearAllPoints()
+            frame:SetPoint("CENTER", UIParent, "CENTER",
+                YaworsCleanUIDB.classResourcePointsOffsetX,
+                YaworsCleanUIDB.classResourcePointsOffsetY)
+            isRepositioning = false
+        end)
     end
 
     local eventFrame = CreateFrame("Frame")

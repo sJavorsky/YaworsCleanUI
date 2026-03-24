@@ -88,8 +88,14 @@ When implementing or modifying addon features, consult these resources for accur
 
 Do not guess API function signatures, event names, or enum values. If unsure whether a function exists or what arguments it takes, say so rather than fabricating a plausible-looking call.
 
-## Resource tracking reference addon
+## Addons references
 
-- **Sensei Class Resource Bar**: `SenseiClassResourceBar-main/` (cloned locally)
+- **Sensei Class Resource Bar**: cloned locally in `../external/SenseiClassResourceBar-main/`
 
-When implementing class resource tracking (combo points, runes, chi, etc.), review this addon's approach for reference on API usage and event handling. Do not copy code -- use it to understand which APIs and events are involved.
+  When implementing class resource tracking (rage, energy, etc), review this addon's approach for reference on API usage and event handling.
+
+- **MoveAnything**: cloned locally in `../external/MoveAnything/`
+
+  When implementing frame moving or repositioning functionality, review this addon's approach for reference on how to hook, anchor, and reposition default UI frames.
+
+- **Dialogue UI** cloned locally in `../external/YUI-Dialogue-main/`
