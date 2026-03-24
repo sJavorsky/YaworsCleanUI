@@ -41,6 +41,8 @@ local function applyClassResources(config)
         frame:SetScale(YaworsCleanUIDB.classResourcePointsScale / 100)
         frame:SetScript("OnEnter", nil)
         frame:SetScript("OnLeave", nil)
+        -- Centered over the screen — clicks should fall through to frames beneath
+        frame:EnableMouse(false)
     else
         local anchor = config.restoreAnchor
         frame:ClearAllPoints()
@@ -49,6 +51,7 @@ local function applyClassResources(config)
             frame:SetScale(savedState.scale)
             frame:SetScript("OnEnter", savedState.onEnter)
             frame:SetScript("OnLeave", savedState.onLeave)
+            frame:EnableMouse(savedState.mouseEnabled)
         end
     end
     isRepositioning = false
@@ -71,9 +74,10 @@ function module.init()
     if frame then
         -- Save scripts and scale before any override so they can be restored later
         savedState = {
-            onEnter = frame:GetScript("OnEnter"),
-            onLeave = frame:GetScript("OnLeave"),
-            scale   = frame:GetScale(),
+            onEnter      = frame:GetScript("OnEnter"),
+            onLeave      = frame:GetScript("OnLeave"),
+            scale        = frame:GetScale(),
+            mouseEnabled = frame:IsMouseEnabled(),
         }
         -- WoW repositions managed frames on various events (zone change, combat, etc.);
         -- re-apply our position whenever the frame is shown
