@@ -90,6 +90,6 @@ Do not guess API function signatures, event names, or enum values. If unsure whe
 
 ## Resource tracking reference addon
 
-- **Sensei Class Resource Bar**: https://github.com/Snsei987/SenseiClassResourceBar
+- **Sensei Class Resource Bar**: `SenseiClassResourceBar-main/` (cloned locally)
 
 When implementing class resource tracking (combo points, runes, chi, etc.), review this addon's approach for reference on API usage and event handling. Do not copy code -- use it to understand which APIs and events are involved.
