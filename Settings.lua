@@ -182,6 +182,54 @@ local playerOffsetXOptions = Settings.CreateSliderOptions(-200, 200, 1)
 playerOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, playerOffsetXSetting, playerOffsetXOptions, "Horizontal offset for the position cross.")
 
+local playerHeightSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionHeight",
+    Settings.VarType.Number,
+    "Height",
+    40,
+    function() return YaworsCleanUIDB.playerPositionHeight end,
+    function(value)
+        YaworsCleanUIDB.playerPositionHeight = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerHeightOptions = Settings.CreateSliderOptions(10, 200, 1)
+playerHeightOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerHeightSetting, playerHeightOptions, "Height of the vertical arm of the cross.")
+
+local playerWidthSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionWidth",
+    Settings.VarType.Number,
+    "Width",
+    40,
+    function() return YaworsCleanUIDB.playerPositionWidth end,
+    function(value)
+        YaworsCleanUIDB.playerPositionWidth = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerWidthOptions = Settings.CreateSliderOptions(10, 200, 1)
+playerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerWidthSetting, playerWidthOptions, "Width of the horizontal arm of the cross.")
+
+local playerThicknessSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionThickness",
+    Settings.VarType.Number,
+    "Thickness",
+    2,
+    function() return YaworsCleanUIDB.playerPositionThickness end,
+    function(value)
+        YaworsCleanUIDB.playerPositionThickness = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerThicknessOptions = Settings.CreateSliderOptions(1, 20, 1)
+playerThicknessOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerThicknessSetting, playerThicknessOptions, "Thickness of the cross lines; border scales with it.")
+
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.
 Settings.RegisterAddOnCategory(category)

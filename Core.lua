@@ -15,6 +15,15 @@ local DEFAULTS = {
     playerPositionCombatOnly = false,
     playerPositionOffsetY = 0,
     playerPositionOffsetX = 0,
+    playerPositionHeight = 40,
+    playerPositionWidth = 40,
+    playerPositionThickness = 2,
+    playerPositionInnerR = 1,
+    playerPositionInnerG = 1,
+    playerPositionInnerB = 1,
+    playerPositionBorderR = 0,
+    playerPositionBorderG = 0,
+    playerPositionBorderB = 0,
 }
 
 local registeredModules = {}

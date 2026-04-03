@@ -2,40 +2,27 @@ local module = {}
 YaworsCleanUI.PlayerPosition = module
 YaworsCleanUI.registerModule(module)
 
-local CROSS_THICKNESS = 2
-local CROSS_LENGTH = 40
-local CROSS_BORDER = 2
-
 local crossFrame
 
 local function createCrossFrame()
     local frame = CreateFrame("Frame", "YaworsCleanUI_PlayerPosition", UIParent)
-    frame:SetSize(CROSS_LENGTH, CROSS_LENGTH)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     -- Clicks pass through to the world beneath the frame
     frame:EnableMouse(false)
     frame:SetFrameStrata("MEDIUM")
     frame:Hide()
 
-    local horizontalBorder = frame:CreateTexture(nil, "BACKGROUND")
-    horizontalBorder:SetColorTexture(0, 0, 0, 1)
-    horizontalBorder:SetSize(CROSS_LENGTH, CROSS_THICKNESS + CROSS_BORDER * 2)
-    horizontalBorder:SetPoint("CENTER", frame, "CENTER", 0, 0)
+    frame.horizontalBorder = frame:CreateTexture(nil, "BACKGROUND")
+    frame.horizontalBorder:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
-    local horizontal = frame:CreateTexture(nil, "OVERLAY")
-    horizontal:SetColorTexture(1, 1, 1, 1)
-    horizontal:SetSize(CROSS_LENGTH, CROSS_THICKNESS)
-    horizontal:SetPoint("CENTER", frame, "CENTER", 0, 0)
+    frame.horizontal = frame:CreateTexture(nil, "OVERLAY")
+    frame.horizontal:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
-    local verticalBorder = frame:CreateTexture(nil, "BACKGROUND")
-    verticalBorder:SetColorTexture(0, 0, 0, 1)
-    verticalBorder:SetSize(CROSS_THICKNESS + CROSS_BORDER * 2, CROSS_LENGTH)
-    verticalBorder:SetPoint("CENTER", frame, "CENTER", 0, 0)
+    frame.verticalBorder = frame:CreateTexture(nil, "BACKGROUND")
+    frame.verticalBorder:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
-    local vertical = frame:CreateTexture(nil, "OVERLAY")
-    vertical:SetColorTexture(1, 1, 1, 1)
-    vertical:SetSize(CROSS_THICKNESS, CROSS_LENGTH)
-    vertical:SetPoint("CENTER", frame, "CENTER", 0, 0)
+    frame.vertical = frame:CreateTexture(nil, "OVERLAY")
+    frame.vertical:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
     return frame
 end
@@ -72,6 +59,38 @@ end
 
 function module.applySettings()
     if not crossFrame then return end
+
+    local width     = YaworsCleanUIDB.playerPositionWidth
+    local height    = YaworsCleanUIDB.playerPositionHeight
+    local thickness = YaworsCleanUIDB.playerPositionThickness
+    -- Border is bonded to thickness: same px as the inner line on each side
+    local border    = thickness
+
+    crossFrame:SetSize(width, height)
+
+    crossFrame.horizontalBorder:SetColorTexture(
+        YaworsCleanUIDB.playerPositionBorderR,
+        YaworsCleanUIDB.playerPositionBorderG,
+        YaworsCleanUIDB.playerPositionBorderB, 1)
+    crossFrame.horizontalBorder:SetSize(width, thickness + border * 2)
+
+    crossFrame.horizontal:SetColorTexture(
+        YaworsCleanUIDB.playerPositionInnerR,
+        YaworsCleanUIDB.playerPositionInnerG,
+        YaworsCleanUIDB.playerPositionInnerB, 1)
+    crossFrame.horizontal:SetSize(width, thickness)
+
+    crossFrame.verticalBorder:SetColorTexture(
+        YaworsCleanUIDB.playerPositionBorderR,
+        YaworsCleanUIDB.playerPositionBorderG,
+        YaworsCleanUIDB.playerPositionBorderB, 1)
+    crossFrame.verticalBorder:SetSize(thickness + border * 2, height)
+
+    crossFrame.vertical:SetColorTexture(
+        YaworsCleanUIDB.playerPositionInnerR,
+        YaworsCleanUIDB.playerPositionInnerG,
+        YaworsCleanUIDB.playerPositionInnerB, 1)
+    crossFrame.vertical:SetSize(thickness, height)
 
     crossFrame:ClearAllPoints()
     crossFrame:SetPoint(
