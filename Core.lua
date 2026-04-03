@@ -11,6 +11,9 @@ local DEFAULTS = {
     classResourceBarsOffsetX = 0,
     classResourceBarsScale = 100,
     deathKnightRunicPower = false,
+    playerPositionEnabled = false,
+    playerPositionOffsetY = 0,
+    playerPositionOffsetX = 0,
 }
 
 local registeredModules = {}

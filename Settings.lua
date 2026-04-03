@@ -140,6 +140,44 @@ addCheckBox("deathKnightRunicPower", "Death Knight Runic Power", "Add the Death 
     YaworsCleanUI.BarClassResources.applySettings()
 end)
 
+layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Player Position"))
+
+addCheckBox("playerPositionEnabled", "Show position cross", "Draws a cross at the center of the screen to mark your character's position.", function()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end)
+
+local playerOffsetYSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionOffsetY",
+    Settings.VarType.Number,
+    "Vertical offset",
+    0,
+    function() return YaworsCleanUIDB.playerPositionOffsetY end,
+    function(value)
+        YaworsCleanUIDB.playerPositionOffsetY = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerOffsetYOptions = Settings.CreateSliderOptions(-500, 500, 1)
+playerOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerOffsetYSetting, playerOffsetYOptions, "Vertical offset for the position cross.")
+
+local playerOffsetXSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionOffsetX",
+    Settings.VarType.Number,
+    "Horizontal offset",
+    0,
+    function() return YaworsCleanUIDB.playerPositionOffsetX end,
+    function(value)
+        YaworsCleanUIDB.playerPositionOffsetX = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerOffsetXOptions = Settings.CreateSliderOptions(-200, 200, 1)
+playerOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerOffsetXSetting, playerOffsetXOptions, "Horizontal offset for the position cross.")
+
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.
 Settings.RegisterAddOnCategory(category)

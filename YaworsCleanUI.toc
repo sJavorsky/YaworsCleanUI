@@ -10,3 +10,4 @@ Settings.lua
 modules/HideElements.lua
 modules/CombatResources.lua
 modules/BarClassResources.lua
+modules/PlayerPosition.lua
