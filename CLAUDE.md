@@ -11,12 +11,13 @@ A personal UI cleanup addon replacing functionality previously handled by WeakAu
 Modular — one file per feature/concern. New features get their own file, registered in the TOC.
 
 ```
-YaworsCleanUI.toc       -- addon manifest
-Core.lua                -- addon table, SavedVariables init, event backbone
-Settings.lua            -- Blizzard Interface Options panel registration
+YaworsCleanUI.toc           -- addon manifest
+Core.lua                    -- addon table, SavedVariables init, event backbone
+Settings.lua                -- Blizzard Interface Options panel registration
 modules/
-  HideElements.lua      -- hiding loot window, bag icons, etc.
-  ChatFilter.lua        -- filtering chat spam (spell learned/unlearned, etc.)
+  HideElements.lua          -- hiding loot window, bag icons, etc.
+  CombatResources.lua       -- combat resource bars (rage, energy, etc.)
+  BarClassResources.lua     -- class-specific resource bar (e.g. DK Runic Power)
 ```
 
 Add new modules under `modules/`. Register them in the TOC after Core.lua and Settings.lua.
@@ -93,9 +94,3 @@ Do not guess API function signatures, event names, or enum values. If unsure whe
 - **Sensei Class Resource Bar**: cloned locally in `../external/SenseiClassResourceBar-main/`
 
   When implementing class resource tracking (rage, energy, etc), review this addon's approach for reference on API usage and event handling.
-
-- **MoveAnything**: cloned locally in `../external/MoveAnything/`
-
-  When implementing frame moving or repositioning functionality, review this addon's approach for reference on how to hook, anchor, and reposition default UI frames.
-
-- **Dialogue UI** cloned locally in `../external/YUI-Dialogue-main/`
