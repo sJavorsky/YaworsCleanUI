@@ -12,6 +12,7 @@ local DEFAULTS = {
     classResourceBarsScale = 100,
     deathKnightRunicPower = false,
     playerPositionEnabled = false,
+    playerPositionCombatOnly = false,
     playerPositionOffsetY = 0,
     playerPositionOffsetX = 0,
 }

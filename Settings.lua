@@ -146,6 +146,10 @@ addCheckBox("playerPositionEnabled", "Show position cross", "Draws a cross at th
     YaworsCleanUI.PlayerPosition.applySettings()
 end)
 
+addCheckBox("playerPositionCombatOnly", "Show only in combat", "Hides the position cross when not in combat.", function()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end)
+
 local playerOffsetYSetting = Settings.RegisterProxySetting(
     category,
     "YaworsCleanUI_playerPositionOffsetY",

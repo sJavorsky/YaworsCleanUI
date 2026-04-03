@@ -29,25 +29,46 @@ local function createCrossFrame()
     return frame
 end
 
+local function updateVisibility()
+    if not crossFrame then return end
+
+    if not YaworsCleanUIDB.playerPositionEnabled then
+        crossFrame:Hide()
+        return
+    end
+
+    if YaworsCleanUIDB.playerPositionCombatOnly and not UnitAffectingCombat("player") then
+        crossFrame:Hide()
+        return
+    end
+
+    crossFrame:Show()
+end
+
 function module.init()
     crossFrame = createCrossFrame()
+
+    -- PLAYER_REGEN_DISABLED fires on entering combat, PLAYER_REGEN_ENABLED on leaving
+    local eventFrame = CreateFrame("Frame")
+    eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    eventFrame:SetScript("OnEvent", function()
+        updateVisibility()
+    end)
+
     module.applySettings()
 end
 
 function module.applySettings()
     if not crossFrame then return end
 
-    if YaworsCleanUIDB.playerPositionEnabled then
-        crossFrame:ClearAllPoints()
-        crossFrame:SetPoint(
-            "CENTER",
-            UIParent,
-            "CENTER",
-            YaworsCleanUIDB.playerPositionOffsetX,
-            YaworsCleanUIDB.playerPositionOffsetY
-        )
-        crossFrame:Show()
-    else
-        crossFrame:Hide()
-    end
+    crossFrame:ClearAllPoints()
+    crossFrame:SetPoint(
+        "CENTER",
+        UIParent,
+        "CENTER",
+        YaworsCleanUIDB.playerPositionOffsetX,
+        YaworsCleanUIDB.playerPositionOffsetY
+    )
+    updateVisibility()
 end
