@@ -230,6 +230,41 @@ local playerThicknessOptions = Settings.CreateSliderOptions(1, 20, 1)
 playerThicknessOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, playerThicknessSetting, playerThicknessOptions, "Thickness of the cross lines; border scales with it.")
 
+local function addColorPicker(key, name, tooltip, defaultHex, rKey, gKey, bKey)
+    local setting = Settings.RegisterProxySetting(
+        category,
+        "YaworsCleanUI_" .. key,
+        Settings.VarType.String,
+        name,
+        defaultHex,
+        function()
+            return CreateColor(
+                YaworsCleanUIDB[rKey],
+                YaworsCleanUIDB[gKey],
+                YaworsCleanUIDB[bKey]
+            ):GenerateHexColor()
+        end,
+        function(value)
+            local color = CreateColorFromHexString(value)
+            YaworsCleanUIDB[rKey] = color.r
+            YaworsCleanUIDB[gKey] = color.g
+            YaworsCleanUIDB[bKey] = color.b
+            YaworsCleanUI.PlayerPosition.applySettings()
+        end
+    )
+    Settings.CreateColorSwatch(category, setting, tooltip)
+end
+
+addColorPicker("playerPositionInnerColor", "Inner cross color",
+    "Color of the inner cross lines.",
+    "ffffffff",
+    "playerPositionInnerR", "playerPositionInnerG", "playerPositionInnerB")
+
+addColorPicker("playerPositionBorderColor", "Border color",
+    "Color of the cross border outline.",
+    "ff000000",
+    "playerPositionBorderR", "playerPositionBorderG", "playerPositionBorderB")
+
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.
 Settings.RegisterAddOnCategory(category)
