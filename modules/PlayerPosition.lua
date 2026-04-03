@@ -4,6 +4,7 @@ YaworsCleanUI.registerModule(module)
 
 local CROSS_THICKNESS = 2
 local CROSS_LENGTH = 40
+local CROSS_BORDER = 2
 
 local crossFrame
 
@@ -16,10 +17,20 @@ local function createCrossFrame()
     frame:SetFrameStrata("MEDIUM")
     frame:Hide()
 
+    local horizontalBorder = frame:CreateTexture(nil, "BACKGROUND")
+    horizontalBorder:SetColorTexture(0, 0, 0, 1)
+    horizontalBorder:SetSize(CROSS_LENGTH, CROSS_THICKNESS + CROSS_BORDER * 2)
+    horizontalBorder:SetPoint("CENTER", frame, "CENTER", 0, 0)
+
     local horizontal = frame:CreateTexture(nil, "OVERLAY")
     horizontal:SetColorTexture(1, 1, 1, 1)
     horizontal:SetSize(CROSS_LENGTH, CROSS_THICKNESS)
     horizontal:SetPoint("CENTER", frame, "CENTER", 0, 0)
+
+    local verticalBorder = frame:CreateTexture(nil, "BACKGROUND")
+    verticalBorder:SetColorTexture(0, 0, 0, 1)
+    verticalBorder:SetSize(CROSS_THICKNESS + CROSS_BORDER * 2, CROSS_LENGTH)
+    verticalBorder:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
     local vertical = frame:CreateTexture(nil, "OVERLAY")
     vertical:SetColorTexture(1, 1, 1, 1)
