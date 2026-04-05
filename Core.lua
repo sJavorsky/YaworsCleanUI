@@ -1,30 +1,47 @@
 YaworsCleanUI = {}
 
 local DEFAULTS = {
-    hideLooting = false,
-    hideBags = false,
-    classResourcePointsOffsetY = 0,
-    classResourcePointsOffsetX = 0,
-    classResourcePointsScale = 100,
-    deathKnightRunes = false,
-    classResourceBarsOffsetY = 0,
-    classResourceBarsOffsetX = 0,
-    classResourceBarsScale = 100,
-    deathKnightRunicPower = false,
-    playerPositionEnabled = false,
-    playerPositionCombatOnly = false,
-    playerPositionOffsetY = 0,
-    playerPositionOffsetX = 0,
-    playerPositionHeight = 40,
-    playerPositionWidth = 40,
-    playerPositionThickness = 2,
-    playerPositionInnerR = 1,
-    playerPositionInnerG = 1,
-    playerPositionInnerB = 1,
-    playerPositionBorderR = 0,
-    playerPositionBorderG = 0,
-    playerPositionBorderB = 0,
+    hideElements = {
+        looting = false,
+        bags = false,
+    },
+    classResourcePoints = {
+        offsetY = 0,
+        offsetX = 0,
+        scale = 100,
+        deathKnightRunes = false,
+    },
+    classResourceBars = {
+        offsetY = 0,
+        offsetX = 0,
+        scale = 100,
+        deathKnightRunicPower = false,
+    },
+    playerPosition = {
+        enabled = false,
+        combatOnly = false,
+        offsetY = 0,
+        offsetX = 0,
+        height = 40,
+        width = 40,
+        thickness = 2,
+        innerColor = { r = 1, g = 1, b = 1 },
+        borderColor = { r = 0, g = 0, b = 0 },
+    },
 }
+
+local function applyDefaults(target, defaults)
+    for key, default in pairs(defaults) do
+        if type(default) == "table" then
+            if type(target[key]) ~= "table" then
+                target[key] = {}
+            end
+            applyDefaults(target[key], default)
+        elseif target[key] == nil then
+            target[key] = default
+        end
+    end
+end
 
 local registeredModules = {}
 
@@ -41,11 +58,7 @@ frame:SetScript("OnEvent", function(self, event, addonName)
     if not YaworsCleanUIDB then
         YaworsCleanUIDB = {}
     end
-    for key, default in pairs(DEFAULTS) do
-        if YaworsCleanUIDB[key] == nil then
-            YaworsCleanUIDB[key] = default
-        end
-    end
+    applyDefaults(YaworsCleanUIDB, DEFAULTS)
 
     for _, mod in ipairs(registeredModules) do
         mod.init()

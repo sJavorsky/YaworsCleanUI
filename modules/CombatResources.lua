@@ -32,13 +32,13 @@ local function applyClassResources(config)
     if not frame then return end
 
     isRepositioning = true
-    if YaworsCleanUIDB[config.settingKey] then
+    if YaworsCleanUIDB.classResourcePoints[config.settingKey] then
         frame:ClearAllPoints()
         -- UIParent spans the full screen; its center is the screen center
         frame:SetPoint("CENTER", UIParent, "CENTER",
-            YaworsCleanUIDB.classResourcePointsOffsetX,
-            YaworsCleanUIDB.classResourcePointsOffsetY)
-        frame:SetScale(YaworsCleanUIDB.classResourcePointsScale / 100)
+            YaworsCleanUIDB.classResourcePoints.offsetX,
+            YaworsCleanUIDB.classResourcePoints.offsetY)
+        frame:SetScale(YaworsCleanUIDB.classResourcePoints.scale / 100)
         frame:SetScript("OnEnter", nil)
         frame:SetScript("OnLeave", nil)
         -- Centered over the screen — clicks should fall through to frames beneath
@@ -89,12 +89,12 @@ function module.init()
         -- our position unless the call came from our own code (guarded by isRepositioning).
         hooksecurefunc(frame, "SetPoint", function()
             if isRepositioning then return end
-            if not YaworsCleanUIDB[config.settingKey] then return end
+            if not YaworsCleanUIDB.classResourcePoints[config.settingKey] then return end
             isRepositioning = true
             frame:ClearAllPoints()
             frame:SetPoint("CENTER", UIParent, "CENTER",
-                YaworsCleanUIDB.classResourcePointsOffsetX,
-                YaworsCleanUIDB.classResourcePointsOffsetY)
+                YaworsCleanUIDB.classResourcePoints.offsetX,
+                YaworsCleanUIDB.classResourcePoints.offsetY)
             isRepositioning = false
         end)
     end

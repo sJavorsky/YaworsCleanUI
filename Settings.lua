@@ -3,18 +3,18 @@
 -- passed to Settings.Create* functions and RegisterAddOnCategory.
 local category, layout = Settings.RegisterVerticalLayoutCategory("Yawor's Clean UI")
 
-local function addCheckBox(key, name, tooltip, callback)
+local function addCheckBox(group, key, name, tooltip, callback)
     -- RegisterProxySetting delegates storage to our own getter/setter rather
     -- than a CVar; the key must be globally unique across all addons.
     local setting = Settings.RegisterProxySetting(
         category,
-        "YaworsCleanUI_" .. key,
+        "YaworsCleanUI_" .. group .. "_" .. key,
         Settings.VarType.Boolean,
         name,
         false,
-        function() return YaworsCleanUIDB[key] end,
+        function() return YaworsCleanUIDB[group][key] end,
         function(value)
-            YaworsCleanUIDB[key] = value
+            YaworsCleanUIDB[group][key] = value
             callback()
         end
     )
@@ -23,10 +23,10 @@ end
 
 layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Hide UI elements"))
 
-addCheckBox("hideLooting", "Hide looting window", "Hides the loot frame when looting.", function()
+addCheckBox("hideElements", "looting", "Hide looting window", "Hides the loot frame when looting.", function()
     YaworsCleanUI.HideElements.applySettings()
 end)
-addCheckBox("hideBags", "Hide bag icons", "Hides the bag bar icons.", function()
+addCheckBox("hideElements", "bags", "Hide bag icons", "Hides the bag bar icons.", function()
     YaworsCleanUI.HideElements.applySettings()
 end)
 
@@ -38,9 +38,9 @@ local offsetYSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Vertical offset",
     0,
-    function() return YaworsCleanUIDB.classResourcePointsOffsetY end,
+    function() return YaworsCleanUIDB.classResourcePoints.offsetY end,
     function(value)
-        YaworsCleanUIDB.classResourcePointsOffsetY = value
+        YaworsCleanUIDB.classResourcePoints.offsetY = value
         YaworsCleanUI.CombatResources.applySettings()
     end
 )
@@ -55,9 +55,9 @@ local offsetXSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Horizontal offset",
     0,
-    function() return YaworsCleanUIDB.classResourcePointsOffsetX end,
+    function() return YaworsCleanUIDB.classResourcePoints.offsetX end,
     function(value)
-        YaworsCleanUIDB.classResourcePointsOffsetX = value
+        YaworsCleanUIDB.classResourcePoints.offsetX = value
         YaworsCleanUI.CombatResources.applySettings()
     end
 )
@@ -72,9 +72,9 @@ local scaleSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Scale",
     100,
-    function() return YaworsCleanUIDB.classResourcePointsScale end,
+    function() return YaworsCleanUIDB.classResourcePoints.scale end,
     function(value)
-        YaworsCleanUIDB.classResourcePointsScale = value
+        YaworsCleanUIDB.classResourcePoints.scale = value
         YaworsCleanUI.CombatResources.applySettings()
     end
 )
@@ -82,7 +82,8 @@ local scaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
 scaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, scaleSetting, scaleOptions, "Scale of class resource frames (percentage).")
 
-addCheckBox("deathKnightRunes", "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", function()
+addCheckBox("classResourcePoints", "deathKnightRunes",
+    "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", function()
     YaworsCleanUI.CombatResources.applySettings()
 end)
 
@@ -94,9 +95,9 @@ local barsOffsetYSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Vertical offset",
     0,
-    function() return YaworsCleanUIDB.classResourceBarsOffsetY end,
+    function() return YaworsCleanUIDB.classResourceBars.offsetY end,
     function(value)
-        YaworsCleanUIDB.classResourceBarsOffsetY = value
+        YaworsCleanUIDB.classResourceBars.offsetY = value
         YaworsCleanUI.BarClassResources.applySettings()
     end
 )
@@ -110,9 +111,9 @@ local barsOffsetXSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Horizontal offset",
     0,
-    function() return YaworsCleanUIDB.classResourceBarsOffsetX end,
+    function() return YaworsCleanUIDB.classResourceBars.offsetX end,
     function(value)
-        YaworsCleanUIDB.classResourceBarsOffsetX = value
+        YaworsCleanUIDB.classResourceBars.offsetX = value
         YaworsCleanUI.BarClassResources.applySettings()
     end
 )
@@ -126,9 +127,9 @@ local barsScaleSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Scale",
     100,
-    function() return YaworsCleanUIDB.classResourceBarsScale end,
+    function() return YaworsCleanUIDB.classResourceBars.scale end,
     function(value)
-        YaworsCleanUIDB.classResourceBarsScale = value
+        YaworsCleanUIDB.classResourceBars.scale = value
         YaworsCleanUI.BarClassResources.applySettings()
     end
 )
@@ -136,17 +137,20 @@ local barsScaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
 barsScaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, barsScaleSetting, barsScaleOptions, "Scale of class bar frames (percentage).")
 
-addCheckBox("deathKnightRunicPower", "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()
+addCheckBox("classResourceBars", "deathKnightRunicPower",
+    "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()
     YaworsCleanUI.BarClassResources.applySettings()
 end)
 
 layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Player Position"))
 
-addCheckBox("playerPositionEnabled", "Show position cross", "Draws a cross at the center of the screen to mark your character's position.", function()
+addCheckBox("playerPosition", "enabled",
+    "Show position cross", "Draws a cross at the center of the screen to mark your character's position.", function()
     YaworsCleanUI.PlayerPosition.applySettings()
 end)
 
-addCheckBox("playerPositionCombatOnly", "Show only in combat", "Hides the position cross when not in combat.", function()
+addCheckBox("playerPosition", "combatOnly",
+    "Show only in combat", "Hides the position cross when not in combat.", function()
     YaworsCleanUI.PlayerPosition.applySettings()
 end)
 
@@ -156,9 +160,9 @@ local playerOffsetYSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Vertical offset",
     0,
-    function() return YaworsCleanUIDB.playerPositionOffsetY end,
+    function() return YaworsCleanUIDB.playerPosition.offsetY end,
     function(value)
-        YaworsCleanUIDB.playerPositionOffsetY = value
+        YaworsCleanUIDB.playerPosition.offsetY = value
         YaworsCleanUI.PlayerPosition.applySettings()
     end
 )
@@ -172,9 +176,9 @@ local playerOffsetXSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Horizontal offset",
     0,
-    function() return YaworsCleanUIDB.playerPositionOffsetX end,
+    function() return YaworsCleanUIDB.playerPosition.offsetX end,
     function(value)
-        YaworsCleanUIDB.playerPositionOffsetX = value
+        YaworsCleanUIDB.playerPosition.offsetX = value
         YaworsCleanUI.PlayerPosition.applySettings()
     end
 )
@@ -188,9 +192,9 @@ local playerHeightSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Height",
     40,
-    function() return YaworsCleanUIDB.playerPositionHeight end,
+    function() return YaworsCleanUIDB.playerPosition.height end,
     function(value)
-        YaworsCleanUIDB.playerPositionHeight = value
+        YaworsCleanUIDB.playerPosition.height = value
         YaworsCleanUI.PlayerPosition.applySettings()
     end
 )
@@ -204,9 +208,9 @@ local playerWidthSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Width",
     40,
-    function() return YaworsCleanUIDB.playerPositionWidth end,
+    function() return YaworsCleanUIDB.playerPosition.width end,
     function(value)
-        YaworsCleanUIDB.playerPositionWidth = value
+        YaworsCleanUIDB.playerPosition.width = value
         YaworsCleanUI.PlayerPosition.applySettings()
     end
 )
@@ -220,9 +224,9 @@ local playerThicknessSetting = Settings.RegisterProxySetting(
     Settings.VarType.Number,
     "Thickness",
     2,
-    function() return YaworsCleanUIDB.playerPositionThickness end,
+    function() return YaworsCleanUIDB.playerPosition.thickness end,
     function(value)
-        YaworsCleanUIDB.playerPositionThickness = value
+        YaworsCleanUIDB.playerPosition.thickness = value
         YaworsCleanUI.PlayerPosition.applySettings()
     end
 )
@@ -230,40 +234,38 @@ local playerThicknessOptions = Settings.CreateSliderOptions(1, 20, 1)
 playerThicknessOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, playerThicknessSetting, playerThicknessOptions, "Thickness of the cross lines; border scales with it.")
 
-local function addColorPicker(key, name, tooltip, defaultHex, rKey, gKey, bKey)
+local function addColorPicker(group, colorKey, name, tooltip, defaultHex, callback)
     local setting = Settings.RegisterProxySetting(
         category,
-        "YaworsCleanUI_" .. key,
+        "YaworsCleanUI_" .. group .. "_" .. colorKey,
         Settings.VarType.String,
         name,
         defaultHex,
         function()
-            return CreateColor(
-                YaworsCleanUIDB[rKey],
-                YaworsCleanUIDB[gKey],
-                YaworsCleanUIDB[bKey]
-            ):GenerateHexColor()
+            local colorTable = YaworsCleanUIDB[group][colorKey]
+            return CreateColor(colorTable.r, colorTable.g, colorTable.b):GenerateHexColor()
         end,
         function(value)
             local color = CreateColorFromHexString(value)
-            YaworsCleanUIDB[rKey] = color.r
-            YaworsCleanUIDB[gKey] = color.g
-            YaworsCleanUIDB[bKey] = color.b
-            YaworsCleanUI.PlayerPosition.applySettings()
+            local colorTable = YaworsCleanUIDB[group][colorKey]
+            colorTable.r = color.r
+            colorTable.g = color.g
+            colorTable.b = color.b
+            callback()
         end
     )
     Settings.CreateColorSwatch(category, setting, tooltip)
 end
 
-addColorPicker("playerPositionInnerColor", "Inner cross color",
-    "Color of the inner cross lines.",
-    "ffffffff",
-    "playerPositionInnerR", "playerPositionInnerG", "playerPositionInnerB")
+addColorPicker("playerPosition", "innerColor",
+    "Inner cross color", "Color of the inner cross lines.", "ffffffff", function()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end)
 
-addColorPicker("playerPositionBorderColor", "Border color",
-    "Color of the cross border outline.",
-    "ff000000",
-    "playerPositionBorderR", "playerPositionBorderG", "playerPositionBorderB")
+addColorPicker("playerPosition", "borderColor",
+    "Border color", "Color of the cross border outline.", "ff000000", function()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end)
 
 -- RegisterAddOnCategory places the category under the AddOns section of the
 -- Blizzard Interface Options panel.

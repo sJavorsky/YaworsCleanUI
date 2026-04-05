@@ -71,7 +71,7 @@ end
 function module.applySettings()
     if not barFrame then return end
 
-    if not YaworsCleanUIDB[activeConfig.settingKey] then
+    if not YaworsCleanUIDB.classResourceBars[activeConfig.settingKey] then
         barFrame:Hide()
         return
     end
@@ -80,9 +80,9 @@ function module.applySettings()
     barFrame:ClearAllPoints()
     -- UIParent spans the full screen; its center is the screen center
     barFrame:SetPoint("CENTER", UIParent, "CENTER",
-        YaworsCleanUIDB.classResourceBarsOffsetX,
-        YaworsCleanUIDB.classResourceBarsOffsetY)
-    barFrame:SetScale(YaworsCleanUIDB.classResourceBarsScale / 100)
+        YaworsCleanUIDB.classResourceBars.offsetX,
+        YaworsCleanUIDB.classResourceBars.offsetY)
+    barFrame:SetScale(YaworsCleanUIDB.classResourceBars.scale / 100)
 end
 
 function module.init()

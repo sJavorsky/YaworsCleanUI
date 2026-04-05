@@ -30,12 +30,12 @@ end
 local function updateVisibility()
     if not crossFrame then return end
 
-    if not YaworsCleanUIDB.playerPositionEnabled then
+    if not YaworsCleanUIDB.playerPosition.enabled then
         crossFrame:Hide()
         return
     end
 
-    if YaworsCleanUIDB.playerPositionCombatOnly and not UnitAffectingCombat("player") then
+    if YaworsCleanUIDB.playerPosition.combatOnly and not UnitAffectingCombat("player") then
         crossFrame:Hide()
         return
     end
@@ -60,45 +60,31 @@ end
 function module.applySettings()
     if not crossFrame then return end
 
-    local width     = YaworsCleanUIDB.playerPositionWidth
-    local height    = YaworsCleanUIDB.playerPositionHeight
-    local thickness = YaworsCleanUIDB.playerPositionThickness
+    local settings  = YaworsCleanUIDB.playerPosition
+    local width     = settings.width
+    local height    = settings.height
+    local thickness = settings.thickness
     -- Border is bonded to thickness: same px as the inner line on each side
     local border    = thickness
 
     crossFrame:SetSize(width, height)
 
-    crossFrame.horizontalBorder:SetColorTexture(
-        YaworsCleanUIDB.playerPositionBorderR,
-        YaworsCleanUIDB.playerPositionBorderG,
-        YaworsCleanUIDB.playerPositionBorderB, 1)
+    local borderColor = settings.borderColor
+    local innerColor  = settings.innerColor
+
+    crossFrame.horizontalBorder:SetColorTexture(borderColor.r, borderColor.g, borderColor.b, 1)
     crossFrame.horizontalBorder:SetSize(width, thickness + border * 2)
 
-    crossFrame.horizontal:SetColorTexture(
-        YaworsCleanUIDB.playerPositionInnerR,
-        YaworsCleanUIDB.playerPositionInnerG,
-        YaworsCleanUIDB.playerPositionInnerB, 1)
+    crossFrame.horizontal:SetColorTexture(innerColor.r, innerColor.g, innerColor.b, 1)
     crossFrame.horizontal:SetSize(width, thickness)
 
-    crossFrame.verticalBorder:SetColorTexture(
-        YaworsCleanUIDB.playerPositionBorderR,
-        YaworsCleanUIDB.playerPositionBorderG,
-        YaworsCleanUIDB.playerPositionBorderB, 1)
+    crossFrame.verticalBorder:SetColorTexture(borderColor.r, borderColor.g, borderColor.b, 1)
     crossFrame.verticalBorder:SetSize(thickness + border * 2, height)
 
-    crossFrame.vertical:SetColorTexture(
-        YaworsCleanUIDB.playerPositionInnerR,
-        YaworsCleanUIDB.playerPositionInnerG,
-        YaworsCleanUIDB.playerPositionInnerB, 1)
+    crossFrame.vertical:SetColorTexture(innerColor.r, innerColor.g, innerColor.b, 1)
     crossFrame.vertical:SetSize(thickness, height)
 
     crossFrame:ClearAllPoints()
-    crossFrame:SetPoint(
-        "CENTER",
-        UIParent,
-        "CENTER",
-        YaworsCleanUIDB.playerPositionOffsetX,
-        YaworsCleanUIDB.playerPositionOffsetY
-    )
+    crossFrame:SetPoint("CENTER", UIParent, "CENTER", settings.offsetX, settings.offsetY)
     updateVisibility()
 end

@@ -19,7 +19,7 @@ local eventFrame = CreateFrame("Frame")
 -- LOOT_OPENED fires each time the game opens the loot window
 eventFrame:RegisterEvent("LOOT_OPENED")
 eventFrame:SetScript("OnEvent", function(self, event)
-    if YaworsCleanUIDB.hideLooting and LootFrame then
+    if YaworsCleanUIDB.hideElements.looting and LootFrame then
         LootFrame:Hide()
     end
 end)
@@ -30,14 +30,14 @@ local function hookBagFrame(frame)
     if frame.__yawors_hooked then return end
     frame.__yawors_hooked = true
     frame:HookScript("OnShow", function(self)
-        if YaworsCleanUIDB.hideBags then
+        if YaworsCleanUIDB.hideElements.bags then
             self:Hide()
         end
     end)
 end
 
 local function applyLootSettings()
-    if YaworsCleanUIDB.hideLooting and LootFrame and LootFrame:IsShown() then
+    if YaworsCleanUIDB.hideElements.looting and LootFrame and LootFrame:IsShown() then
         LootFrame:Hide()
     end
 end
@@ -47,7 +47,7 @@ local function applyBagSettings()
         local frame = _G[name]
         if frame then
             hookBagFrame(frame)
-            if YaworsCleanUIDB.hideBags then
+            if YaworsCleanUIDB.hideElements.bags then
                 frame:Hide()
             else
                 frame:Show()
