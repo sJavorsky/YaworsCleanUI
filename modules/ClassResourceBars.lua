@@ -1,5 +1,5 @@
 local module = {}
-YaworsCleanUI.BarClassResources = module
+YaworsCleanUI.ClassResourceBars = module
 YaworsCleanUI.registerModule(module)
 
 local BAR_TEXTURE = "Legionfall_BarFrame-Glow"

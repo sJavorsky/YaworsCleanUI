@@ -1,5 +1,5 @@
 local module = {}
-YaworsCleanUI.CombatResources = module
+YaworsCleanUI.ClassResourcePoints = module
 YaworsCleanUI.registerModule(module)
 
 -- One entry per supported class. Add new classes here when their frame names are known.

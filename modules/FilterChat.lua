@@ -1,5 +1,5 @@
 local module = {}
-YaworsCleanUI.ChatFilter = module
+YaworsCleanUI.FilterChat = module
 YaworsCleanUI.registerModule(module)
 
 local TALENT_SWITCH_SPELL_ID = 200749
@@ -16,9 +16,9 @@ local function formatToPattern(formatString)
     return "^" .. pattern .. "$"
 end
 
-local filterPatterns = {}
+local talentSpamPatterns = {}
 
-local function buildPatterns()
+local function buildTalentSpamPatterns()
     local keys = {
         "ERR_LEARN_SPELL_S",
         "ERR_LEARN_ABILITY_S",
@@ -31,18 +31,18 @@ local function buildPatterns()
     for _, key in ipairs(keys) do
         local pattern = formatToPattern(_G[key])
         if pattern then
-            filterPatterns[#filterPatterns + 1] = pattern
+            talentSpamPatterns[#talentSpamPatterns + 1] = pattern
         end
     end
 end
 
-local filterFunc = nil
+local talentSpamFilterFunc = nil
 
-local function installFilter()
-    filterFunc = function(_, _, message)
+local function installTalentSpamFilter()
+    talentSpamFilterFunc = function(_, _, message)
         if type(message) ~= "string" then return false end
-        for i = 1, #filterPatterns do
-            if message:match(filterPatterns[i]) then
+        for i = 1, #talentSpamPatterns do
+            if message:match(talentSpamPatterns[i]) then
                 return true
             end
         end
@@ -50,13 +50,13 @@ local function installFilter()
     end
     -- ChatFrame_AddMessageEventFilter intercepts CHAT_MSG_SYSTEM before display;
     -- returning true from the callback suppresses the message
-    ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", filterFunc)
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", talentSpamFilterFunc)
 end
 
-local function removeFilter()
-    if filterFunc then
-        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", filterFunc)
-        filterFunc = nil
+local function removeTalentSpamFilter()
+    if talentSpamFilterFunc then
+        ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", talentSpamFilterFunc)
+        talentSpamFilterFunc = nil
     end
 end
 
@@ -65,7 +65,7 @@ function module.applySettings()
 end
 
 function module.init()
-    buildPatterns()
+    buildTalentSpamPatterns()
 
     local eventFrame = CreateFrame("Frame")
     -- RegisterUnitEvent limits delivery to events for the specified unit,
@@ -81,11 +81,11 @@ function module.init()
 
             trackedCastGUID = castGUID
 
-            timer = C_Timer.NewTimer(4.9, function()
+            timer = C_Timer.NewTimer(4.8, function()
                 timer = nil
-                installFilter()
-                C_Timer.After(0.2, function()
-                    removeFilter()
+                installTalentSpamFilter()
+                C_Timer.After(0.4, function()
+                    removeTalentSpamFilter()
                 end)
             end)
 

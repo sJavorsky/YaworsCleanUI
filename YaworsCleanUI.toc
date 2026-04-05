@@ -8,7 +8,7 @@
 Core.lua
 Settings.lua
 modules/HideElements.lua
-modules/ChatFilter.lua
-modules/CombatResources.lua
-modules/BarClassResources.lua
+modules/FilterChat.lua
+modules/ClassResourcePoints.lua
+modules/ClassResourceBars.lua
 modules/PlayerPosition.lua

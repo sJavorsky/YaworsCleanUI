@@ -36,7 +36,7 @@ addCheckBox("filterChat", "talentSpam",
     "Mute talent swap spam",
     "Suppresses the 'You have learned/unlearned' chat spam when switching talent loadouts.",
     function()
-        YaworsCleanUI.ChatFilter.applySettings()
+        YaworsCleanUI.FilterChat.applySettings()
     end
 )
 
@@ -51,7 +51,7 @@ local offsetYSetting = Settings.RegisterProxySetting(
     function() return YaworsCleanUIDB.classResourcePoints.offsetY end,
     function(value)
         YaworsCleanUIDB.classResourcePoints.offsetY = value
-        YaworsCleanUI.CombatResources.applySettings()
+        YaworsCleanUI.ClassResourcePoints.applySettings()
     end
 )
 local screenHeight = math.floor(GetScreenHeight())
@@ -68,7 +68,7 @@ local offsetXSetting = Settings.RegisterProxySetting(
     function() return YaworsCleanUIDB.classResourcePoints.offsetX end,
     function(value)
         YaworsCleanUIDB.classResourcePoints.offsetX = value
-        YaworsCleanUI.CombatResources.applySettings()
+        YaworsCleanUI.ClassResourcePoints.applySettings()
     end
 )
 local screenWidth = math.floor(GetScreenWidth())
@@ -85,7 +85,7 @@ local scaleSetting = Settings.RegisterProxySetting(
     function() return YaworsCleanUIDB.classResourcePoints.scale end,
     function(value)
         YaworsCleanUIDB.classResourcePoints.scale = value
-        YaworsCleanUI.CombatResources.applySettings()
+        YaworsCleanUI.ClassResourcePoints.applySettings()
     end
 )
 local scaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
@@ -94,7 +94,7 @@ Settings.CreateSlider(category, scaleSetting, scaleOptions, "Scale of class reso
 
 addCheckBox("classResourcePoints", "deathKnightRunes",
     "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", function()
-    YaworsCleanUI.CombatResources.applySettings()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
 end)
 
 layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Bars Class Resources"))
@@ -108,7 +108,7 @@ local barsOffsetYSetting = Settings.RegisterProxySetting(
     function() return YaworsCleanUIDB.classResourceBars.offsetY end,
     function(value)
         YaworsCleanUIDB.classResourceBars.offsetY = value
-        YaworsCleanUI.BarClassResources.applySettings()
+        YaworsCleanUI.ClassResourceBars.applySettings()
     end
 )
 local barsOffsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
@@ -124,7 +124,7 @@ local barsOffsetXSetting = Settings.RegisterProxySetting(
     function() return YaworsCleanUIDB.classResourceBars.offsetX end,
     function(value)
         YaworsCleanUIDB.classResourceBars.offsetX = value
-        YaworsCleanUI.BarClassResources.applySettings()
+        YaworsCleanUI.ClassResourceBars.applySettings()
     end
 )
 local barsOffsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
@@ -140,7 +140,7 @@ local barsScaleSetting = Settings.RegisterProxySetting(
     function() return YaworsCleanUIDB.classResourceBars.scale end,
     function(value)
         YaworsCleanUIDB.classResourceBars.scale = value
-        YaworsCleanUI.BarClassResources.applySettings()
+        YaworsCleanUI.ClassResourceBars.applySettings()
     end
 )
 local barsScaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
@@ -149,7 +149,7 @@ Settings.CreateSlider(category, barsScaleSetting, barsScaleOptions, "Scale of cl
 
 addCheckBox("classResourceBars", "deathKnightRunicPower",
     "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()
-    YaworsCleanUI.BarClassResources.applySettings()
+    YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 
 layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Player Position"))
