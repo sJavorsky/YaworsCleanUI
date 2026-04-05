@@ -7,6 +7,7 @@ local TALENT_SWITCH_SPELL_ID = 200749
 -- GUID of the cast we are currently tracking; nil when not in a talent switch cast
 local trackedCastGUID = nil
 local timer = nil
+local talentSpamFrame = nil
 
 -- Converts a Blizzard format string (e.g. "You have learned %s.") into a Lua pattern
 local function formatToPattern(formatString)
@@ -60,22 +61,9 @@ local function removeTalentSpamFilter()
     end
 end
 
-function module.applySettings()
-    -- Nothing to apply immediately; the event listener reads the setting live
-end
-
-function module.init()
-    buildTalentSpamPatterns()
-
-    local eventFrame = CreateFrame("Frame")
-    -- RegisterUnitEvent limits delivery to events for the specified unit,
-    -- avoiding spurious fires from other players' casts
-    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
-
-    eventFrame:SetScript("OnEvent", function(self, event, unitTarget, castGUID, spellID)
-        if not YaworsCleanUIDB.filterChat.talentSpam then return end
-
+local function createTalentSpamFrame()
+    talentSpamFrame = CreateFrame("Frame")
+    talentSpamFrame:SetScript("OnEvent", function(self, event, unitTarget, castGUID, spellID)
         if event == "UNIT_SPELLCAST_START" then
             if spellID ~= TALENT_SWITCH_SPELL_ID then return end
 
@@ -99,4 +87,36 @@ function module.init()
             end
         end
     end)
+end
+
+local function enableTalentSpamFiltering()
+    if not talentSpamFrame then
+        createTalentSpamFrame()
+    end
+    talentSpamFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+    talentSpamFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
+end
+
+local function disableTalentSpamFiltering()
+    if not talentSpamFrame then return end
+    talentSpamFrame:UnregisterEvent("UNIT_SPELLCAST_START")
+    talentSpamFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+    trackedCastGUID = nil
+    if timer then
+        timer:Cancel()
+        timer = nil
+    end
+end
+
+function module.applySettings()
+    if YaworsCleanUIDB.filterChat.talentSpam then
+        enableTalentSpamFiltering()
+    else
+        disableTalentSpamFiltering()
+    end
+end
+
+function module.init()
+    buildTalentSpamPatterns()
+    module.applySettings()
 end
