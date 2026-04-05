@@ -5,6 +5,9 @@ local DEFAULTS = {
         looting = false,
         bags = false,
     },
+    filterChat = {
+        talentSpam = false,
+    },
     classResourcePoints = {
         offsetY = 0,
         offsetX = 0,

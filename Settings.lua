@@ -30,6 +30,16 @@ addCheckBox("hideElements", "bags", "Hide bag icons", "Hides the bag bar icons."
     YaworsCleanUI.HideElements.applySettings()
 end)
 
+layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Chat Filter"))
+
+addCheckBox("filterChat", "talentSpam",
+    "Mute talent swap spam",
+    "Suppresses the 'You have learned/unlearned' chat spam when switching talent loadouts.",
+    function()
+        YaworsCleanUI.ChatFilter.applySettings()
+    end
+)
+
 layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Points Class Resources"))
 
 local offsetYSetting = Settings.RegisterProxySetting(
