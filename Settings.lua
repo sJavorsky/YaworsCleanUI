@@ -30,7 +30,7 @@ addCheckBox("hideElements", "bags", "Hide bag icons", "Hides the bag bar icons."
     YaworsCleanUI.HideElements.applySettings()
 end)
 
-layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Chat Filter"))
+layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Filter chat"))
 
 addCheckBox("filterChat", "talentSpam",
     "Mute talent swap spam",
