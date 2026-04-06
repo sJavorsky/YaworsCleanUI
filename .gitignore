@@ -1,6 +1,9 @@
 # deploy config with local paths
 deploy/deploy.conf
 
+# local reference addons and WAs
+reference/
+
 # OS
 Thumbs.db
 .DS_Store

@@ -18,6 +18,17 @@ local classConfigs = {
             y = 0,
         },
     },
+    DRUID = {
+        frame = function() return DruidComboPointBarFrame end,
+        settingKey = "druidComboPoints",
+        restoreAnchor = {
+            point = "BOTTOM",
+            relativeTo = "PlayerFrameBottomManagedFramesContainer",
+            relativePoint = "TOP",
+            x = 0,
+            y = 0,
+        },
+    },
 }
 
 -- Saved once in init() so scripts and scale can be restored when the setting is disabled

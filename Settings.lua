@@ -96,6 +96,10 @@ addCheckBox("classResourcePoints", "deathKnightRunes",
     "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", function()
     YaworsCleanUI.ClassResourcePoints.applySettings()
 end)
+addCheckBox("classResourcePoints", "druidComboPoints",
+    "Druid Combo Points", "Move the Druid combo points bar to the center of the screen.", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)
 
 layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Bars Class Resources"))
 
@@ -149,6 +153,62 @@ Settings.CreateSlider(category, barsScaleSetting, barsScaleOptions, "Scale of cl
 
 addCheckBox("classResourceBars", "deathKnightRunicPower",
     "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "druidEnergy",
+    "Druid Energy", "Show the Druid Energy bar at the center of the screen (Cat Form only).", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "druidRage",
+    "Druid Rage", "Show the Druid Rage bar at the center of the screen (Bear Form only).", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "druidAstralPower",
+    "Druid Astral Power", "Show the Druid Astral Power bar at the center of the screen (Balance spec, outside animal forms).", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "demonHunterFury",
+    "Demon Hunter Fury", "Show the Demon Hunter Fury bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "evokerEssence",
+    "Evoker Essence", "Show the Evoker Essence bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "hunterFocus",
+    "Hunter Focus", "Show the Hunter Focus bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "mageArcaneCharges",
+    "Mage Arcane Charges", "Show the Mage Arcane Charges bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "monkEnergy",
+    "Monk Energy", "Show the Monk Energy bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "paladinHolyPower",
+    "Paladin Holy Power", "Show the Paladin Holy Power bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "priestInsanity",
+    "Priest Insanity", "Show the Priest Insanity bar at the center of the screen (Shadow only). (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "rogueEnergy",
+    "Rogue Energy", "Show the Rogue Energy bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "shamanMaelstrom",
+    "Shaman Maelstrom", "Show the Shaman Maelstrom bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "warlockSoulShards",
+    "Warlock Soul Shards", "Show the Warlock Soul Shards bar at the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckBox("classResourceBars", "warriorRage",
+    "Warrior Rage", "Show the Warrior Rage bar at the center of the screen. (Not yet implemented)", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 
