@@ -91,6 +91,6 @@ Do not guess API function signatures, event names, or enum values. If unsure whe
 
 ## Addons references
 
-- **Sensei Class Resource Bar**: cloned locally in `../external/SenseiClassResourceBar-main/`
+- **Sensei Class Resource Bar**: cloned locally in `./reference/SenseiClassResourceBar-main/`
 
   When implementing class resource tracking (rage, energy, etc), review this addon's approach for reference on API usage and event handling.
