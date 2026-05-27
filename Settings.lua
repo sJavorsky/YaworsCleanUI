@@ -224,6 +224,14 @@ addCheckBox("playerPosition", "combatOnly",
     YaworsCleanUI.PlayerPosition.applySettings()
 end)
 
+addCheckBox("playerPosition", "dynamicOffset",
+    "Dynamic offset based on zoom",
+    "Repositions the cross vertically as you zoom in/out. When enabled, the offset sliders are ignored.",
+    function()
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+
 local playerOffsetYSetting = Settings.RegisterProxySetting(
     category,
     "YaworsCleanUI_playerPositionOffsetY",

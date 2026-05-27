@@ -3,6 +3,15 @@ YaworsCleanUI.PlayerPosition = module
 YaworsCleanUI.registerModule(module)
 
 local crossFrame
+-- Separate always-shown frame so OnUpdate keeps firing even when crossFrame is hidden
+local pollFrame
+
+local DYNAMIC_ZOOM_HIDE_BELOW = 5
+local DYNAMIC_ZOOM_MIN        = 6
+local DYNAMIC_ZOOM_MAX        = 40
+local DYNAMIC_OFFSET_AT_MIN   = -300
+local DYNAMIC_OFFSET_AT_MAX   = -50
+local LERP_SPEED              = 10
 
 local function createCrossFrame()
     local frame = CreateFrame("Frame", "YaworsCleanUI_PlayerPosition", UIParent)
@@ -27,6 +36,13 @@ local function createCrossFrame()
     return frame
 end
 
+local function computeZoomOffsetY(zoom)
+    local clamped = math.max(DYNAMIC_ZOOM_MIN, math.min(DYNAMIC_ZOOM_MAX, zoom))
+    -- Interpolate in 1/zoom space: character screen position is hyperbolic with camera distance
+    local fraction = (1/DYNAMIC_ZOOM_MIN - 1/clamped) / (1/DYNAMIC_ZOOM_MIN - 1/DYNAMIC_ZOOM_MAX)
+    return DYNAMIC_OFFSET_AT_MIN + (DYNAMIC_OFFSET_AT_MAX - DYNAMIC_OFFSET_AT_MIN) * fraction
+end
+
 local function updateVisibility()
     if not crossFrame then return end
 
@@ -40,11 +56,36 @@ local function updateVisibility()
         return
     end
 
+    if YaworsCleanUIDB.playerPosition.dynamicOffset and GetCameraZoom() < DYNAMIC_ZOOM_HIDE_BELOW then
+        crossFrame:Hide()
+        return
+    end
+
     crossFrame:Show()
+end
+
+local currentOffsetY = nil  -- nil forces an immediate snap on the first update
+
+local function onUpdateDynamic(_, elapsed)
+    local targetOffsetY = computeZoomOffsetY(GetCameraZoom())
+
+    if currentOffsetY == nil then
+        currentOffsetY = targetOffsetY
+    else
+        currentOffsetY = currentOffsetY + (targetOffsetY - currentOffsetY) * math.min(1, LERP_SPEED * elapsed)
+    end
+
+    crossFrame:ClearAllPoints()
+    crossFrame:SetPoint("CENTER", UIParent, "CENTER", 0, currentOffsetY)
+    updateVisibility()
 end
 
 function module.init()
     crossFrame = createCrossFrame()
+
+    pollFrame = CreateFrame("Frame")
+    -- pollFrame must stay shown so its OnUpdate fires even when crossFrame is hidden
+    pollFrame:Show()
 
     -- PLAYER_REGEN_DISABLED fires on entering combat, PLAYER_REGEN_ENABLED on leaving
     local eventFrame = CreateFrame("Frame")
@@ -84,7 +125,14 @@ function module.applySettings()
     crossFrame.vertical:SetColorTexture(innerColor.r, innerColor.g, innerColor.b, 1)
     crossFrame.vertical:SetSize(thickness, height)
 
-    crossFrame:ClearAllPoints()
-    crossFrame:SetPoint("CENTER", UIParent, "CENTER", settings.offsetX, settings.offsetY)
+    if settings.dynamicOffset then
+        currentOffsetY = nil  -- snap to correct position immediately on next frame
+        pollFrame:SetScript("OnUpdate", onUpdateDynamic)
+    else
+        pollFrame:SetScript("OnUpdate", nil)
+        crossFrame:ClearAllPoints()
+        crossFrame:SetPoint("CENTER", UIParent, "CENTER", settings.offsetX, settings.offsetY)
+    end
+
     updateVisibility()
 end
