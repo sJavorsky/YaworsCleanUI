@@ -13,10 +13,12 @@ if not defined DEST (
 
 rd /s /q "%DEST%"
 mkdir "%DEST%\modules"
+mkdir "%DEST%\settings"
 
 copy /y "%SRC%\YaworsCleanUI.toc"  "%DEST%\" >nul
 copy /y "%SRC%\Core.lua"           "%DEST%\" >nul
 copy /y "%SRC%\Settings.lua"       "%DEST%\" >nul
 copy /y "%SRC%\modules\*.lua"      "%DEST%\modules\" >nul
+copy /y "%SRC%\settings\*.lua"     "%DEST%\settings\" >nul
 
 echo Done.

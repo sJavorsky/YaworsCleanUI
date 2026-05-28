@@ -7,6 +7,11 @@
 
 Core.lua
 Settings.lua
+settings/HideElements.lua
+settings/FilterChat.lua
+settings/ClassResourcePoints.lua
+settings/ClassResourceBars.lua
+settings/PlayerPosition.lua
 modules/HideElements.lua
 modules/FilterChat.lua
 modules/ClassResourcePoints.lua
