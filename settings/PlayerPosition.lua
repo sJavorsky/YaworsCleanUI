@@ -12,45 +12,15 @@ addCheckbox(category, "playerPosition", "combatOnly",
     YaworsCleanUI.PlayerPosition.applySettings()
 end)
 
-addCheckbox(category, "playerPosition", "dynamicOffset",
-    "Dynamic offset based on zoom",
-    "Repositions the cross vertically as you zoom in/out. When enabled, the offset sliders are ignored.",
-    function()
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
+addColorPicker(category, "playerPosition", "innerColor",
+    "Inner cross color", "Color of the inner cross lines.", "ffffffff", function()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end)
 
-local playerOffsetYSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionOffsetY",
-    Settings.VarType.Number,
-    "Vertical offset",
-    0,
-    function() return YaworsCleanUIDB.playerPosition.offsetY end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.offsetY = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerOffsetYOptions = Settings.CreateSliderOptions(-500, 500, 1)
-playerOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerOffsetYSetting, playerOffsetYOptions, "Vertical offset for the position cross.")
-
-local playerOffsetXSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionOffsetX",
-    Settings.VarType.Number,
-    "Horizontal offset",
-    0,
-    function() return YaworsCleanUIDB.playerPosition.offsetX end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.offsetX = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerOffsetXOptions = Settings.CreateSliderOptions(-200, 200, 1)
-playerOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerOffsetXSetting, playerOffsetXOptions, "Horizontal offset for the position cross.")
+addColorPicker(category, "playerPosition", "borderColor",
+    "Border color", "Color of the cross border outline.", "ff000000", function()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end)
 
 local playerHeightSetting = Settings.RegisterProxySetting(
     category,
@@ -100,12 +70,42 @@ local playerThicknessOptions = Settings.CreateSliderOptions(1, 20, 1)
 playerThicknessOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, playerThicknessSetting, playerThicknessOptions, "Thickness of the cross lines; border scales with it.")
 
-addColorPicker(category, "playerPosition", "innerColor",
-    "Inner cross color", "Color of the inner cross lines.", "ffffffff", function()
-    YaworsCleanUI.PlayerPosition.applySettings()
-end)
+addCheckbox(category, "playerPosition", "manualOffset",
+    "Manual offset",
+    "Use the offset sliders below to manually position the cross. When disabled, offset sliders are ignored.",
+    function()
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
 
-addColorPicker(category, "playerPosition", "borderColor",
-    "Border color", "Color of the cross border outline.", "ff000000", function()
-    YaworsCleanUI.PlayerPosition.applySettings()
-end)
+local playerOffsetYSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionOffsetY",
+    Settings.VarType.Number,
+    "Vertical offset",
+    0,
+    function() return YaworsCleanUIDB.playerPosition.offsetY end,
+    function(value)
+        YaworsCleanUIDB.playerPosition.offsetY = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerOffsetYOptions = Settings.CreateSliderOptions(-500, 500, 1)
+playerOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerOffsetYSetting, playerOffsetYOptions, "Vertical offset for the position cross.")
+
+local playerOffsetXSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_playerPositionOffsetX",
+    Settings.VarType.Number,
+    "Horizontal offset",
+    0,
+    function() return YaworsCleanUIDB.playerPosition.offsetX end,
+    function(value)
+        YaworsCleanUIDB.playerPosition.offsetX = value
+        YaworsCleanUI.PlayerPosition.applySettings()
+    end
+)
+local playerOffsetXOptions = Settings.CreateSliderOptions(-200, 200, 1)
+playerOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, playerOffsetXSetting, playerOffsetXOptions, "Horizontal offset for the position cross.")

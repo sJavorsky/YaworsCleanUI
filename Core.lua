@@ -38,14 +38,14 @@ local DEFAULTS = {
     playerPosition = {
         enabled = false,
         combatOnly = false,
-        offsetY = 0,
-        offsetX = 0,
+        innerColor = { r = 1, g = 1, b = 1 },
+        borderColor = { r = 0, g = 0, b = 0 },
         height = 40,
         width = 40,
         thickness = 2,
-        innerColor = { r = 1, g = 1, b = 1 },
-        borderColor = { r = 0, g = 0, b = 0 },
-        dynamicOffset = false,
+        manualOffset = false,
+        offsetY = 0,
+        offsetX = 0,
     },
 }
 

@@ -56,7 +56,7 @@ local function updateVisibility()
         return
     end
 
-    if YaworsCleanUIDB.playerPosition.dynamicOffset and GetCameraZoom() < DYNAMIC_ZOOM_HIDE_BELOW then
+    if not YaworsCleanUIDB.playerPosition.manualOffset and GetCameraZoom() < DYNAMIC_ZOOM_HIDE_BELOW then
         crossFrame:Hide()
         return
     end
@@ -125,13 +125,13 @@ function module.applySettings()
     crossFrame.vertical:SetColorTexture(innerColor.r, innerColor.g, innerColor.b, 1)
     crossFrame.vertical:SetSize(thickness, height)
 
-    if settings.dynamicOffset then
-        currentOffsetY = nil  -- snap to correct position immediately on next frame
-        pollFrame:SetScript("OnUpdate", onUpdateDynamic)
-    else
+    if settings.manualOffset then
         pollFrame:SetScript("OnUpdate", nil)
         crossFrame:ClearAllPoints()
         crossFrame:SetPoint("CENTER", UIParent, "CENTER", settings.offsetX, settings.offsetY)
+    else
+        currentOffsetY = nil  -- snap to correct position immediately on next frame
+        pollFrame:SetScript("OnUpdate", onUpdateDynamic)
     end
 
     updateVisibility()
