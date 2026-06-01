@@ -47,6 +47,14 @@ local DEFAULTS = {
         offsetY = 0,
         offsetX = 0,
     },
+    cursorPosition = {
+        enabled = false,
+        combatOnly = false,
+        innerColor = { r = 1, g = 1, b = 1 },
+        outerColor = { r = 0, g = 0, b = 0 },
+        size = 50,
+        width = 10,
+    },
 }
 
 local function applyDefaults(target, defaults)

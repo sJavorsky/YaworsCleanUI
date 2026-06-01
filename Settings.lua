@@ -4,6 +4,7 @@ local chatCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Fil
 local pointsCategory = Settings.RegisterVerticalLayoutSubcategory(category, "Points Class Resources")
 local barsCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Bars Class Resources")
 local posCategory    = Settings.RegisterVerticalLayoutSubcategory(category, "Player Position")
+local cursorCategory = Settings.RegisterVerticalLayoutSubcategory(category, "Cursor Position")
 
 YaworsCleanUI.settingsCategories = {
     hide     = hideCategory,
@@ -11,6 +12,7 @@ YaworsCleanUI.settingsCategories = {
     points   = pointsCategory,
     bars     = barsCategory,
     position = posCategory,
+    cursor   = cursorCategory,
 }
 
 function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)
@@ -66,5 +68,6 @@ registrationFrame:SetScript("OnEvent", function(self, event, addonName)
     Settings.RegisterAddOnCategory(pointsCategory)
     Settings.RegisterAddOnCategory(barsCategory)
     Settings.RegisterAddOnCategory(posCategory)
+    Settings.RegisterAddOnCategory(cursorCategory)
     self:UnregisterEvent("ADDON_LOADED")
 end)

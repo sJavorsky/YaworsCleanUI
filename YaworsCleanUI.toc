@@ -12,8 +12,10 @@ settings/FilterChat.lua
 settings/ClassResourcePoints.lua
 settings/ClassResourceBars.lua
 settings/PlayerPosition.lua
+settings/CursorPosition.lua
 modules/HideElements.lua
 modules/FilterChat.lua
 modules/ClassResourcePoints.lua
 modules/ClassResourceBars.lua
 modules/PlayerPosition.lua
+modules/CursorPosition.lua
