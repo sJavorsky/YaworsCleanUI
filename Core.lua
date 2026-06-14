@@ -19,6 +19,7 @@ local DEFAULTS = {
         monkChi = false,
         warlockSoulShards = false,
         mageArcaneCharges = false,
+        paladinHolyPower = false,
     },
     classResourceBars = {
         offsetY = 0,
@@ -30,7 +31,6 @@ local DEFAULTS = {
         druidAstralPower = false,
         evokerEbonMight = false,
         warriorRage = false,
-        paladinHolyPower = false,
         hunterFocus = false,
         rogueEnergy = false,
         priestInsanity = false,

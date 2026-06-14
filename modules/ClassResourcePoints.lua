@@ -61,6 +61,43 @@ local classConfigs = {
             y = 0,
         },
     },
+    PALADIN = {
+        frame = function() return PaladinPowerBarFrame end,
+        settingKey = "paladinHolyPower",
+        restoreAnchor = {
+            point = "TOP",
+            relativeTo = "PlayerFrameBottomManagedFramesContainer",
+            relativePoint = "TOP",
+            x = 2.5,
+            y = 3,
+        },
+    },
+    MAGE = {
+        frame = function() return MageArcaneChargesFrame end,
+        settingKey = "mageArcaneCharges",
+        -- Arcane charges exist only for Arcane spec, so the frame may be
+        -- created/destroyed on spec change; re-evaluate then so its hooks attach
+        -- when it appears.
+        extraEvents = { "PLAYER_SPECIALIZATION_CHANGED" },
+        restoreAnchor = {
+            point = "TOP",
+            relativeTo = "PlayerFrameBottomManagedFramesContainer",
+            relativePoint = "TOP",
+            x = 0,
+            y = 0,
+        },
+    },
+    WARLOCK = {
+        frame = function() return WarlockPowerFrame end,
+        settingKey = "warlockSoulShards",
+        restoreAnchor = {
+            point = "TOP",
+            relativeTo = "PlayerFrameBottomManagedFramesContainer",
+            relativePoint = "TOP",
+            x = 0,
+            y = 0,
+        },
+    },
     MONK = {
         frame = function() return MonkHarmonyBarFrame end,
         settingKey = "monkChi",

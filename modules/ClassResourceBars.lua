@@ -118,6 +118,35 @@ local classConfigs = {
             },
         },
     },
+    DEMONHUNTER = {
+        bars = {
+            {
+                settingKey = "demonHunterFury",
+                powerType  = Enum.PowerType.Fury,
+                powerToken = "FURY",
+                color      = {0.79, 0.26, 0.99},
+                shouldShow = function()
+                    local spec = C_SpecializationInfo.GetSpecialization()
+                    if not spec then return false end
+                    -- 577 = Havoc, 581 = Vengeance; the third spec's behavior is
+                    -- unknown, so only show Fury for these two.
+                    local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
+                    return specID == 577 or specID == 581
+                end,
+            },
+        },
+        extraEvents = { "PLAYER_SPECIALIZATION_CHANGED" },
+    },
+    HUNTER = {
+        bars = {
+            {
+                settingKey = "hunterFocus",
+                powerType  = Enum.PowerType.Focus,
+                powerToken = "FOCUS",
+                color      = {1.0, 0.5, 0.1},
+            },
+        },
+    },
     MONK = {
         bars = {
             {
@@ -131,6 +160,42 @@ local classConfigs = {
                     -- 268 = Brewmaster, 269 = Windwalker; Mistweaver uses mana
                     local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
                     return specID == 268 or specID == 269
+                end,
+            },
+        },
+        extraEvents = { "PLAYER_SPECIALIZATION_CHANGED" },
+    },
+    PRIEST = {
+        bars = {
+            {
+                settingKey = "priestInsanity",
+                powerType  = Enum.PowerType.Insanity,
+                powerToken = "INSANITY",
+                color      = {0.5, 0.1, 0.75},
+                shouldShow = function()
+                    local spec = C_SpecializationInfo.GetSpecialization()
+                    if not spec then return false end
+                    -- 258 = Shadow; only Shadow uses Insanity
+                    local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
+                    return specID == 258
+                end,
+            },
+        },
+        extraEvents = { "PLAYER_SPECIALIZATION_CHANGED" },
+    },
+    SHAMAN = {
+        bars = {
+            {
+                settingKey = "shamanMaelstrom",
+                powerType  = Enum.PowerType.Maelstrom,
+                powerToken = "MAELSTROM",
+                color      = {0.4, 0.7, 1.0},
+                shouldShow = function()
+                    local spec = C_SpecializationInfo.GetSpecialization()
+                    if not spec then return false end
+                    -- 262 = Elemental; only Elemental uses Maelstrom
+                    local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
+                    return specID == 262
                 end,
             },
         },

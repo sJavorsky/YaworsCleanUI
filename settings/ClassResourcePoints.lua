@@ -73,10 +73,14 @@ addCheckbox(category, "classResourcePoints", "monkChi",
     YaworsCleanUI.ClassResourcePoints.applySettings()
 end)
 addCheckbox(category, "classResourcePoints", "warlockSoulShards",
-    "Warlock Soul Shards", "Move the Warlock Soul Shards to the center of the screen. (Not yet implemented)", function()
+    "Warlock Soul Shards", "Move the Warlock Soul Shards to the center of the screen.", function()
     YaworsCleanUI.ClassResourcePoints.applySettings()
 end)
 addCheckbox(category, "classResourcePoints", "mageArcaneCharges",
-    "Mage Arcane Charges", "Move the Mage Arcane Charges to the center of the screen. (Not yet implemented)", function()
+    "Mage Arcane Charges", "Move the Mage Arcane Charges to the center of the screen (Arcane only).", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)
+addCheckbox(category, "classResourcePoints", "paladinHolyPower",
+    "Paladin Holy Power", "Move the Paladin Holy Power to the center of the screen.", function()
     YaworsCleanUI.ClassResourcePoints.applySettings()
 end)

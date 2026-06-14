@@ -73,23 +73,19 @@ addCheckbox(category, "classResourceBars", "evokerEbonMight",
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "demonHunterFury",
-    "Demon Hunter Fury", "Show the Demon Hunter Fury bar at the center of the screen. (Not yet implemented)", function()
+    "Demon Hunter Fury", "Show the Demon Hunter Fury bar at the center of the screen (Havoc and Vengeance only).", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "hunterFocus",
-    "Hunter Focus", "Show the Hunter Focus bar at the center of the screen. (Not yet implemented)", function()
+    "Hunter Focus", "Show the Hunter Focus bar at the center of the screen.", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "monkEnergy",
     "Monk Energy", "Show the Monk Energy bar at the center of the screen (Windwalker and Brewmaster only).", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
-addCheckbox(category, "classResourceBars", "paladinHolyPower",
-    "Paladin Holy Power", "Show the Paladin Holy Power bar at the center of the screen. (Not yet implemented)", function()
-    YaworsCleanUI.ClassResourceBars.applySettings()
-end)
 addCheckbox(category, "classResourceBars", "priestInsanity",
-    "Priest Insanity", "Show the Priest Insanity bar at the center of the screen (Shadow only). (Not yet implemented)", function()
+    "Priest Insanity", "Show the Priest Insanity bar at the center of the screen (Shadow only).", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "rogueEnergy",
@@ -97,7 +93,7 @@ addCheckbox(category, "classResourceBars", "rogueEnergy",
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "shamanMaelstrom",
-    "Shaman Maelstrom", "Show the Shaman Maelstrom bar at the center of the screen. (Not yet implemented)", function()
+    "Shaman Maelstrom", "Show the Shaman Maelstrom bar at the center of the screen (Elemental only).", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "warriorRage",
