@@ -6,11 +6,13 @@ local crossFrame
 -- Separate always-shown frame so OnUpdate keeps firing even when crossFrame is hidden
 local pollFrame
 
-local DYNAMIC_ZOOM_HIDE_BELOW = 5
+-- Anchor points for the zoom->offset curve (not hard clamps; we extrapolate past the near anchor)
 local DYNAMIC_ZOOM_MIN        = 6
 local DYNAMIC_ZOOM_MAX        = 40
 local DYNAMIC_OFFSET_AT_MIN   = -300
 local DYNAMIC_OFFSET_AT_MAX   = -50
+-- Guards 1/zoom from exploding toward first-person; below this the cross is usually hidden anyway
+local DYNAMIC_ZOOM_FLOOR      = 1
 local LERP_SPEED              = 10
 
 local function createCrossFrame()
@@ -37,7 +39,8 @@ local function createCrossFrame()
 end
 
 local function computeZoomOffsetY(zoom)
-    local clamped = math.max(DYNAMIC_ZOOM_MIN, math.min(DYNAMIC_ZOOM_MAX, zoom))
+    -- Floor (not the near anchor) so zoom below DYNAMIC_ZOOM_MIN extrapolates instead of freezing
+    local clamped = math.max(DYNAMIC_ZOOM_FLOOR, math.min(DYNAMIC_ZOOM_MAX, zoom))
     -- Interpolate in 1/zoom space: character screen position is hyperbolic with camera distance
     local fraction = (1/DYNAMIC_ZOOM_MIN - 1/clamped) / (1/DYNAMIC_ZOOM_MIN - 1/DYNAMIC_ZOOM_MAX)
     return DYNAMIC_OFFSET_AT_MIN + (DYNAMIC_OFFSET_AT_MAX - DYNAMIC_OFFSET_AT_MIN) * fraction
@@ -56,7 +59,7 @@ local function updateVisibility()
         return
     end
 
-    if not YaworsCleanUIDB.playerPosition.manualOffset and GetCameraZoom() < DYNAMIC_ZOOM_HIDE_BELOW then
+    if not YaworsCleanUIDB.playerPosition.manualOffset and GetCameraZoom() < YaworsCleanUIDB.playerPosition.minZoom then
         crossFrame:Hide()
         return
     end

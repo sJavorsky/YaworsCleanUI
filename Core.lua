@@ -49,6 +49,7 @@ local DEFAULTS = {
         manualOffset = false,
         offsetY = 0,
         offsetX = 0,
+        minZoom = 5,
     },
     cursorPosition = {
         enabled = false,
