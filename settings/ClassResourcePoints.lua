@@ -60,3 +60,23 @@ addCheckbox(category, "classResourcePoints", "druidComboPoints",
     "Druid Combo Points", "Move the Druid combo points bar to the center of the screen.", function()
     YaworsCleanUI.ClassResourcePoints.applySettings()
 end)
+addCheckbox(category, "classResourcePoints", "evokerEssence",
+    "Evoker Essence", "Move the Evoker Essence to the center of the screen.", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)
+addCheckbox(category, "classResourcePoints", "rogueComboPoints",
+    "Rogue Combo Points", "Move the Rogue combo points bar to the center of the screen.", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)
+addCheckbox(category, "classResourcePoints", "monkChi",
+    "Monk Chi", "Move the Monk Chi bar to the center of the screen (Windwalker only).", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)
+addCheckbox(category, "classResourcePoints", "warlockSoulShards",
+    "Warlock Soul Shards", "Move the Warlock Soul Shards to the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)
+addCheckbox(category, "classResourcePoints", "mageArcaneCharges",
+    "Mage Arcane Charges", "Move the Mage Arcane Charges to the center of the screen. (Not yet implemented)", function()
+    YaworsCleanUI.ClassResourcePoints.applySettings()
+end)

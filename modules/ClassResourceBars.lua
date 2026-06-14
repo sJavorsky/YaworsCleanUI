@@ -4,15 +4,20 @@ YaworsCleanUI.registerModule(module)
 
 local BAR_TEXTURE = "Legionfall_BarFrame-Glow"
 local BAR_WIDTH   = 300
-local BAR_HEIGHT  = 30
+local BAR_HEIGHT  = 36
 
 -- Schema for classConfigs entries:
 -- bars: array of bar configs, each with:
---   settingKey: key in YaworsCleanUIDB.classResourceBars controlling visibility
---   powerType:  Enum.PowerType value for UnitPower calls
---   powerToken: string token for UNIT_POWER_FREQUENT / UNIT_MAXPOWER filtering
---   color:      {r, g, b} foreground tint applied over the desaturated texture
---   shouldShow: optional function(); if present, bar is hidden when it returns false
+--   settingKey:    key in YaworsCleanUIDB.classResourceBars controlling visibility
+--   powerType:     Enum.PowerType value for UnitPower calls
+--   powerToken:    string token for UNIT_POWER_FREQUENT / UNIT_MAXPOWER filtering
+--   color:         {r, g, b} foreground tint applied over the desaturated texture
+--   shouldShow:    optional function(); if present, bar is hidden when it returns false
+--   valueProvider: optional function() returning current, maximum, text. When
+--                  present it replaces the UnitPower/UnitPowerMax lookup and the
+--                  bar refreshes on an OnUpdate timer instead of power events,
+--                  allowing continuously-changing non-power resources (e.g. a
+--                  counting-down aura duration) to drive the bar.
 -- extraEvents: optional array of additional event names to register
 local classConfigs = {
     DEATHKNIGHT = {
@@ -21,7 +26,7 @@ local classConfigs = {
                 settingKey = "deathKnightRunicPower",
                 powerType  = Enum.PowerType.RunicPower,
                 powerToken = "RUNIC_POWER",
-                color      = {0, 0.855, 1},
+                color      = {0, 0.85, 1},
             },
         },
     },
@@ -31,7 +36,7 @@ local classConfigs = {
                 settingKey = "druidEnergy",
                 powerType  = Enum.PowerType.Energy,
                 powerToken = "ENERGY",
-                color      = {1, 0.82, 0},
+                color      = {1, 0.9, 0},
                 shouldShow = function()
                     return GetShapeshiftFormID() == DRUID_CAT_FORM
                 end,
@@ -40,7 +45,7 @@ local classConfigs = {
                 settingKey = "druidRage",
                 powerType  = Enum.PowerType.Rage,
                 powerToken = "RAGE",
-                color      = {0.78, 0.25, 0.25},
+                color      = {1, 0, 0},
                 shouldShow = function()
                     return GetShapeshiftFormID() == DRUID_BEAR_FORM
                 end,
@@ -49,7 +54,7 @@ local classConfigs = {
                 settingKey = "druidAstralPower",
                 powerType  = Enum.PowerType.LunarPower,
                 powerToken = "LUNAR_POWER",
-                color      = {0.3, 0.1, 0.9},
+                color      = {0.6, 0.4, 1.0},
                 shouldShow = function()
                     local formID = GetShapeshiftFormID()
                     if formID == DRUID_CAT_FORM or formID == DRUID_BEAR_FORM then
@@ -66,12 +71,77 @@ local classConfigs = {
         -- Form and spec changes require re-evaluating shouldShow on all bars
         extraEvents = { "UPDATE_SHAPESHIFT_FORM", "PLAYER_SPECIALIZATION_CHANGED" },
     },
+    EVOKER = {
+        bars = {
+            {
+                settingKey = "evokerEbonMight",
+                color      = {1.0, 0.85, 0.25},
+                -- Ebon Might is a buff, not a power; track its remaining duration.
+                -- 20s is the base duration; talents/extensions can exceed it, which
+                -- would briefly overfill the bar's ratio until it ticks back under.
+                valueProvider = function()
+                    -- C_UnitAuras.GetPlayerAuraBySpellID returns the player's own
+                    -- Ebon Might aura (the self-buff cast alongside the party buff)
+                    local auraData = C_UnitAuras.GetPlayerAuraBySpellID(395296)
+                    local remaining = auraData and (auraData.expirationTime - GetTime()) or 0
+                    if remaining < 0 then remaining = 0 end
+                    return remaining, 20, string.format("%.1f", remaining)
+                end,
+                shouldShow = function()
+                    local spec = C_SpecializationInfo.GetSpecialization()
+                    if not spec then return false end
+                    -- 1473 = Augmentation
+                    local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
+                    return specID == 1473
+                end,
+            },
+        },
+        extraEvents = { "PLAYER_SPECIALIZATION_CHANGED" },
+    },
+    ROGUE = {
+        bars = {
+            {
+                settingKey = "rogueEnergy",
+                powerType  = Enum.PowerType.Energy,
+                powerToken = "ENERGY",
+                color      = {1, 0.9, 0},
+            },
+        },
+    },
+    WARRIOR = {
+        bars = {
+            {
+                settingKey = "warriorRage",
+                powerType  = Enum.PowerType.Rage,
+                powerToken = "RAGE",
+                color      = {1, 0, 0},
+            },
+        },
+    },
+    MONK = {
+        bars = {
+            {
+                settingKey = "monkEnergy",
+                powerType  = Enum.PowerType.Energy,
+                powerToken = "ENERGY",
+                color      = {1, 0.9, 0},
+                shouldShow = function()
+                    local spec = C_SpecializationInfo.GetSpecialization()
+                    if not spec then return false end
+                    -- 268 = Brewmaster, 269 = Windwalker; Mistweaver uses mana
+                    local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
+                    return specID == 268 or specID == 269
+                end,
+            },
+        },
+        extraEvents = { "PLAYER_SPECIALIZATION_CHANGED" },
+    },
 }
 
 local wrapperFrame = nil
 local activeBars = {}
 
-local function createStatusBar(parent, levelOffset, color, initialValue)
+local function createStatusBar(parent, levelOffset, color, initialValue, blendMode)
     local statusBar = CreateFrame("StatusBar", nil, parent)
     statusBar:SetAllPoints()
     statusBar:SetFrameLevel(parent:GetFrameLevel() + levelOffset)
@@ -79,6 +149,11 @@ local function createStatusBar(parent, levelOffset, color, initialValue)
     -- Desaturate to grayscale so the vertex color is the sole source of hue
     statusBar:GetStatusBarTexture():SetDesaturated(true)
     statusBar:SetStatusBarColor(color[1], color[2], color[3])
+    -- ADD blend lets the glow texture's highlights light up over the background,
+    -- giving the bar the same luminous "glow" the original WeakAura had
+    if blendMode then
+        statusBar:GetStatusBarTexture():SetBlendMode(blendMode)
+    end
     statusBar:SetMinMaxValues(0, 100)
     statusBar:SetValue(initialValue)
     return statusBar
@@ -92,23 +167,37 @@ local function createBar(config, parent)
 
     -- Background: full-value darkened copy provides the bar track shape
     createStatusBar(frame, 0, {0.1, 0.1, 0.1}, 100)
-    local statusBar = createStatusBar(frame, 1, config.color, 0)
+    local statusBar = createStatusBar(frame, 1, config.color, 0, "ADD")
 
-    return frame, statusBar
+    -- Parent to the foreground bar so the text draws above both status textures
+    local valueText = statusBar:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local fontFile, _, fontFlags = valueText:GetFont()
+    valueText:SetFont(fontFile, 18, fontFlags)
+    valueText:SetPoint("CENTER", frame, "CENTER", 0, 0)
+
+    return frame, statusBar, valueText
 end
 
-local function updateBarValue(statusBar, config)
-    local current = UnitPower("player", config.powerType)
-    local maximum = UnitPowerMax("player", config.powerType)
-    if maximum > 0 then
-        statusBar:SetMinMaxValues(0, maximum)
-        statusBar:SetValue(current)
+local function updateBarValue(activeBar)
+    local config = activeBar.config
+    local current, maximum, text
+    if config.valueProvider then
+        current, maximum, text = config.valueProvider()
+    else
+        current = UnitPower("player", config.powerType)
+        maximum = UnitPowerMax("player", config.powerType)
+        text = current
     end
+    if maximum and maximum > 0 then
+        activeBar.statusBar:SetMinMaxValues(0, maximum)
+        activeBar.statusBar:SetValue(current)
+    end
+    activeBar.valueText:SetText(text)
 end
 
 local function updateAllBars()
     for _, activeBar in ipairs(activeBars) do
-        updateBarValue(activeBar.statusBar, activeBar.config)
+        updateBarValue(activeBar)
     end
 end
 
@@ -122,7 +211,7 @@ local function onEvent(_, event, _, powerToken)
     end
     for _, activeBar in ipairs(activeBars) do
         if powerToken == activeBar.config.powerToken then
-            updateBarValue(activeBar.statusBar, activeBar.config)
+            updateBarValue(activeBar)
         end
     end
 end
@@ -166,8 +255,23 @@ function module.init()
     wrapperFrame:Hide()
 
     for _, barConfig in ipairs(classConfig.bars) do
-        local frame, statusBar = createBar(barConfig, wrapperFrame)
-        table.insert(activeBars, { frame = frame, statusBar = statusBar, config = barConfig })
+        local frame, statusBar, valueText = createBar(barConfig, wrapperFrame)
+        local activeBar = { frame = frame, statusBar = statusBar, valueText = valueText, config = barConfig }
+        table.insert(activeBars, activeBar)
+
+        -- valueProvider bars (e.g. counting-down buffs) refresh on a timer instead
+        -- of power events. OnUpdate only fires while the frame is shown, so the
+        -- timer naturally stops when applySettings() hides the bar.
+        if barConfig.valueProvider then
+            local elapsed = 0
+            frame:SetScript("OnUpdate", function(_, delta)
+                elapsed = elapsed + delta
+                if elapsed >= 0.1 then
+                    elapsed = 0
+                    updateBarValue(activeBar)
+                end
+            end)
+        end
     end
 
     local eventFrame = CreateFrame("Frame")
