@@ -12,6 +12,10 @@ local BAR_HEIGHT  = 36
 --   powerType:     Enum.PowerType value for UnitPower calls
 --   powerToken:    string token for UNIT_POWER_FREQUENT / UNIT_MAXPOWER filtering
 --   color:         {r, g, b} foreground tint applied over the desaturated texture
+--   fillAtlas:     WIP: optional Blizzard fill atlas name (e.g. "Unit_Priest_Insanity_Fill").
+--                  When present, the bar renders the fancy atlas cut to the rounded
+--                  Legionfall silhouette with a colored glow halo instead of the
+--                  desaturate-and-tint path. The atlas carries its own coloring.
 --   shouldShow:    optional function(); if present, bar is hidden when it returns false
 --   valueProvider: optional function() returning current, maximum, text. When
 --                  present it replaces the UnitPower/UnitPowerMax lookup and the
@@ -26,7 +30,7 @@ local classConfigs = {
                 settingKey = "deathKnightRunicPower",
                 powerType  = Enum.PowerType.RunicPower,
                 powerToken = "RUNIC_POWER",
-                color      = {0, 0.85, 1},
+                color      = {0, 0.82, 1},
             },
         },
     },
@@ -36,7 +40,7 @@ local classConfigs = {
                 settingKey = "druidEnergy",
                 powerType  = Enum.PowerType.Energy,
                 powerToken = "ENERGY",
-                color      = {1, 0.9, 0},
+                color      = {1, 1, 0},
                 shouldShow = function()
                     return GetShapeshiftFormID() == DRUID_CAT_FORM
                 end,
@@ -54,7 +58,8 @@ local classConfigs = {
                 settingKey = "druidAstralPower",
                 powerType  = Enum.PowerType.LunarPower,
                 powerToken = "LUNAR_POWER",
-                color      = {0.6, 0.4, 1.0},
+                color      = {0.3, 0.52, 0.9},
+                fillAtlas  = "Unit_Druid_AstralPower_Fill",
                 shouldShow = function()
                     local formID = GetShapeshiftFormID()
                     if formID == DRUID_CAT_FORM or formID == DRUID_BEAR_FORM then
@@ -76,6 +81,7 @@ local classConfigs = {
             {
                 settingKey = "evokerEbonMight",
                 color      = {1.0, 0.85, 0.25},
+                fillAtlas  = "Unit_Evoker_EbonMight_Fill",
                 -- Ebon Might is a buff, not a power; track its remaining duration.
                 -- 20s is the base duration; talents/extensions can exceed it, which
                 -- would briefly overfill the bar's ratio until it ticks back under.
@@ -104,7 +110,7 @@ local classConfigs = {
                 settingKey = "rogueEnergy",
                 powerType  = Enum.PowerType.Energy,
                 powerToken = "ENERGY",
-                color      = {1, 0.9, 0},
+                color      = {1, 1, 0},
             },
         },
     },
@@ -124,7 +130,8 @@ local classConfigs = {
                 settingKey = "demonHunterFury",
                 powerType  = Enum.PowerType.Fury,
                 powerToken = "FURY",
-                color      = {0.79, 0.26, 0.99},
+                color      = {0.788, 0.259, 0.992},
+                fillAtlas  = "Unit_DemonHunter_Fury_Fill",
                 shouldShow = function()
                     local spec = C_SpecializationInfo.GetSpecialization()
                     if not spec then return false end
@@ -143,7 +150,7 @@ local classConfigs = {
                 settingKey = "hunterFocus",
                 powerType  = Enum.PowerType.Focus,
                 powerToken = "FOCUS",
-                color      = {1.0, 0.5, 0.1},
+                color      = {1.0, 0.5, 0.25},
             },
         },
     },
@@ -153,7 +160,7 @@ local classConfigs = {
                 settingKey = "monkEnergy",
                 powerType  = Enum.PowerType.Energy,
                 powerToken = "ENERGY",
-                color      = {1, 0.9, 0},
+                color      = {1, 1, 0},
                 shouldShow = function()
                     local spec = C_SpecializationInfo.GetSpecialization()
                     if not spec then return false end
@@ -171,7 +178,8 @@ local classConfigs = {
                 settingKey = "priestInsanity",
                 powerType  = Enum.PowerType.Insanity,
                 powerToken = "INSANITY",
-                color      = {0.5, 0.1, 0.75},
+                color      = {0.4, 0, 0.8},
+                fillAtlas  = "Unit_Priest_Insanity_Fill",
                 shouldShow = function()
                     local spec = C_SpecializationInfo.GetSpecialization()
                     if not spec then return false end
@@ -189,7 +197,8 @@ local classConfigs = {
                 settingKey = "shamanMaelstrom",
                 powerType  = Enum.PowerType.Maelstrom,
                 powerToken = "MAELSTROM",
-                color      = {0.4, 0.7, 1.0},
+                color      = {0, 0.5, 1},
+                fillAtlas  = "Unit_Shaman_Maelstrom_Fill",
                 shouldShow = function()
                     local spec = C_SpecializationInfo.GetSpecialization()
                     if not spec then return false end
