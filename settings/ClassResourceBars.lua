@@ -4,6 +4,12 @@ local addCheckbox = YaworsCleanUI.addCheckbox
 local screenHeight = math.floor(GetScreenHeight())
 local screenWidth = math.floor(GetScreenWidth())
 
+-- Global toggle, kept above the per-class checkboxes so it does not get lost.
+addCheckbox(category, "classResourceBars", "fancyTextures",
+    "Fancy textures", "Show bars with their spec's fancy fill texture (Astral Power, Maelstrom, Insanity, Ebon Might, Fury). Applies to all class bars.", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+
 local barsOffsetYSetting = Settings.RegisterProxySetting(
     category,
     "YaworsCleanUI_classResourceBarsOffsetY",

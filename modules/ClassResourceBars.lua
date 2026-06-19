@@ -6,16 +6,23 @@ local BAR_TEXTURE = "Legionfall_BarFrame-Glow"
 local BAR_WIDTH   = 300
 local BAR_HEIGHT  = 36
 
+-- Hard-alpha mask baked from the Legionfall_BarBackground atlas (rounded
+-- silhouette in its alpha, padded to the glow atlas's geometry). Cuts the
+-- rectangular fancy fill atlas to the bar's rounded shape.
+local MASK_TEXTURE = [[Interface\AddOns\YaworsCleanUI\textures\legionfall-bar-mask.png]]
+
 -- Schema for classConfigs entries:
 -- bars: array of bar configs, each with:
 --   settingKey:    key in YaworsCleanUIDB.classResourceBars controlling visibility
 --   powerType:     Enum.PowerType value for UnitPower calls
 --   powerToken:    string token for UNIT_POWER_FREQUENT / UNIT_MAXPOWER filtering
 --   color:         {r, g, b} foreground tint applied over the desaturated texture
---   fillAtlas:     WIP: optional Blizzard fill atlas name (e.g. "Unit_Priest_Insanity_Fill").
---                  When present, the bar renders the fancy atlas cut to the rounded
---                  Legionfall silhouette with a colored glow halo instead of the
---                  desaturate-and-tint path. The atlas carries its own coloring.
+--   fillAtlas:     optional Blizzard fill atlas name (e.g. "Unit_Priest_Insanity_Fill").
+--                  When present AND the global fancyTextures setting is on, this
+--                  atlas (masked to the rounded silhouette) is layered over the
+--                  simple-color glow fill, which remains as the glow base. Without
+--                  the setting, or without a fillAtlas, the bar shows the plain
+--                  desaturate-and-tint fill.
 --   shouldShow:    optional function(); if present, bar is hidden when it returns false
 --   valueProvider: optional function() returning current, maximum, text. When
 --                  present it replaces the UnitPower/UnitPowerMax lookup and the
@@ -241,15 +248,41 @@ local function createBar(config, parent)
 
     -- Background: full-value darkened copy provides the bar track shape
     createStatusBar(frame, 0, {0.1, 0.1, 0.1}, 100)
+    -- Simple-color fill; also the glow base when the fancy atlas is layered on
     local statusBar = createStatusBar(frame, 1, config.color, 0, "ADD")
 
-    -- Parent to the foreground bar so the text draws above both status textures
-    local valueText = statusBar:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    local fontFile, _, fontFlags = valueText:GetFont()
-    valueText:SetFont(fontFile, 18, fontFlags)
+    -- Fancy atlas layer (only for specs that define one). Built once and shown
+    -- or hidden by applySettings based on the global fancyTextures setting. The
+    -- atlas is a plain rectangle, so it is masked to the rounded silhouette;
+    -- the mask anchors to the frame so the shape stays fixed as the bar drains.
+    local fancyBar
+    if config.fillAtlas then
+        fancyBar = CreateFrame("StatusBar", nil, frame)
+        fancyBar:SetAllPoints()
+        fancyBar:SetFrameLevel(frame:GetFrameLevel() + 2)
+        -- Assign a texture object first, THEN apply the atlas to it
+        fancyBar:SetStatusBarTexture(fancyBar:CreateTexture(nil, "ARTWORK"))
+        fancyBar:GetStatusBarTexture():SetAtlas(config.fillAtlas, false)
+        local mask = frame:CreateMaskTexture()
+        mask:SetTexture(MASK_TEXTURE)
+        mask:SetAllPoints(frame)
+        fancyBar:GetStatusBarTexture():AddMaskTexture(mask)
+        fancyBar:SetMinMaxValues(0, 100)
+        fancyBar:SetValue(0)
+    end
+
+    -- Text on its own frame above every fill layer so it stays on top whether
+    -- or not the fancy layer is shown
+    local textFrame = CreateFrame("Frame", nil, frame)
+    textFrame:SetAllPoints()
+    textFrame:SetFrameLevel(frame:GetFrameLevel() + 3)
+    local valueText = textFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local fontFile = valueText:GetFont()
+    -- OUTLINE keeps the value readable over the bright fancy fill
+    valueText:SetFont(fontFile, 18, "OUTLINE")
     valueText:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
-    return frame, statusBar, valueText
+    return frame, statusBar, valueText, fancyBar
 end
 
 local function updateBarValue(activeBar)
@@ -265,6 +298,10 @@ local function updateBarValue(activeBar)
     if maximum and maximum > 0 then
         activeBar.statusBar:SetMinMaxValues(0, maximum)
         activeBar.statusBar:SetValue(current)
+        if activeBar.fancyBar then
+            activeBar.fancyBar:SetMinMaxValues(0, maximum)
+            activeBar.fancyBar:SetValue(current)
+        end
     end
     activeBar.valueText:SetText(text)
 end
@@ -293,6 +330,7 @@ end
 function module.applySettings()
     if not wrapperFrame then return end
 
+    local fancy = YaworsCleanUIDB.classResourceBars.fancyTextures
     local anyVisible = false
     for _, activeBar in ipairs(activeBars) do
         local config = activeBar.config
@@ -303,6 +341,9 @@ function module.applySettings()
             anyVisible = true
         else
             activeBar.frame:Hide()
+        end
+        if activeBar.fancyBar then
+            activeBar.fancyBar:SetShown(fancy)
         end
     end
 
@@ -329,8 +370,8 @@ function module.init()
     wrapperFrame:Hide()
 
     for _, barConfig in ipairs(classConfig.bars) do
-        local frame, statusBar, valueText = createBar(barConfig, wrapperFrame)
-        local activeBar = { frame = frame, statusBar = statusBar, valueText = valueText, config = barConfig }
+        local frame, statusBar, valueText, fancyBar = createBar(barConfig, wrapperFrame)
+        local activeBar = { frame = frame, statusBar = statusBar, valueText = valueText, fancyBar = fancyBar, config = barConfig }
         table.insert(activeBars, activeBar)
 
         -- valueProvider bars (e.g. counting-down buffs) refresh on a timer instead

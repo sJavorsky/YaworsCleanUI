@@ -22,6 +22,7 @@ local DEFAULTS = {
         paladinHolyPower = false,
     },
     classResourceBars = {
+        fancyTextures = false,
         offsetY = 0,
         offsetX = 0,
         scale = 100,
