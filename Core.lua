@@ -5,6 +5,15 @@ local DEFAULTS = {
         looting = false,
         bags = false,
     },
+    moveElements = {
+        queueEye = false,
+        eyeDistance = 0,
+        eyeAngle = 0,
+        bnetToast = false,
+        toastPreview = false,
+        toastOffsetX = 0,
+        toastOffsetY = 0,
+    },
     filterChat = {
         talentSpam = false,
     },

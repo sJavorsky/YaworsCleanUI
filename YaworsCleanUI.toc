@@ -8,12 +8,14 @@
 Core.lua
 Settings.lua
 settings/HideElements.lua
+settings/MoveElements.lua
 settings/FilterChat.lua
 settings/ClassResourcePoints.lua
 settings/ClassResourceBars.lua
 settings/PlayerPosition.lua
 settings/CursorPosition.lua
 modules/HideElements.lua
+modules/MoveElements.lua
 modules/FilterChat.lua
 modules/ClassResourcePoints.lua
 modules/ClassResourceBars.lua

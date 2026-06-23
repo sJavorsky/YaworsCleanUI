@@ -1,5 +1,6 @@
 local category       = Settings.RegisterVerticalLayoutCategory("Yawor's Clean UI")
 local hideCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Hide UI elements")
+local moveCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Move UI elements")
 local chatCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Filter chat")
 local pointsCategory = Settings.RegisterVerticalLayoutSubcategory(category, "Points Class Resources")
 local barsCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Bars Class Resources")
@@ -8,6 +9,7 @@ local cursorCategory = Settings.RegisterVerticalLayoutSubcategory(category, "Cur
 
 YaworsCleanUI.settingsCategories = {
     hide     = hideCategory,
+    move     = moveCategory,
     chat     = chatCategory,
     points   = pointsCategory,
     bars     = barsCategory,
@@ -64,6 +66,7 @@ registrationFrame:SetScript("OnEvent", function(self, event, addonName)
     if addonName ~= "YaworsCleanUI" then return end
     Settings.RegisterAddOnCategory(category)
     Settings.RegisterAddOnCategory(hideCategory)
+    Settings.RegisterAddOnCategory(moveCategory)
     Settings.RegisterAddOnCategory(chatCategory)
     Settings.RegisterAddOnCategory(pointsCategory)
     Settings.RegisterAddOnCategory(barsCategory)
