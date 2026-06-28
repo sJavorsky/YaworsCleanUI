@@ -8,19 +8,32 @@ A personal UI cleanup addon replacing functionality previously handled by WeakAu
 
 ## Structure
 
-Modular — one file per feature/concern. New features get their own file, registered in the TOC.
+Each feature is split across two parallel files with the same base name:
+
+- `modules/<Feature>.lua` — the logic. Registers events, manipulates frames, and exposes `applySettings()`.
+- `settings/<Feature>.lua` — the Blizzard options UI for that feature. Registers checkboxes/sliders/color swatches whose setters write to SavedVariables and call the module's `applySettings()`.
 
 ```
-YaworsCleanUI.toc           -- addon manifest
-Core.lua                    -- addon table, SavedVariables init, event backbone
-Settings.lua                -- Blizzard Interface Options panel registration
+YaworsCleanUI.toc            -- addon manifest, load order
+Core.lua                     -- global table, SavedVariables defaults, module registry, ADDON_LOADED backbone
+Settings.lua                 -- root options category + subcategories, shared control helpers
 modules/
-  HideElements.lua          -- hiding loot window, bag icons, etc.
-  CombatResources.lua       -- combat resource bars (rage, energy, etc.)
-  BarClassResources.lua     -- class-specific resource bar (e.g. DK Runic Power)
+  HideElements.lua           -- hide loot window / bag icons
+  MoveElements.lua           -- reposition queue eye, BNet toast
+  FilterChat.lua             -- chat spam filtering
+  ClassResourcePoints.lua    -- discrete point resources (combo points, runes, holy power, ...)
+  ClassResourceBars.lua      -- continuous bar resources (rage, energy, runic power, ...)
+  PlayerPosition.lua         -- player position indicator
+  CursorPosition.lua         -- cursor position ring (stub)
+settings/                    -- one options file per module, same base names
+textures/                    -- bar fill masks / atlases
+deploy/                      -- scripts to copy the addon into the live WoW AddOns folder
+reference/                   -- other addons cloned for API reference (gitignored, read-only)
 ```
 
-Add new modules under `modules/`. Register them in the TOC after Core.lua and Settings.lua.
+Adding a feature: create `modules/X.lua` and `settings/X.lua`, register both in the TOC (settings files before module files — see load order below), add a subcategory in Settings.lua plus an entry in `settingsCategories`, add its defaults in Core.lua's `DEFAULTS`, and update the deploy scripts if you add a new top-level file or folder.
+
+**Load order** (from the TOC): `Core.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
 
 ## Lua conventions
 
@@ -34,18 +47,30 @@ Add new modules under `modules/`. Register them in the TOC after Core.lua and Se
   - WoW API calls follow Blizzard's own casing (they already use PascalCase/mixed — don't fight it)
 - **Locals**: Always `local`. Minimize globals — only `YaworsCleanUI` should be global.
 - **No abbreviations**: Use full words. Not `mod`, `db`, `f`, `fn`, `cb` — use `module`, `database`, `frame`, `callback`, etc. Only shorten if the full name collides with a Lua or WoW API reserved word.
-- **Module pattern**: Each module file declares a local table, attaches it to `YaworsCleanUI`, and returns nothing.
+- **Module pattern**: Each module file declares a local table named `module`, attaches it to `YaworsCleanUI`, and registers itself for init. It returns nothing.
+- **No libraries**: No AceAddon, LibStub, or external dependencies. Pure Lua + Blizzard API only.
+
+## Module lifecycle
+
+Core.lua owns SavedVariables and a module registry. On `ADDON_LOADED` it creates `YaworsCleanUIDB` if missing, deep-merges `DEFAULTS` into it, then calls `init()` on every registered module.
+
+A module attaches itself to the namespace and registers for init:
 
 ```lua
-local mod = {}
-YaworsCleanUI.HideElements = mod
+local module = {}
+YaworsCleanUI.MyFeature = module
+YaworsCleanUI.registerModule(module)
 
-function mod.init()
-  -- ...
+function module.init()
+    module.applySettings()
+end
+
+function module.applySettings()
+    -- read YaworsCleanUIDB.myFeature.* and apply it to the live UI
 end
 ```
 
-- **No libraries**: No AceAddon, LibStub, or external dependencies. Pure Lua + Blizzard API only.
+`applySettings()` is the single entry point for (re)applying state — called once at init and again from every settings control's setter, so toggles take effect instantly. Keep it idempotent. One-time setup (creating frames, hooking `SetPoint`, registering events) belongs in `init()`.
 
 ## Comments
 
@@ -62,9 +87,20 @@ Do NOT comment what code does. Comment why it does it, only when that isn't obvi
 
 ## Settings
 
-Use `Settings.RegisterAddOnCategory` (retail API, TWW+). Settings panel must appear inside the standard Blizzard Interface Options. No separate popup window, no minimap button.
+Settings.lua builds the panel with `Settings.RegisterVerticalLayoutCategory` (root) and one `Settings.RegisterVerticalLayoutSubcategory` per feature, exposed via `YaworsCleanUI.settingsCategories`. Category registration is deferred to `ADDON_LOADED` so all `settings/*.lua` controls are added first. The panel lives inside the standard Blizzard options (Interface Options → AddOns) — no separate window, no minimap button.
 
-Changes that can apply instantly should apply instantly via callback. If a reload is required, enable a "Reload UI" button only when pending changes exist.
+Shared control helpers in Settings.lua:
+
+- `YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)`
+- `YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, defaultHex, callback)`
+
+Both build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Sliders are currently written inline with `RegisterProxySetting` + `CreateSliderOptions` + `CreateSlider` (see settings/ClassResourceBars.lua) — there is no shared slider helper yet.
+
+Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `applySettings()`. Everything applies instantly; there is no reload-required path or Reload UI button today. If a future setting genuinely needs a reload, enable a "Reload UI" button only when pending changes exist.
+
+## Deploy
+
+`deploy/linux-deploy.sh` and `deploy/windows-deploy.bat` copy the addon into the live WoW AddOns folder for testing. The destination path is read from `deploy/deploy.conf` (gitignored; copy from `deploy.conf.example`). The scripts mirror the TOC, `Core.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders — keep them in sync when adding new top-level files or folders.
 
 ## Debugging frame names
 
@@ -88,9 +124,3 @@ When implementing or modifying addon features, consult these resources for accur
 - **BlizzardInterfaceResources (enums, templates, globals)**: https://github.com/Ketho/BlizzardInterfaceResources
 
 Do not guess API function signatures, event names, or enum values. If unsure whether a function exists or what arguments it takes, say so rather than fabricating a plausible-looking call.
-
-## Addons references
-
-- **Sensei Class Resource Bar**: cloned locally in `./reference/SenseiClassResourceBar-main/`
-
-  When implementing class resource tracking (rage, energy, etc), review this addon's approach for reference on API usage and event handling.
