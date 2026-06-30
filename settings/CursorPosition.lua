@@ -12,13 +12,13 @@ addCheckbox(category, "cursorPosition", "combatOnly",
     YaworsCleanUI.CursorPosition.applySettings()
 end)
 
-addColorPicker(category, "cursorPosition", "innerColor",
-    "Inner circle color", "Color of the inner circle.", "ffffffff", function()
+addColorPicker(category, "cursorPosition", "outerColor",
+    "Outer circle color", "Color of the outer ring.", "ffffffff", function()
     YaworsCleanUI.CursorPosition.applySettings()
 end)
 
-addColorPicker(category, "cursorPosition", "outerColor",
-    "Outer circle color", "Color of the outer circle.", "ff000000", function()
+addColorPicker(category, "cursorPosition", "innerColor",
+    "Inner circle color", "Color of the inner ring.", "ff3399ff", function()
     YaworsCleanUI.CursorPosition.applySettings()
 end)
 
@@ -34,7 +34,7 @@ local cursorSizeSetting = Settings.RegisterProxySetting(
         YaworsCleanUI.CursorPosition.applySettings()
     end
 )
-local cursorSizeOptions = Settings.CreateSliderOptions(10, 100, 1)
+local cursorSizeOptions = Settings.CreateSliderOptions(10, 300, 1)
 cursorSizeOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, cursorSizeSetting, cursorSizeOptions, "Diameter of the position circle.")
 
@@ -50,6 +50,6 @@ local cursorWidthSetting = Settings.RegisterProxySetting(
         YaworsCleanUI.CursorPosition.applySettings()
     end
 )
-local cursorWidthOptions = Settings.CreateSliderOptions(1, 20, 1)
+local cursorWidthOptions = Settings.CreateSliderOptions(1, 75, 1)
 cursorWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, cursorWidthSetting, cursorWidthOptions, "Thickness of the circle's ring.")

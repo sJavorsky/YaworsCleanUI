@@ -64,10 +64,10 @@ local DEFAULTS = {
     cursorPosition = {
         enabled = false,
         combatOnly = false,
-        innerColor = { r = 1, g = 1, b = 1 },
-        outerColor = { r = 0, g = 0, b = 0 },
-        size = 50,
-        width = 10,
+        outerColor = { r = 1, g = 1, b = 1 },
+        innerColor = { r = 0, g = 0, b = 0 },
+        size = 65,
+        width = 4,
     },
 }
 
