@@ -52,6 +52,15 @@ local function createCircleFrame()
     frame.outerRing = createRing(frame)
     frame.innerRing = createRing(frame)
 
+    -- Follow the cursor while shown. OnUpdate only fires on visible frames, so this
+    -- costs nothing while the ring is hidden. GetCursorPosition returns screen pixels
+    -- from the bottom-left, scaled by the UI scale, hence dividing by the frame's scale.
+    frame:SetScript("OnUpdate", function(self)
+        local scale = self:GetEffectiveScale()
+        local cursorX, cursorY = GetCursorPosition()
+        self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
+    end)
+
     return frame
 end
 
