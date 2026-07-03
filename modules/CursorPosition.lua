@@ -14,6 +14,9 @@ local HOLE_FRACTION = 0.5
 -- center. Rotating it sweeps the reveal edge around the ring for a radial fill.
 local HALF_MASK_TEXTURE = [[Interface\AddOns\YaworsCleanUI\textures\half-mask.png]]
 
+-- A dummy spell whose cooldown mirrors the global cooldown
+local GCD_SPELL_ID = 61304
+
 local circleFrame
 
 -- Builds one hollow ring: a solid disc with its own mask punching the center hole
@@ -120,6 +123,38 @@ local function setTrackerProgress(tracker, progress)
     end
 end
 
+-- Fill fraction of the player's current spell. Casts fill up (0 -> 1); channels
+-- drain (1 -> 0). Returns 0 when nothing is being cast.
+local function getCastProgress()
+    -- Both return: name, text, texture, startTimeMS, endTimeMS, ...
+    local name, _, _, startMS, endMS = UnitCastingInfo("player")
+    local draining = false
+    if not name then
+        name, _, _, startMS, endMS = UnitChannelInfo("player")
+        draining = true
+    end
+    if not name or not startMS then return 0 end
+
+    local total = endMS - startMS
+    if total <= 0 then return 0 end
+
+    local elapsed = math.max(0, math.min(1, (GetTime() * 1000 - startMS) / total))
+    if draining then return 1 - elapsed end
+    return elapsed
+end
+
+-- Fill fraction of the global cooldown, filling up as it elapses. 0 when off the GCD.
+local function getGCDProgress()
+    local info = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
+    if not info or info.duration <= 0 then return 0 end
+    return math.max(0, math.min(1, (GetTime() - info.startTime) / info.duration))
+end
+
+local function trackerProgress(source)
+    if source == "gcd" then return getGCDProgress() end
+    return getCastProgress()
+end
+
 local function createCircleFrame()
     local frame = CreateFrame("Frame", "YaworsCleanUI_CursorPosition", UIParent)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
@@ -141,10 +176,15 @@ local function createCircleFrame()
         local cursorX, cursorY = GetCursorPosition()
         self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
 
-        -- TEMP: 2-second loop to verify the radial fill before wiring real tracking
-        local progress = (GetTime() % 2) / 2
-        setTrackerProgress(self.outerTracker, progress)
-        setTrackerProgress(self.innerTracker, progress)
+        if self.previewTrackers then
+            -- Demo sweep so the trackers are visible while configuring them
+            local progress = (GetTime() % 3) / 3
+            setTrackerProgress(self.outerTracker, progress)
+            setTrackerProgress(self.innerTracker, progress)
+        else
+            setTrackerProgress(self.outerTracker, trackerProgress(self.outerTracker.source))
+            setTrackerProgress(self.innerTracker, trackerProgress(self.innerTracker.source))
+        end
     end)
 
     return frame
@@ -204,6 +244,10 @@ function module.applySettings()
     sizeTracker(circleFrame.outerTracker, size + outerTrackerWidth * 2, outerTrackerWidth, settings.outerTrackerColor)
     local innerTrackerOuter = math.max(0, size - width * 4)
     sizeTracker(circleFrame.innerTracker, innerTrackerOuter, innerTrackerWidth, settings.innerTrackerColor)
+
+    circleFrame.outerTracker.source = settings.outerTrackerSource
+    circleFrame.innerTracker.source = settings.innerTrackerSource
+    circleFrame.previewTrackers = settings.previewTrackers
 
     updateVisibility()
 end

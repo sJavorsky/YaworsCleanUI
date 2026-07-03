@@ -22,6 +22,11 @@ addColorPicker(category, "cursorPosition", "innerColor",
     YaworsCleanUI.CursorPosition.applySettings()
 end)
 
+addCheckbox(category, "cursorPosition", "previewTrackers",
+    "Preview trackers", "Loops both trackers through a demo fill so you can see and configure them; turn off for live cast/GCD tracking.", function()
+    YaworsCleanUI.CursorPosition.applySettings()
+end)
+
 addColorPicker(category, "cursorPosition", "outerTrackerColor",
     "Outer tracker color", "Color of the outer tracker ring.", "ffffcc1a", function()
     YaworsCleanUI.CursorPosition.applySettings()
@@ -95,3 +100,32 @@ local innerTrackerWidthSetting = Settings.RegisterProxySetting(
 local innerTrackerWidthOptions = Settings.CreateSliderOptions(0, 75, 1)
 innerTrackerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, innerTrackerWidthSetting, innerTrackerWidthOptions, "Thickness of the inner tracker ring (0 hides it).")
+
+local createDropdown = Settings.CreateDropdown or Settings.CreateDropDown
+
+local function addTrackerSource(variable, key, name, tooltip)
+    local setting = Settings.RegisterProxySetting(
+        category,
+        variable,
+        Settings.VarType.String,
+        name,
+        "cast",
+        function() return YaworsCleanUIDB.cursorPosition[key] end,
+        function(value)
+            YaworsCleanUIDB.cursorPosition[key] = value
+            YaworsCleanUI.CursorPosition.applySettings()
+        end
+    )
+    local function options()
+        local container = Settings.CreateControlTextContainer()
+        container:Add("cast", "Spell cast")
+        container:Add("gcd", "Global cooldown")
+        return container:GetData()
+    end
+    createDropdown(category, setting, options, tooltip)
+end
+
+addTrackerSource("YaworsCleanUI_cursorPositionOuterTrackerSource", "outerTrackerSource",
+    "Outer tracker source", "What the outer tracker ring fills for.")
+addTrackerSource("YaworsCleanUI_cursorPositionInnerTrackerSource", "innerTrackerSource",
+    "Inner tracker source", "What the inner tracker ring fills for.")
