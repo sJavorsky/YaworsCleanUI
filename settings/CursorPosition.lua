@@ -22,6 +22,16 @@ addColorPicker(category, "cursorPosition", "innerColor",
     YaworsCleanUI.CursorPosition.applySettings()
 end)
 
+addColorPicker(category, "cursorPosition", "outerTrackerColor",
+    "Outer tracker color", "Color of the outer tracker ring.", "ffffcc1a", function()
+    YaworsCleanUI.CursorPosition.applySettings()
+end)
+
+addColorPicker(category, "cursorPosition", "innerTrackerColor",
+    "Inner tracker color", "Color of the inner tracker ring.", "ff9933ff", function()
+    YaworsCleanUI.CursorPosition.applySettings()
+end)
+
 local cursorSizeSetting = Settings.RegisterProxySetting(
     category,
     "YaworsCleanUI_cursorPositionSize",
@@ -53,3 +63,35 @@ local cursorWidthSetting = Settings.RegisterProxySetting(
 local cursorWidthOptions = Settings.CreateSliderOptions(1, 75, 1)
 cursorWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
 Settings.CreateSlider(category, cursorWidthSetting, cursorWidthOptions, "Thickness of the circle's ring.")
+
+local outerTrackerWidthSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_cursorPositionOuterTrackerWidth",
+    Settings.VarType.Number,
+    "Outer tracker width",
+    4,
+    function() return YaworsCleanUIDB.cursorPosition.outerTrackerWidth end,
+    function(value)
+        YaworsCleanUIDB.cursorPosition.outerTrackerWidth = value
+        YaworsCleanUI.CursorPosition.applySettings()
+    end
+)
+local outerTrackerWidthOptions = Settings.CreateSliderOptions(0, 75, 1)
+outerTrackerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, outerTrackerWidthSetting, outerTrackerWidthOptions, "Thickness of the outer tracker ring (0 hides it).")
+
+local innerTrackerWidthSetting = Settings.RegisterProxySetting(
+    category,
+    "YaworsCleanUI_cursorPositionInnerTrackerWidth",
+    Settings.VarType.Number,
+    "Inner tracker width",
+    4,
+    function() return YaworsCleanUIDB.cursorPosition.innerTrackerWidth end,
+    function(value)
+        YaworsCleanUIDB.cursorPosition.innerTrackerWidth = value
+        YaworsCleanUI.CursorPosition.applySettings()
+    end
+)
+local innerTrackerWidthOptions = Settings.CreateSliderOptions(0, 75, 1)
+innerTrackerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+Settings.CreateSlider(category, innerTrackerWidthSetting, innerTrackerWidthOptions, "Thickness of the inner tracker ring (0 hides it).")

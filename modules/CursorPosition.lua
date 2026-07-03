@@ -10,6 +10,10 @@ local HOLE_MASK_TEXTURE = [[Interface\AddOns\YaworsCleanUI\textures\ring-hole-ma
 -- the value baked into ring-hole-mask.png so we can scale the hole to any diameter.
 local HOLE_FRACTION = 0.5
 
+-- Half-plane wiper mask: right half reveals, left half hides, hard edge through the
+-- center. Rotating it sweeps the reveal edge around the ring for a radial fill.
+local HALF_MASK_TEXTURE = [[Interface\AddOns\YaworsCleanUI\textures\half-mask.png]]
+
 local circleFrame
 
 -- Builds one hollow ring: a solid disc with its own mask punching the center hole
@@ -41,6 +45,81 @@ local function sizeRing(disc, outerDiameter, width, color)
     disc.holeMask:SetSize(maskSize, maskSize)
 end
 
+-- A tracker is a ring that fills radially (like a circular cast bar). The fill is a
+-- wedge revealed by rotating half-plane masks. Two masks can only ever intersect to a
+-- convex wedge (<=180 deg), so we use two ring copies: A covers 0-180 deg, B covers
+-- 180-360 deg, and their union is the filled arc for any progress 0..1.
+local function createWiper(frame)
+    local mask = frame:CreateMaskTexture()
+    -- CLAMP keeps each side's edge behavior past the quad: right edge stays revealing,
+    -- left edge stays hiding, so the half-plane extends correctly under rotation.
+    mask:SetTexture(HALF_MASK_TEXTURE, "CLAMP", "CLAMP", "LINEAR")
+    mask:SetPoint("CENTER", frame, "CENTER", 0, 0)
+    return mask
+end
+
+local function createTracker(frame)
+    local tracker = {}
+    tracker.contentA = createRing(frame)
+    tracker.contentB = createRing(frame)
+
+    tracker.startA = createWiper(frame)  -- A's start edge, fixed at 12 o'clock
+    tracker.endA   = createWiper(frame)  -- A's moving end edge
+    tracker.startB = createWiper(frame)  -- B's start edge, fixed at 6 o'clock
+    tracker.endB   = createWiper(frame)  -- B's moving end edge
+    tracker.contentA:AddMaskTexture(tracker.startA)
+    tracker.contentA:AddMaskTexture(tracker.endA)
+    tracker.contentB:AddMaskTexture(tracker.startB)
+    tracker.contentB:AddMaskTexture(tracker.endB)
+
+    -- Fixed start edges: A reveals clockwise from 0 deg, B reveals clockwise from 180 deg
+    tracker.startA:SetRotation(0)
+    tracker.startB:SetRotation(math.rad(-180))
+    tracker.contentB:Hide()
+
+    return tracker
+end
+
+-- Places a tracker as a ring of the given outer diameter and thickness, and oversizes
+-- its wiper masks so rotation never uncovers the band (SetRotation shrinks by 2^-0.5).
+local function sizeTracker(tracker, outerDiameter, width, color)
+    tracker.active = outerDiameter > 0 and width > 0
+    if not tracker.active then
+        tracker.contentA:Hide()
+        tracker.contentB:Hide()
+        return
+    end
+
+    sizeRing(tracker.contentA, outerDiameter, width, color)
+    sizeRing(tracker.contentB, outerDiameter, width, color)
+
+    local wiperSize = outerDiameter * 2
+    tracker.startA:SetSize(wiperSize, wiperSize)
+    tracker.endA:SetSize(wiperSize, wiperSize)
+    tracker.startB:SetSize(wiperSize, wiperSize)
+    tracker.endB:SetSize(wiperSize, wiperSize)
+end
+
+-- Reveals the arc [0, progress] clockwise from 12 o'clock. The end edge maps to a mask
+-- rotation of (180 - 360*progress) degrees.
+local function setTrackerProgress(tracker, progress)
+    if not tracker.active then return end
+    progress = math.max(0, math.min(1, progress))
+    local endRotation = math.rad(180 - 360 * progress)
+
+    tracker.contentA:Show()
+    if progress <= 0.5 then
+        -- A alone covers the sub-180 wedge; B stays hidden
+        tracker.endA:SetRotation(endRotation)
+        tracker.contentB:Hide()
+    else
+        -- A fills its whole 0-180 half; B fills the remainder past 180
+        tracker.endA:SetRotation(0)
+        tracker.endB:SetRotation(endRotation)
+        tracker.contentB:Show()
+    end
+end
+
 local function createCircleFrame()
     local frame = CreateFrame("Frame", "YaworsCleanUI_CursorPosition", UIParent)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
@@ -51,6 +130,8 @@ local function createCircleFrame()
 
     frame.outerRing = createRing(frame)
     frame.innerRing = createRing(frame)
+    frame.outerTracker = createTracker(frame)
+    frame.innerTracker = createTracker(frame)
 
     -- Follow the cursor while shown. OnUpdate only fires on visible frames, so this
     -- costs nothing while the ring is hidden. GetCursorPosition returns screen pixels
@@ -59,6 +140,11 @@ local function createCircleFrame()
         local scale = self:GetEffectiveScale()
         local cursorX, cursorY = GetCursorPosition()
         self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
+
+        -- TEMP: 2-second loop to verify the radial fill before wiring real tracking
+        local progress = (GetTime() % 2) / 2
+        setTrackerProgress(self.outerTracker, progress)
+        setTrackerProgress(self.innerTracker, progress)
     end)
 
     return frame
@@ -97,11 +183,13 @@ end
 function module.applySettings()
     if not circleFrame then return end
 
-    local settings = YaworsCleanUIDB.cursorPosition
-    local size     = settings.size
-    local width    = settings.width
+    local settings          = YaworsCleanUIDB.cursorPosition
+    local size              = settings.size
+    local width             = settings.width
+    local outerTrackerWidth = settings.outerTrackerWidth
+    local innerTrackerWidth = settings.innerTrackerWidth
 
-    circleFrame:SetSize(size, size)
+    circleFrame:SetSize(size + outerTrackerWidth * 2, size + outerTrackerWidth * 2)
 
     sizeRing(circleFrame.outerRing, size, width, settings.outerColor)
 
@@ -110,6 +198,12 @@ function module.applySettings()
     -- overlap would paint over the outer ring and make it look thinner than the inner.
     local innerOuter = math.max(0, size - width * 2)
     sizeRing(circleFrame.innerRing, innerOuter, width, settings.innerColor)
+
+    -- Outer tracker sits just outside the outer ring; inner tracker just inside the
+    -- inner ring. Both touch the static block's edges.
+    sizeTracker(circleFrame.outerTracker, size + outerTrackerWidth * 2, outerTrackerWidth, settings.outerTrackerColor)
+    local innerTrackerOuter = math.max(0, size - width * 4)
+    sizeTracker(circleFrame.innerTracker, innerTrackerOuter, innerTrackerWidth, settings.innerTrackerColor)
 
     updateVisibility()
 end
