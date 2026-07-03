@@ -4,6 +4,7 @@ local DEFAULTS = {
     hideElements = {
         looting = false,
         bags = false,
+        groupIndicator = false,
     },
     moveElements = {
         queueEye = false,
