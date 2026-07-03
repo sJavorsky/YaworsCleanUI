@@ -75,9 +75,7 @@ local function createTracker(frame)
     tracker.contentB:AddMaskTexture(tracker.startB)
     tracker.contentB:AddMaskTexture(tracker.endB)
 
-    -- Fixed start edges: A reveals clockwise from 0 deg, B reveals clockwise from 180 deg
-    tracker.startA:SetRotation(0)
-    tracker.startB:SetRotation(math.rad(-180))
+    -- Start edges and direction are set per frame in setTrackerProgress
     tracker.contentB:Hide()
 
     return tracker
@@ -103,44 +101,52 @@ local function sizeTracker(tracker, outerDiameter, width, color)
     tracker.endB:SetSize(wiperSize, wiperSize)
 end
 
--- Reveals the arc [0, progress] clockwise from 12 o'clock. The end edge maps to a mask
--- rotation of (180 - 360*progress) degrees.
-local function setTrackerProgress(tracker, progress)
+-- Reveals the arc [0, progress] from 12 o'clock. Edge angles are computed for a
+-- clockwise sweep; a counter-clockwise sweep mirrors every angle across the vertical
+-- axis (180 - deg). The end edge maps to (180 - 360*progress) degrees.
+local function setTrackerProgress(tracker, progress, clockwise)
     if not tracker.active then return end
     progress = math.max(0, math.min(1, progress))
-    local endRotation = math.rad(180 - 360 * progress)
+    local endDegrees = 180 - 360 * progress
+
+    local function setEdge(mask, degrees)
+        if not clockwise then degrees = 180 - degrees end
+        mask:SetRotation(math.rad(degrees))
+    end
 
     tracker.contentA:Show()
+    setEdge(tracker.startA, 0)  -- A's start edge, fixed at 12 o'clock
     if progress <= 0.5 then
         -- A alone covers the sub-180 wedge; B stays hidden
-        tracker.endA:SetRotation(endRotation)
+        setEdge(tracker.endA, endDegrees)
         tracker.contentB:Hide()
     else
         -- A fills its whole 0-180 half; B fills the remainder past 180
-        tracker.endA:SetRotation(0)
-        tracker.endB:SetRotation(endRotation)
+        setEdge(tracker.endA, 0)
+        setEdge(tracker.startB, -180)  -- B's start edge, fixed at 6 o'clock
+        setEdge(tracker.endB, endDegrees)
         tracker.contentB:Show()
     end
 end
 
--- Fill fraction of the player's current spell. Casts fill up (0 -> 1); channels
--- drain (1 -> 0). Returns 0 when nothing is being cast.
+-- Fill fraction of the player's current spell plus whether it's a channel. Casts fill
+-- up (0 -> 1); channels drain (1 -> 0). Returns 0 when nothing is being cast.
 local function getCastProgress()
     -- Both return: name, text, texture, startTimeMS, endTimeMS, ...
     local name, _, _, startMS, endMS = UnitCastingInfo("player")
-    local draining = false
+    local isChannel = false
     if not name then
         name, _, _, startMS, endMS = UnitChannelInfo("player")
-        draining = true
+        isChannel = true
     end
-    if not name or not startMS then return 0 end
+    if not name or not startMS then return 0, false end
 
     local total = endMS - startMS
-    if total <= 0 then return 0 end
+    if total <= 0 then return 0, false end
 
     local elapsed = math.max(0, math.min(1, (GetTime() * 1000 - startMS) / total))
-    if draining then return 1 - elapsed end
-    return elapsed
+    if isChannel then return 1 - elapsed, true end
+    return elapsed, false
 end
 
 -- Fill fraction of the global cooldown, filling up as it elapses. 0 when off the GCD.
@@ -150,8 +156,11 @@ local function getGCDProgress()
     return math.max(0, math.min(1, (GetTime() - info.startTime) / info.duration))
 end
 
-local function trackerProgress(source)
-    if source == "gcd" then return getGCDProgress() end
+-- Progress and clockwise flag for a source. GCD fills up clockwise; casts fill up
+-- counter-clockwise; channels drain but sweep clockwise, which makes the receding
+-- edge read counter-clockwise like a cast.
+local function trackerState(source)
+    if source == "gcd" then return getGCDProgress(), true end
     return getCastProgress()
 end
 
@@ -160,7 +169,8 @@ local function createCircleFrame()
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     -- Clicks pass through to the world beneath the frame
     frame:EnableMouse(false)
-    frame:SetFrameStrata("MEDIUM")
+    -- TOOLTIP is the highest strata, so the cursor rings sit above other frames
+    frame:SetFrameStrata("TOOLTIP")
     frame:Hide()
 
     frame.outerRing = createRing(frame)
@@ -177,13 +187,16 @@ local function createCircleFrame()
         self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
 
         if self.previewTrackers then
-            -- Demo sweep so the trackers are visible while configuring them
+            -- Demo sweep so the trackers are visible while configuring them. No live
+            -- spell, so direction is by source: GCD clockwise, cast counter-clockwise.
             local progress = (GetTime() % 3) / 3
-            setTrackerProgress(self.outerTracker, progress)
-            setTrackerProgress(self.innerTracker, progress)
+            setTrackerProgress(self.outerTracker, progress, self.outerTracker.source == "gcd")
+            setTrackerProgress(self.innerTracker, progress, self.innerTracker.source == "gcd")
         else
-            setTrackerProgress(self.outerTracker, trackerProgress(self.outerTracker.source))
-            setTrackerProgress(self.innerTracker, trackerProgress(self.innerTracker.source))
+            local outerProgress, outerCW = trackerState(self.outerTracker.source)
+            local innerProgress, innerCW = trackerState(self.innerTracker.source)
+            setTrackerProgress(self.outerTracker, outerProgress, outerCW)
+            setTrackerProgress(self.innerTracker, innerProgress, innerCW)
         end
     end)
 
@@ -225,24 +238,25 @@ function module.applySettings()
 
     local settings          = YaworsCleanUIDB.cursorPosition
     local size              = settings.size
-    local width             = settings.width
+    local outerWidth        = settings.outerWidth
+    local innerWidth        = settings.innerWidth
     local outerTrackerWidth = settings.outerTrackerWidth
     local innerTrackerWidth = settings.innerTrackerWidth
 
     circleFrame:SetSize(size + outerTrackerWidth * 2, size + outerTrackerWidth * 2)
 
-    sizeRing(circleFrame.outerRing, size, width, settings.outerColor)
+    sizeRing(circleFrame.outerRing, size, outerWidth, settings.outerColor)
 
     -- The inner ring's outer edge sits exactly at the outer ring's inner edge so the
     -- two bands touch. They must not overlap: the inner ring draws on top, so any
     -- overlap would paint over the outer ring and make it look thinner than the inner.
-    local innerOuter = math.max(0, size - width * 2)
-    sizeRing(circleFrame.innerRing, innerOuter, width, settings.innerColor)
+    local innerOuter = math.max(0, size - outerWidth * 2)
+    sizeRing(circleFrame.innerRing, innerOuter, innerWidth, settings.innerColor)
 
     -- Outer tracker sits just outside the outer ring; inner tracker just inside the
     -- inner ring. Both touch the static block's edges.
     sizeTracker(circleFrame.outerTracker, size + outerTrackerWidth * 2, outerTrackerWidth, settings.outerTrackerColor)
-    local innerTrackerOuter = math.max(0, size - width * 4)
+    local innerTrackerOuter = math.max(0, innerOuter - innerWidth * 2)
     sizeTracker(circleFrame.innerTracker, innerTrackerOuter, innerTrackerWidth, settings.innerTrackerColor)
 
     circleFrame.outerTracker.source = settings.outerTrackerSource

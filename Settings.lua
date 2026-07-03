@@ -58,6 +58,13 @@ function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, 
     Settings.CreateColorSwatch(category, setting, tooltip)
 end
 
+-- Adds a section subheader within a category, rendered smaller than the category
+-- title. Appends at the current position, so call it between controls to group them.
+function YaworsCleanUI.addSectionHeader(category, name)
+    local layout = SettingsPanel:GetLayout(category)
+    layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(name))
+end
+
 -- Defer registration until ADDON_LOADED so that settings/ sub-files, which are
 -- listed after this file in the TOC, have all run and added their controls first.
 local registrationFrame = CreateFrame("Frame")

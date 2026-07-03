@@ -24,7 +24,7 @@ modules/
   ClassResourcePoints.lua    -- discrete point resources (combo points, runes, holy power, ...)
   ClassResourceBars.lua      -- continuous bar resources (rage, energy, runic power, ...)
   PlayerPosition.lua         -- player position indicator
-  CursorPosition.lua         -- cursor position ring (stub)
+  CursorPosition.lua         -- cursor-following rings + radial spell-cast/GCD trackers
 settings/                    -- one options file per module, same base names
 textures/                    -- bar fill masks / atlases
 deploy/                      -- scripts to copy the addon into the live WoW AddOns folder
@@ -93,6 +93,7 @@ Shared control helpers in Settings.lua:
 
 - `YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)`
 - `YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, defaultHex, callback)`
+- `YaworsCleanUI.addSectionHeader(category, name)` — a subheader within a category, for grouping controls
 
 Both build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Sliders are currently written inline with `RegisterProxySetting` + `CreateSliderOptions` + `CreateSlider` (see settings/ClassResourceBars.lua) — there is no shared slider helper yet.
 

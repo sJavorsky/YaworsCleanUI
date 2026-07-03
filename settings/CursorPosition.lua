@@ -1,105 +1,29 @@
 local category = YaworsCleanUI.settingsCategories.cursor
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addColorPicker = YaworsCleanUI.addColorPicker
+local addSectionHeader = YaworsCleanUI.addSectionHeader
 
-addCheckbox(category, "cursorPosition", "enabled",
-    "Show position circle", "Draws a circle at the cursor to mark its position.", function()
+local function apply()
     YaworsCleanUI.CursorPosition.applySettings()
-end)
+end
 
-addCheckbox(category, "cursorPosition", "combatOnly",
-    "Show only in combat", "Hides the position circle when not in combat.", function()
-    YaworsCleanUI.CursorPosition.applySettings()
-end)
-
-addColorPicker(category, "cursorPosition", "outerColor",
-    "Outer circle color", "Color of the outer ring.", "ffffffff", function()
-    YaworsCleanUI.CursorPosition.applySettings()
-end)
-
-addColorPicker(category, "cursorPosition", "innerColor",
-    "Inner circle color", "Color of the inner ring.", "ff3399ff", function()
-    YaworsCleanUI.CursorPosition.applySettings()
-end)
-
-addCheckbox(category, "cursorPosition", "previewTrackers",
-    "Preview trackers", "Loops both trackers through a demo fill so you can see and configure them; turn off for live cast/GCD tracking.", function()
-    YaworsCleanUI.CursorPosition.applySettings()
-end)
-
-addColorPicker(category, "cursorPosition", "outerTrackerColor",
-    "Outer tracker color", "Color of the outer tracker ring.", "ffffcc1a", function()
-    YaworsCleanUI.CursorPosition.applySettings()
-end)
-
-addColorPicker(category, "cursorPosition", "innerTrackerColor",
-    "Inner tracker color", "Color of the inner tracker ring.", "ff9933ff", function()
-    YaworsCleanUI.CursorPosition.applySettings()
-end)
-
-local cursorSizeSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_cursorPositionSize",
-    Settings.VarType.Number,
-    "Size",
-    50,
-    function() return YaworsCleanUIDB.cursorPosition.size end,
-    function(value)
-        YaworsCleanUIDB.cursorPosition.size = value
-        YaworsCleanUI.CursorPosition.applySettings()
-    end
-)
-local cursorSizeOptions = Settings.CreateSliderOptions(10, 300, 1)
-cursorSizeOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, cursorSizeSetting, cursorSizeOptions, "Diameter of the position circle.")
-
-local cursorWidthSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_cursorPositionWidth",
-    Settings.VarType.Number,
-    "Width",
-    10,
-    function() return YaworsCleanUIDB.cursorPosition.width end,
-    function(value)
-        YaworsCleanUIDB.cursorPosition.width = value
-        YaworsCleanUI.CursorPosition.applySettings()
-    end
-)
-local cursorWidthOptions = Settings.CreateSliderOptions(1, 75, 1)
-cursorWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, cursorWidthSetting, cursorWidthOptions, "Thickness of the circle's ring.")
-
-local outerTrackerWidthSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_cursorPositionOuterTrackerWidth",
-    Settings.VarType.Number,
-    "Outer tracker width",
-    4,
-    function() return YaworsCleanUIDB.cursorPosition.outerTrackerWidth end,
-    function(value)
-        YaworsCleanUIDB.cursorPosition.outerTrackerWidth = value
-        YaworsCleanUI.CursorPosition.applySettings()
-    end
-)
-local outerTrackerWidthOptions = Settings.CreateSliderOptions(0, 75, 1)
-outerTrackerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, outerTrackerWidthSetting, outerTrackerWidthOptions, "Thickness of the outer tracker ring (0 hides it).")
-
-local innerTrackerWidthSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_cursorPositionInnerTrackerWidth",
-    Settings.VarType.Number,
-    "Inner tracker width",
-    4,
-    function() return YaworsCleanUIDB.cursorPosition.innerTrackerWidth end,
-    function(value)
-        YaworsCleanUIDB.cursorPosition.innerTrackerWidth = value
-        YaworsCleanUI.CursorPosition.applySettings()
-    end
-)
-local innerTrackerWidthOptions = Settings.CreateSliderOptions(0, 75, 1)
-innerTrackerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, innerTrackerWidthSetting, innerTrackerWidthOptions, "Thickness of the inner tracker ring (0 hides it).")
+local function addSlider(variable, key, name, default, minValue, maxValue, tooltip)
+    local setting = Settings.RegisterProxySetting(
+        category,
+        variable,
+        Settings.VarType.Number,
+        name,
+        default,
+        function() return YaworsCleanUIDB.cursorPosition[key] end,
+        function(value)
+            YaworsCleanUIDB.cursorPosition[key] = value
+            apply()
+        end
+    )
+    local options = Settings.CreateSliderOptions(minValue, maxValue, 1)
+    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+    Settings.CreateSlider(category, setting, options, tooltip)
+end
 
 local createDropdown = Settings.CreateDropdown or Settings.CreateDropDown
 
@@ -113,7 +37,7 @@ local function addTrackerSource(variable, key, name, tooltip)
         function() return YaworsCleanUIDB.cursorPosition[key] end,
         function(value)
             YaworsCleanUIDB.cursorPosition[key] = value
-            YaworsCleanUI.CursorPosition.applySettings()
+            apply()
         end
     )
     local function options()
@@ -125,7 +49,42 @@ local function addTrackerSource(variable, key, name, tooltip)
     createDropdown(category, setting, options, tooltip)
 end
 
+addCheckbox(category, "cursorPosition", "enabled",
+    "Show position circle", "Draws a circle at the cursor to mark its position.", apply)
+
+addCheckbox(category, "cursorPosition", "combatOnly",
+    "Show only in combat", "Hides the position circle when not in combat.", apply)
+
+addCheckbox(category, "cursorPosition", "previewTrackers",
+    "Preview trackers", "Loops both trackers through a demo fill so you can see and configure them; turn off for live cast/GCD tracking.", apply)
+
+addSlider("YaworsCleanUI_cursorPositionSize", "size",
+    "Size", 65, 10, 300, "Diameter of the position circle.")
+
+addSectionHeader(category, "Outer ring")
+addColorPicker(category, "cursorPosition", "outerColor",
+    "Color", "Color of the outer ring.", "ffffffff", apply)
+addSlider("YaworsCleanUI_cursorPositionOuterWidth", "outerWidth",
+    "Width", 4, 1, 75, "Thickness of the outer ring.")
+
+addSectionHeader(category, "Inner ring")
+addColorPicker(category, "cursorPosition", "innerColor",
+    "Color", "Color of the inner ring.", "ff000000", apply)
+addSlider("YaworsCleanUI_cursorPositionInnerWidth", "innerWidth",
+    "Width", 4, 1, 75, "Thickness of the inner ring.")
+
+addSectionHeader(category, "Outer tracker")
+addColorPicker(category, "cursorPosition", "outerTrackerColor",
+    "Color", "Color of the outer tracker ring.", "ffbbbbbb", apply)
+addSlider("YaworsCleanUI_cursorPositionOuterTrackerWidth", "outerTrackerWidth",
+    "Width", 4, 0, 75, "Thickness of the outer tracker ring (0 hides it).")
 addTrackerSource("YaworsCleanUI_cursorPositionOuterTrackerSource", "outerTrackerSource",
-    "Outer tracker source", "What the outer tracker ring fills for.")
+    "Source", "What the outer tracker ring fills for.")
+
+addSectionHeader(category, "Inner tracker")
+addColorPicker(category, "cursorPosition", "innerTrackerColor",
+    "Color", "Color of the inner tracker ring.", "ffbbbbbb", apply)
+addSlider("YaworsCleanUI_cursorPositionInnerTrackerWidth", "innerTrackerWidth",
+    "Width", 4, 0, 75, "Thickness of the inner tracker ring (0 hides it).")
 addTrackerSource("YaworsCleanUI_cursorPositionInnerTrackerSource", "innerTrackerSource",
-    "Inner tracker source", "What the inner tracker ring fills for.")
+    "Source", "What the inner tracker ring fills for.")
