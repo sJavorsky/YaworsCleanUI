@@ -8,20 +8,20 @@ local DEFAULTS = {
     },
     moveElements = {
         queueEye = false,
-        eyeDistance = 0,
-        eyeAngle = 0,
+        eyeDistance = 105,
+        eyeAngle = 25,
         bnetToast = false,
         toastPreview = false,
-        toastOffsetX = 0,
-        toastOffsetY = 0,
+        toastOffsetX = 915,
+        toastOffsetY = -550,
     },
     filterChat = {
         talentSpam = false,
     },
     classResourcePoints = {
-        offsetY = 0,
+        offsetY = -80,
         offsetX = 0,
-        scale = 100,
+        scale = 200,
         deathKnightRunes = false,
         druidComboPoints = false,
         evokerEssence = false,
@@ -32,10 +32,10 @@ local DEFAULTS = {
         paladinHolyPower = false,
     },
     classResourceBars = {
-        fancyTextures = false,
-        offsetY = 0,
+        fancyTextures = true,
+        offsetY = -195,
         offsetX = 0,
-        scale = 100,
+        scale = 120,
         deathKnightRunicPower = false,
         druidEnergy = false,
         druidRage = false,
@@ -51,7 +51,7 @@ local DEFAULTS = {
     },
     playerPosition = {
         enabled = false,
-        combatOnly = false,
+        combatOnly = true,
         innerColor = { r = 1, g = 1, b = 1 },
         borderColor = { r = 0, g = 0, b = 0 },
         height = 40,
@@ -64,13 +64,13 @@ local DEFAULTS = {
     },
     cursorPosition = {
         enabled = false,
-        combatOnly = false,
+        combatOnly = true,
         previewTrackers = false,
         size = 65,
         outerWidth = 4,
-        outerColor = { r = 1, g = 1, b = 1 },
+        outerColor = { r = 0, g = 0, b = 0 },
         innerWidth = 3,
-        innerColor = { r = 0, g = 0, b = 0 },
+        innerColor = { r = 1, g = 1, b = 1 },
         outerTrackerWidth = 5,
         outerTrackerColor = { r = 0.7333, g = 0.7333, b = 0.7333 },
         outerTrackerSource = "cast",
@@ -79,6 +79,8 @@ local DEFAULTS = {
         innerTrackerSource = "gcd",
     },
 }
+
+YaworsCleanUI.DEFAULTS = DEFAULTS
 
 local function applyDefaults(target, defaults)
     for key, default in pairs(defaults) do

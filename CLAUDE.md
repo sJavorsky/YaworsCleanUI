@@ -92,10 +92,11 @@ Settings.lua builds the panel with `Settings.RegisterVerticalLayoutCategory` (ro
 Shared control helpers in Settings.lua:
 
 - `YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)`
-- `YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, defaultHex, callback)`
+- `YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, callback)`
+- `YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, maxValue, callback)`
 - `YaworsCleanUI.addSectionHeader(category, name)` — a subheader within a category, for grouping controls
 
-Both build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Sliders are currently written inline with `RegisterProxySetting` + `CreateSliderOptions` + `CreateSlider` (see settings/ClassResourceBars.lua) — there is no shared slider helper yet.
+These build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Each control's framework default (used for reset-to-default and the "modified" indicator) is derived from `YaworsCleanUI.DEFAULTS[group][key]` in Core.lua — the single source of truth — so defaults are never repeated at the call site.
 
 Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `applySettings()`. Everything applies instantly; there is no reload-required path or Reload UI button today. If a future setting genuinely needs a reload, enable a "Reload UI" button only when pending changes exist.
 

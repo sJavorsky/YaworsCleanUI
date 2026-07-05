@@ -1,62 +1,27 @@
 local category = YaworsCleanUI.settingsCategories.bars
 local addCheckbox = YaworsCleanUI.addCheckbox
+local addSlider = YaworsCleanUI.addSlider
 
-local screenHeight = math.floor(GetScreenHeight())
-local screenWidth = math.floor(GetScreenWidth())
+local screenHeightHalf = math.floor(GetScreenHeight()*0.8)
+local screenWidthHalf = math.floor(GetScreenWidth()*0.9)
+
+local function apply()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end
 
 -- Global toggle, kept above the per-class checkboxes so it does not get lost.
 addCheckbox(category, "classResourceBars", "fancyTextures",
-    "Fancy textures", "Show bars with their spec's fancy fill texture (Astral Power, Maelstrom, Insanity, Ebon Might, Fury). Applies to all class bars.", function()
-    YaworsCleanUI.ClassResourceBars.applySettings()
-end)
+    "Fancy textures", "Show bars with their spec's fancy fill texture (Astral Power, Maelstrom, Insanity, Ebon Might, Fury). Applies to all class bars.", apply)
 
-local barsOffsetYSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_classResourceBarsOffsetY",
-    Settings.VarType.Number,
-    "Vertical offset",
-    0,
-    function() return YaworsCleanUIDB.classResourceBars.offsetY end,
-    function(value)
-        YaworsCleanUIDB.classResourceBars.offsetY = value
-        YaworsCleanUI.ClassResourceBars.applySettings()
-    end
-)
-local barsOffsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
-barsOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, barsOffsetYSetting, barsOffsetYOptions, "Vertical offset for class bar frames.")
-
-local barsOffsetXSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_classResourceBarsOffsetX",
-    Settings.VarType.Number,
-    "Horizontal offset",
-    0,
-    function() return YaworsCleanUIDB.classResourceBars.offsetX end,
-    function(value)
-        YaworsCleanUIDB.classResourceBars.offsetX = value
-        YaworsCleanUI.ClassResourceBars.applySettings()
-    end
-)
-local barsOffsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
-barsOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, barsOffsetXSetting, barsOffsetXOptions, "Horizontal offset for class bar frames.")
-
-local barsScaleSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_classResourceBarsScale",
-    Settings.VarType.Number,
-    "Scale",
-    100,
-    function() return YaworsCleanUIDB.classResourceBars.scale end,
-    function(value)
-        YaworsCleanUIDB.classResourceBars.scale = value
-        YaworsCleanUI.ClassResourceBars.applySettings()
-    end
-)
-local barsScaleOptions = Settings.CreateSliderOptions(1, 1000, 1)
-barsScaleOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, barsScaleSetting, barsScaleOptions, "Scale of class bar frames (percentage).")
+addSlider(category, "classResourceBars", "offsetY",
+    "Vertical offset", "Vertical offset for class bar frames.",
+    -screenHeightHalf, screenHeightHalf, apply)
+addSlider(category, "classResourceBars", "offsetX",
+    "Horizontal offset", "Horizontal offset for class bar frames.",
+    -screenWidthHalf, screenWidthHalf, apply)
+addSlider(category, "classResourceBars", "scale",
+    "Scale", "Scale of class bar frames (percentage).",
+    1, 1000, apply)
 
 addCheckbox(category, "classResourceBars", "deathKnightRunicPower",
     "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()

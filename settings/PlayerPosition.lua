@@ -1,130 +1,45 @@
 local category = YaworsCleanUI.settingsCategories.position
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addColorPicker = YaworsCleanUI.addColorPicker
+local addSlider = YaworsCleanUI.addSlider
 
-local screenHeight = math.floor(GetScreenHeight())
-local screenWidth = math.floor(GetScreenWidth())
+local screenHeightHalf = math.floor(GetScreenHeight()*0.8)
+local screenWidthHalf = math.floor(GetScreenWidth()*0.8)
+
+local function apply()
+    YaworsCleanUI.PlayerPosition.applySettings()
+end
 
 addCheckbox(category, "playerPosition", "enabled",
-    "Show position cross", "Draws a cross at the center of the screen to mark your character's position.", function()
-    YaworsCleanUI.PlayerPosition.applySettings()
-end)
+    "Show position cross", "Draws a cross at the center of the screen to mark your character's position.", apply)
 
 addCheckbox(category, "playerPosition", "combatOnly",
-    "Show only in combat", "Hides the position cross when not in combat.", function()
-    YaworsCleanUI.PlayerPosition.applySettings()
-end)
+    "Show only in combat", "Hides the position cross when not in combat.", apply)
 
 addColorPicker(category, "playerPosition", "innerColor",
-    "Inner cross color", "Color of the inner cross lines.", "ffffffff", function()
-    YaworsCleanUI.PlayerPosition.applySettings()
-end)
+    "Inner cross color", "Color of the inner cross lines.", apply)
 
 addColorPicker(category, "playerPosition", "borderColor",
-    "Border color", "Color of the cross border outline.", "ff000000", function()
-    YaworsCleanUI.PlayerPosition.applySettings()
-end)
+    "Border color", "Color of the cross border outline.", apply)
 
-local playerHeightSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionHeight",
-    Settings.VarType.Number,
-    "Height",
-    40,
-    function() return YaworsCleanUIDB.playerPosition.height end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.height = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerHeightOptions = Settings.CreateSliderOptions(10, 200, 1)
-playerHeightOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerHeightSetting, playerHeightOptions, "Height of the vertical arm of the cross.")
-
-local playerWidthSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionWidth",
-    Settings.VarType.Number,
-    "Width",
-    40,
-    function() return YaworsCleanUIDB.playerPosition.width end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.width = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerWidthOptions = Settings.CreateSliderOptions(10, 200, 1)
-playerWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerWidthSetting, playerWidthOptions, "Width of the horizontal arm of the cross.")
-
-local playerThicknessSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionThickness",
-    Settings.VarType.Number,
-    "Thickness",
-    2,
-    function() return YaworsCleanUIDB.playerPosition.thickness end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.thickness = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerThicknessOptions = Settings.CreateSliderOptions(1, 20, 1)
-playerThicknessOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerThicknessSetting, playerThicknessOptions, "Thickness of the cross lines; border scales with it.")
-
-local playerMinZoomSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionMinZoom",
-    Settings.VarType.Number,
-    "Min Zoom",
-    5,
-    function() return YaworsCleanUIDB.playerPosition.minZoom end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.minZoom = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerMinZoomOptions = Settings.CreateSliderOptions(0, 40, 1)
-playerMinZoomOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerMinZoomSetting, playerMinZoomOptions, "Hide the cross when the camera zoom is closer than this. Only applies in dynamic mode (Manual offset disabled).")
+addSlider(category, "playerPosition", "height",
+    "Height", "Height of the vertical arm of the cross.", 10, 200, apply)
+addSlider(category, "playerPosition", "width",
+    "Width", "Width of the horizontal arm of the cross.", 10, 200, apply)
+addSlider(category, "playerPosition", "thickness",
+    "Thickness", "Thickness of the cross lines; border scales with it.", 1, 20, apply)
+addSlider(category, "playerPosition", "minZoom",
+    "Min Zoom", "Hide the cross when the camera zoom is closer than this. Only applies in dynamic mode (Manual offset disabled).",
+    0, 40, apply)
 
 addCheckbox(category, "playerPosition", "manualOffset",
     "Manual offset",
     "Use the offset sliders below to manually position the cross. When disabled, offset sliders are ignored.",
-    function()
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
+    apply)
 
-local playerOffsetYSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionOffsetY",
-    Settings.VarType.Number,
-    "Vertical offset",
-    0,
-    function() return YaworsCleanUIDB.playerPosition.offsetY end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.offsetY = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerOffsetYOptions = Settings.CreateSliderOptions(-screenHeight, screenHeight, 1)
-playerOffsetYOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerOffsetYSetting, playerOffsetYOptions, "Vertical offset for the position cross.")
-
-local playerOffsetXSetting = Settings.RegisterProxySetting(
-    category,
-    "YaworsCleanUI_playerPositionOffsetX",
-    Settings.VarType.Number,
-    "Horizontal offset",
-    0,
-    function() return YaworsCleanUIDB.playerPosition.offsetX end,
-    function(value)
-        YaworsCleanUIDB.playerPosition.offsetX = value
-        YaworsCleanUI.PlayerPosition.applySettings()
-    end
-)
-local playerOffsetXOptions = Settings.CreateSliderOptions(-screenWidth, screenWidth, 1)
-playerOffsetXOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-Settings.CreateSlider(category, playerOffsetXSetting, playerOffsetXOptions, "Horizontal offset for the position cross.")
+addSlider(category, "playerPosition", "offsetY",
+    "Vertical offset", "Vertical offset for the position cross.",
+    -screenHeightHalf, screenHeightHalf, apply)
+addSlider(category, "playerPosition", "offsetX",
+    "Horizontal offset", "Horizontal offset for the position cross.",
+    -screenWidthHalf, screenWidthHalf, apply)

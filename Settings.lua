@@ -25,7 +25,7 @@ function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback
         "YaworsCleanUI_" .. group .. "_" .. key,
         Settings.VarType.Boolean,
         name,
-        false,
+        YaworsCleanUI.DEFAULTS[group][key],
         function() return YaworsCleanUIDB[group][key] end,
         function(value)
             YaworsCleanUIDB[group][key] = value
@@ -35,7 +35,9 @@ function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback
     Settings.CreateCheckbox(category, setting, tooltip)
 end
 
-function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, defaultHex, callback)
+function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, callback)
+    local defaultColor = YaworsCleanUI.DEFAULTS[group][colorKey]
+    local defaultHex = CreateColor(defaultColor.r, defaultColor.g, defaultColor.b):GenerateHexColor()
     local setting = Settings.RegisterProxySetting(
         category,
         "YaworsCleanUI_" .. group .. "_" .. colorKey,
@@ -56,6 +58,24 @@ function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, 
         end
     )
     Settings.CreateColorSwatch(category, setting, tooltip)
+end
+
+function YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, maxValue, callback)
+    local setting = Settings.RegisterProxySetting(
+        category,
+        "YaworsCleanUI_" .. group .. "_" .. key,
+        Settings.VarType.Number,
+        name,
+        YaworsCleanUI.DEFAULTS[group][key],
+        function() return YaworsCleanUIDB[group][key] end,
+        function(value)
+            YaworsCleanUIDB[group][key] = value
+            callback()
+        end
+    )
+    local options = Settings.CreateSliderOptions(minValue, maxValue, 1)
+    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+    Settings.CreateSlider(category, setting, options, tooltip)
 end
 
 -- Adds a section subheader within a category, rendered smaller than the category
