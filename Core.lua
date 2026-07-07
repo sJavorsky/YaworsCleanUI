@@ -19,9 +19,9 @@ local DEFAULTS = {
         talentSpam = false,
     },
     classResourcePoints = {
-        offsetY = -80,
+        offsetY = -120,
         offsetX = 0,
-        scale = 200,
+        scale = 175,
         deathKnightRunes = false,
         druidComboPoints = false,
         evokerEssence = false,
@@ -33,7 +33,7 @@ local DEFAULTS = {
     },
     classResourceBars = {
         fancyTextures = true,
-        offsetY = -195,
+        offsetY = -200,
         offsetX = 0,
         scale = 120,
         deathKnightRunicPower = false,

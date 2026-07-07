@@ -349,11 +349,15 @@ function module.applySettings()
 
     if anyVisible then
         wrapperFrame:Show()
+        -- SetPoint offsets are in the frame's own (scaled) coordinate space, so a
+        -- raw offset would move scale-times as many screen pixels. Divide by the
+        -- scale to keep the on-screen displacement constant at any scale.
+        local scale = YaworsCleanUIDB.classResourceBars.scale / 100
         wrapperFrame:ClearAllPoints()
         wrapperFrame:SetPoint("CENTER", UIParent, "CENTER",
-            YaworsCleanUIDB.classResourceBars.offsetX,
-            YaworsCleanUIDB.classResourceBars.offsetY)
-        wrapperFrame:SetScale(YaworsCleanUIDB.classResourceBars.scale / 100)
+            YaworsCleanUIDB.classResourceBars.offsetX / scale,
+            YaworsCleanUIDB.classResourceBars.offsetY / scale)
+        wrapperFrame:SetScale(scale)
     else
         wrapperFrame:Hide()
     end

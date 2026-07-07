@@ -169,7 +169,12 @@ end
 
 local function centerFrame(frame, config)
     local points = YaworsCleanUIDB.classResourcePoints
-    local offsetX, offsetY = points.offsetX, points.offsetY
+    -- SetPoint offsets are in the frame's own (scaled) coordinate space, so a raw
+    -- offset would move scale-times as many screen pixels. Divide by the scale to
+    -- keep the on-screen displacement constant at any scale. The content
+    -- correction below is already measured in frame units, so it needs no scaling.
+    local scale = points.scale / 100
+    local offsetX, offsetY = points.offsetX / scale, points.offsetY / scale
 
     isRepositioning = true
     -- UIParent spans the full screen; its center is the screen center
