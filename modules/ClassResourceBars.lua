@@ -34,7 +34,18 @@ local MASK_TEXTURE = [[Interface\AddOns\YaworsCleanUI\textures\legionfall-bar-ma
 --                  bar refreshes on an OnUpdate timer instead of power events,
 --                  allowing continuously-changing non-power resources (e.g. a
 --                  counting-down aura duration) to drive the bar.
+--   appearanceProvider: optional function() returning {r, g, b}, fillAtlas. Only
+--                  useful alongside valueProvider, since it is re-evaluated on the
+--                  same timer. Lets a bar recolor and swap its fancy atlas while
+--                  visible, for resources that change appearance mid-combat. The
+--                  config's own color/fillAtlas stay the starting state.
 -- extraEvents: optional array of additional event names to register
+
+-- Hoisted out of the appearance provider below, which runs on a 10 Hz timer and
+-- would otherwise allocate a fresh table on every tick.
+local SOUL_FRAGMENTS_COLOR = {0.35, 0.16, 1.0}
+local COLLAPSING_STAR_COLOR = {0.065, 0.39, 1.0}
+
 local classConfigs = {
     DEATHKNIGHT = {
         bars = {
@@ -142,13 +153,50 @@ local classConfigs = {
                 settingKey = "demonHunterFury",
                 powerType  = Enum.PowerType.Fury,
                 powerToken = "FURY",
-                color      = {0.788, 0.259, 0.992},
+                color      = {0.79, 0.26, 0.99},
                 fillAtlas  = "Unit_DemonHunter_Fury_Fill",
             },
             {
                 settingKey = "demonHunterSoulFragments",
                 stacked    = true,
-                color      = {0.278, 0.125, 0.796},
+                color      = SOUL_FRAGMENTS_COLOR,
+                fillAtlas  = "UF-DDH-VoidMeta-Bar",
+                -- Soul Fragments are aura stacks, not a power, so nothing fires an
+                -- event when they change; the bar polls instead.
+                valueProvider = function()
+                    -- 1225789 = Soul Fragments; it is replaced by 1227702
+                    -- (Collapsing Star) for the duration of Void Metamorphosis
+                    local auraData = C_UnitAuras.GetPlayerAuraBySpellID(1225789)
+                        or C_UnitAuras.GetPlayerAuraBySpellID(1227702)
+                    local current = auraData and auraData.applications or 0
+                    local maximum
+                    -- Void Metamorphosis caps Collapsing Star lower than the
+                    -- baseline fragment cap. Keyed on the meta aura rather than on
+                    -- which fragment aura is present, so an empty bar out of meta
+                    -- still reports the baseline cap.
+                    if C_UnitAuras.GetPlayerAuraBySpellID(1217607) then
+                        maximum = 30
+                    else
+                        -- 1247534 = Soul Glutton, which lowers the cap. Read every
+                        -- tick so a talent swap needs no event of its own.
+                        maximum = C_SpellBook.IsSpellKnown(1247534) and 35 or 50
+                    end
+                    -- Entering meta carries fragments over above the lower Collapsing
+                    -- Star cap, so the aura can report more stacks than are spendable.
+                    if current > maximum then
+                        current = maximum
+                    end
+                    return current, maximum, current
+                end,
+                -- Void Metamorphosis turns the fragments into Collapsing Star, which
+                -- reads as a different resource, so the bar changes look with it
+                appearanceProvider = function()
+                    -- 1217607 = Void Metamorphosis
+                    if C_UnitAuras.GetPlayerAuraBySpellID(1217607) then
+                        return COLLAPSING_STAR_COLOR, "UF-DDH-CollapsingStar-Bar"
+                    end
+                    return SOUL_FRAGMENTS_COLOR, "UF-DDH-VoidMeta-Bar"
+                end,
                 shouldShow = function()
                     local spec = C_SpecializationInfo.GetSpecialization()
                     if not spec then return false end
@@ -301,8 +349,16 @@ end
 
 local function updateBarValue(activeBar)
     local config = activeBar.config
-    -- Placeholder bars have no source yet; leave them empty
-    if not config.powerType and not config.valueProvider then return end
+
+    if config.appearanceProvider then
+        local color, fillAtlas = config.appearanceProvider()
+        activeBar.statusBar:SetStatusBarColor(color[1], color[2], color[3])
+        -- SetAtlas re-resolves the atlas entry, so only pay for it on a real change
+        if activeBar.fancyBar and fillAtlas ~= activeBar.fillAtlas then
+            activeBar.fancyBar:GetStatusBarTexture():SetAtlas(fillAtlas, false)
+            activeBar.fillAtlas = fillAtlas
+        end
+    end
 
     local current, maximum, text
     if config.valueProvider then
@@ -402,7 +458,7 @@ function module.init()
 
     for _, barConfig in ipairs(classConfig.bars) do
         local frame, statusBar, valueText, fancyBar = createBar(barConfig, wrapperFrame)
-        local activeBar = { frame = frame, statusBar = statusBar, valueText = valueText, fancyBar = fancyBar, config = barConfig }
+        local activeBar = { frame = frame, statusBar = statusBar, valueText = valueText, fancyBar = fancyBar, fillAtlas = barConfig.fillAtlas, config = barConfig }
         table.insert(activeBars, activeBar)
 
         -- valueProvider bars (e.g. counting-down buffs) refresh on a timer instead
