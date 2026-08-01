@@ -22,7 +22,6 @@ addSlider(category, "classResourceBars", "offsetX",
 addSlider(category, "classResourceBars", "scale",
     "Scale", "Scale of class bar frames (percentage).",
     1, 1000, apply)
-
 addCheckbox(category, "classResourceBars", "deathKnightRunicPower",
     "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
@@ -44,7 +43,11 @@ addCheckbox(category, "classResourceBars", "evokerEbonMight",
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "demonHunterFury",
-    "Demon Hunter Fury", "Show the Demon Hunter Fury bar at the center of the screen (Havoc and Vengeance only).", function()
+    "Demon Hunter Fury", "Show the Demon Hunter Fury bar at the center of the screen.", function()
+    YaworsCleanUI.ClassResourceBars.applySettings()
+end)
+addCheckbox(category, "classResourceBars", "demonHunterSoulFragments",
+    "Demon Hunter Soul Fragments", "Show the Demon Hunter Soul Fragments bar stacked with the Fury bar (Devourer only).", function()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end)
 addCheckbox(category, "classResourceBars", "hunterFocus",

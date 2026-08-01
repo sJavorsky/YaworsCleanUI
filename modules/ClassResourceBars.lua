@@ -23,6 +23,11 @@ local MASK_TEXTURE = [[Interface\AddOns\YaworsCleanUI\textures\legionfall-bar-ma
 --                  simple-color glow fill, which remains as the glow base. Without
 --                  the setting, or without a fillAtlas, the bar shows the plain
 --                  desaturate-and-tint fill.
+--   stacked:       optional; bars default to filling the wrapper frame, so a class
+--                  showing several of them only ever has one visible at a time. A
+--                  stacked bar instead sits one bar height away from the wrapper, for
+--                  specs that show two bars at once. It shares the wrapper's position
+--                  and scale, so both bars always move and size together.
 --   shouldShow:    optional function(); if present, bar is hidden when it returns false
 --   valueProvider: optional function() returning current, maximum, text. When
 --                  present it replaces the UnitPower/UnitPowerMax lookup and the
@@ -139,13 +144,17 @@ local classConfigs = {
                 powerToken = "FURY",
                 color      = {0.788, 0.259, 0.992},
                 fillAtlas  = "Unit_DemonHunter_Fury_Fill",
+            },
+            {
+                settingKey = "demonHunterSoulFragments",
+                stacked    = true,
+                color      = {0.278, 0.125, 0.796},
                 shouldShow = function()
                     local spec = C_SpecializationInfo.GetSpecialization()
                     if not spec then return false end
-                    -- 577 = Havoc, 581 = Vengeance; the third spec's behavior is
-                    -- unknown, so only show Fury for these two.
+                    -- 1480 = Devourer; only it tracks Soul Fragments
                     local specID = C_SpecializationInfo.GetSpecializationInfo(spec)
-                    return specID == 577 or specID == 581
+                    return specID == 1480
                 end,
             },
         },
@@ -242,7 +251,12 @@ end
 
 local function createBar(config, parent)
     local frame = CreateFrame("Frame", nil, parent)
-    frame:SetAllPoints()
+    -- Stacked bars are anchored by applySettings, which picks the side to sit on
+    if config.stacked then
+        frame:SetSize(BAR_WIDTH, BAR_HEIGHT)
+    else
+        frame:SetAllPoints()
+    end
     -- Start hidden; applySettings() controls visibility
     frame:Hide()
 
@@ -287,6 +301,9 @@ end
 
 local function updateBarValue(activeBar)
     local config = activeBar.config
+    -- Placeholder bars have no source yet; leave them empty
+    if not config.powerType and not config.valueProvider then return end
+
     local current, maximum, text
     if config.valueProvider then
         current, maximum, text = config.valueProvider()
@@ -330,13 +347,23 @@ end
 function module.applySettings()
     if not wrapperFrame then return end
 
-    local fancy = YaworsCleanUIDB.classResourceBars.fancyTextures
+    local settings = YaworsCleanUIDB.classResourceBars
+    local fancy = settings.fancyTextures
+    -- Stack away from the screen edge the bars sit closest to, so the extra bar
+    -- grows toward the middle of the screen instead of off it
+    -- Floored so a fractional offset never lands the bar off-pixel
+    local stackDistance = math.floor(1.25 * BAR_HEIGHT)
+    local stackOffset = settings.offsetY > 0 and stackDistance or -stackDistance
     local anyVisible = false
     for _, activeBar in ipairs(activeBars) do
         local config = activeBar.config
-        local enabled = YaworsCleanUIDB.classResourceBars[config.settingKey]
+        local enabled = settings[config.settingKey]
         local shouldBeVisible = enabled and (not config.shouldShow or config.shouldShow())
         if shouldBeVisible then
+            if config.stacked then
+                activeBar.frame:ClearAllPoints()
+                activeBar.frame:SetPoint("CENTER", wrapperFrame, "CENTER", 0, stackOffset)
+            end
             activeBar.frame:Show()
             anyVisible = true
         else
@@ -352,11 +379,11 @@ function module.applySettings()
         -- SetPoint offsets are in the frame's own (scaled) coordinate space, so a
         -- raw offset would move scale-times as many screen pixels. Divide by the
         -- scale to keep the on-screen displacement constant at any scale.
-        local scale = YaworsCleanUIDB.classResourceBars.scale / 100
+        local scale = settings.scale / 100
         wrapperFrame:ClearAllPoints()
         wrapperFrame:SetPoint("CENTER", UIParent, "CENTER",
-            YaworsCleanUIDB.classResourceBars.offsetX / scale,
-            YaworsCleanUIDB.classResourceBars.offsetY / scale)
+            settings.offsetX / scale,
+            settings.offsetY / scale)
         wrapperFrame:SetScale(scale)
     else
         wrapperFrame:Hide()

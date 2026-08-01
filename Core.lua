@@ -48,6 +48,7 @@ local DEFAULTS = {
         shamanMaelstrom = false,
         monkEnergy = false,
         demonHunterFury = false,
+        demonHunterSoulFragments = false,
     },
     playerPosition = {
         enabled = false,
