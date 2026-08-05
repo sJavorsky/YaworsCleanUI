@@ -68,6 +68,7 @@ local function updateVisibility()
 end
 
 local currentOffsetY = nil  -- nil forces an immediate snap on the first update
+local appliedOffsetY = nil  -- last offset actually written to the frame's anchor
 
 local function onUpdateDynamic(_, elapsed)
     local targetOffsetY = computeZoomOffsetY(GetCameraZoom())
@@ -76,11 +77,40 @@ local function onUpdateDynamic(_, elapsed)
         currentOffsetY = targetOffsetY
     else
         currentOffsetY = currentOffsetY + (targetOffsetY - currentOffsetY) * math.min(1, LERP_SPEED * elapsed)
+        -- The lerp only approaches the target asymptotically; snap once close so the
+        -- anchor stops being rewritten every frame at an imperceptible delta
+        if math.abs(targetOffsetY - currentOffsetY) < 0.5 then
+            currentOffsetY = targetOffsetY
+        end
     end
 
-    crossFrame:ClearAllPoints()
-    crossFrame:SetPoint("CENTER", UIParent, "CENTER", 0, currentOffsetY)
+    if currentOffsetY ~= appliedOffsetY then
+        appliedOffsetY = currentOffsetY
+        crossFrame:ClearAllPoints()
+        crossFrame:SetPoint("CENTER", UIParent, "CENTER", 0, currentOffsetY)
+    end
     updateVisibility()
+end
+
+-- The zoom poller costs a GetCameraZoom and visibility check every frame, so it only
+-- runs while the cross can actually appear in dynamic mode: feature enabled, dynamic
+-- positioning, and (if combat-only) in combat. Combat events re-evaluate this.
+local function updateDynamicPolling()
+    local settings = YaworsCleanUIDB.playerPosition
+    local needed = settings.enabled
+        and not settings.manualOffset
+        and (not settings.combatOnly or UnitAffectingCombat("player"))
+    if needed then
+        if not pollFrame:GetScript("OnUpdate") then
+            currentOffsetY = nil
+            appliedOffsetY = nil
+            pollFrame:SetScript("OnUpdate", onUpdateDynamic)
+            -- Position immediately so the cross doesn't show one frame at a stale spot
+            onUpdateDynamic(pollFrame, 0)
+        end
+    else
+        pollFrame:SetScript("OnUpdate", nil)
+    end
 end
 
 function module.init()
@@ -95,6 +125,7 @@ function module.init()
     eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     eventFrame:SetScript("OnEvent", function()
+        updateDynamicPolling()
         updateVisibility()
     end)
 
@@ -129,13 +160,10 @@ function module.applySettings()
     crossFrame.vertical:SetSize(thickness, height)
 
     if settings.manualOffset then
-        pollFrame:SetScript("OnUpdate", nil)
         crossFrame:ClearAllPoints()
         crossFrame:SetPoint("CENTER", UIParent, "CENTER", settings.offsetX, settings.offsetY)
-    else
-        currentOffsetY = nil  -- snap to correct position immediately on next frame
-        pollFrame:SetScript("OnUpdate", onUpdateDynamic)
     end
+    updateDynamicPolling()
 
     updateVisibility()
 end

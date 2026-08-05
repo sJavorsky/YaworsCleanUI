@@ -20,34 +20,18 @@ addSlider(category, "classResourcePoints", "scale",
     1, 1000, apply)
 
 addCheckbox(category, "classResourcePoints", "deathKnightRunes",
-    "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", apply)
 addCheckbox(category, "classResourcePoints", "druidComboPoints",
-    "Druid Combo Points", "Move the Druid combo points bar to the center of the screen.", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Druid Combo Points", "Move the Druid combo points bar to the center of the screen.", apply)
 addCheckbox(category, "classResourcePoints", "evokerEssence",
-    "Evoker Essence", "Move the Evoker Essence to the center of the screen.", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Evoker Essence", "Move the Evoker Essence to the center of the screen.", apply)
 addCheckbox(category, "classResourcePoints", "rogueComboPoints",
-    "Rogue Combo Points", "Move the Rogue combo points bar to the center of the screen.", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Rogue Combo Points", "Move the Rogue combo points bar to the center of the screen.", apply)
 addCheckbox(category, "classResourcePoints", "monkChi",
-    "Monk Chi", "Move the Monk Chi bar to the center of the screen (Windwalker only).", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Monk Chi", "Move the Monk Chi bar to the center of the screen (Windwalker only).", apply)
 addCheckbox(category, "classResourcePoints", "warlockSoulShards",
-    "Warlock Soul Shards", "Move the Warlock Soul Shards to the center of the screen.", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Warlock Soul Shards", "Move the Warlock Soul Shards to the center of the screen.", apply)
 addCheckbox(category, "classResourcePoints", "mageArcaneCharges",
-    "Mage Arcane Charges", "Move the Mage Arcane Charges to the center of the screen (Arcane only).", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Mage Arcane Charges", "Move the Mage Arcane Charges to the center of the screen (Arcane only).", apply)
 addCheckbox(category, "classResourcePoints", "paladinHolyPower",
-    "Paladin Holy Power", "Move the Paladin Holy Power to the center of the screen.", function()
-    YaworsCleanUI.ClassResourcePoints.applySettings()
-end)
+    "Paladin Holy Power", "Move the Paladin Holy Power to the center of the screen.", apply)

@@ -99,32 +99,42 @@ local function sizeTracker(tracker, outerDiameter, width, color)
     tracker.endA:SetSize(wiperSize, wiperSize)
     tracker.startB:SetSize(wiperSize, wiperSize)
     tracker.endB:SetSize(wiperSize, wiperSize)
+
+    -- Force the next setTrackerProgress to re-apply, since the inactive branch above
+    -- may have hidden the content rings
+    tracker.lastProgress = nil
 end
 
--- Reveals the arc [0, progress] from 12 o'clock. Edge angles are computed for a
--- clockwise sweep; a counter-clockwise sweep mirrors every angle across the vertical
--- axis (180 - deg). The end edge maps to (180 - 360*progress) degrees.
+-- Edge angles are computed for a clockwise sweep; a counter-clockwise sweep mirrors
+-- every angle across the vertical axis (180 - deg).
+local function setEdge(mask, degrees, clockwise)
+    if not clockwise then degrees = 180 - degrees end
+    mask:SetRotation(math.rad(degrees))
+end
+
+-- Reveals the arc [0, progress] from 12 o'clock. The end edge maps to
+-- (180 - 360*progress) degrees.
 local function setTrackerProgress(tracker, progress, clockwise)
     if not tracker.active then return end
     progress = math.max(0, math.min(1, progress))
+    -- Runs every frame; skip the mask rotations while nothing changes (the common
+    -- case out of combat, where progress sits at 0)
+    if progress == tracker.lastProgress and clockwise == tracker.lastClockwise then return end
+    tracker.lastProgress = progress
+    tracker.lastClockwise = clockwise
     local endDegrees = 180 - 360 * progress
 
-    local function setEdge(mask, degrees)
-        if not clockwise then degrees = 180 - degrees end
-        mask:SetRotation(math.rad(degrees))
-    end
-
     tracker.contentA:Show()
-    setEdge(tracker.startA, 0)  -- A's start edge, fixed at 12 o'clock
+    setEdge(tracker.startA, 0, clockwise)  -- A's start edge, fixed at 12 o'clock
     if progress <= 0.5 then
         -- A alone covers the sub-180 wedge; B stays hidden
-        setEdge(tracker.endA, endDegrees)
+        setEdge(tracker.endA, endDegrees, clockwise)
         tracker.contentB:Hide()
     else
         -- A fills its whole 0-180 half; B fills the remainder past 180
-        setEdge(tracker.endA, 0)
-        setEdge(tracker.startB, -180)  -- B's start edge, fixed at 6 o'clock
-        setEdge(tracker.endB, endDegrees)
+        setEdge(tracker.endA, 0, clockwise)
+        setEdge(tracker.startB, -180, clockwise)  -- B's start edge, fixed at 6 o'clock
+        setEdge(tracker.endB, endDegrees, clockwise)
         tracker.contentB:Show()
     end
 end
@@ -182,21 +192,31 @@ local function createCircleFrame()
     -- costs nothing while the ring is hidden. GetCursorPosition returns screen pixels
     -- from the bottom-left, scaled by the UI scale, hence dividing by the frame's scale.
     frame:SetScript("OnUpdate", function(self)
-        local scale = self:GetEffectiveScale()
         local cursorX, cursorY = GetCursorPosition()
-        self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
+        -- Skip the anchor rewrite while the cursor sits still (keyboard-only play)
+        if cursorX ~= self.lastCursorX or cursorY ~= self.lastCursorY then
+            self.lastCursorX, self.lastCursorY = cursorX, cursorY
+            local scale = self:GetEffectiveScale()
+            self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
+        end
+
+        local outerTracker, innerTracker = self.outerTracker, self.innerTracker
+        if not (outerTracker.active or innerTracker.active) then return end
 
         if self.previewTrackers then
             -- Demo sweep so the trackers are visible while configuring them. No live
             -- spell, so direction is by source: GCD clockwise, cast counter-clockwise.
             local progress = (GetTime() % 3) / 3
-            setTrackerProgress(self.outerTracker, progress, self.outerTracker.source == "gcd")
-            setTrackerProgress(self.innerTracker, progress, self.innerTracker.source == "gcd")
+            setTrackerProgress(outerTracker, progress, outerTracker.source == "gcd")
+            setTrackerProgress(innerTracker, progress, innerTracker.source == "gcd")
         else
-            local outerProgress, outerCW = trackerState(self.outerTracker.source)
-            local innerProgress, innerCW = trackerState(self.innerTracker.source)
-            setTrackerProgress(self.outerTracker, outerProgress, outerCW)
-            setTrackerProgress(self.innerTracker, innerProgress, innerCW)
+            -- Only query cast/GCD state for trackers that are actually shown
+            if outerTracker.active then
+                setTrackerProgress(outerTracker, trackerState(outerTracker.source))
+            end
+            if innerTracker.active then
+                setTrackerProgress(innerTracker, trackerState(innerTracker.source))
+            end
         end
     end)
 
