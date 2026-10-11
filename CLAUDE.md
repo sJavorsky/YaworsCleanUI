@@ -26,7 +26,8 @@ modules/
   PlayerPosition.lua         -- player position indicator
   CursorPosition.lua         -- cursor-following rings + radial spell-cast/GCD trackers
 settings/                    -- one options file per module, same base names
-textures/                    -- bar fill masks / atlases
+textures/                    -- bar fill masks / atlases, addon icon
+media/                       -- CurseForge logo and screenshots (not deployed)
 deploy/                      -- scripts to copy the addon into the live WoW AddOns folder
 reference/                   -- other addons cloned for API reference (gitignored, read-only)
 ```

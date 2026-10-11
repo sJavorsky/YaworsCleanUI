@@ -3,6 +3,8 @@
 ## Notes: Cleans up the UI by hiding elements and filtering chat spam.
 ## Author: Yawor
 ## Version: 0.1.0
+## X-License: GPL-3.0-or-later
+## IconTexture: Interface\AddOns\YaworsCleanUI\textures\YCUI_logo_tga
 ## SavedVariables: YaworsCleanUIDB
 
 Core.lua
