@@ -120,7 +120,7 @@ If unsure what a UI element's frame is called, ask the user to hover over it in-
 
 ## Target version
 
-Retail WoW, current version. TOC: `## Interface: 120001`. Single number is fine for retail-only addons.
+Retail WoW, current version. TOC: `## Interface: 120100, 120105` (live plus the upcoming patch, so the addon isn't flagged out of date on patch day). Drop old values once a patch goes live.
 
 ## SavedVariables
 
