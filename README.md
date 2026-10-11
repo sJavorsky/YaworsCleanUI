@@ -6,13 +6,13 @@ Get your ultimate UI altering addon!
 
 #### Highly praised by ruthless critics:
 
->*From what I've seen today, Yawor's UI was the least worst.*
+>*"From what I've seen today, Yawor's UI was the least worst."*
 >
 > — Grim
 
 #### Loved by addon enthusiasts:
 
->*It's in my top 3 addons!*
+>*"It's in my top 3 addons!"*
 >
 > — our lovely healer Nikaia
 
@@ -106,7 +106,7 @@ The codebase was written by Anthropic's [Claude](https://claude.ai) under Yawor'
 
 ## References
 
-I worked with codebases of those addons.
+I worked with codebases of those addons:
 - [SenseiClassResourceBar](https://www.curseforge.com/wow/addons/senseiclassresourcebar) (MIT) - power type names and API usage
 - [MoveAnything](https://www.curseforge.com/wow/addons/move-anything) - reference for frame position persistence
 - [Auctionator](https://www.curseforge.com/wow/addons/auctionator) - categories structure in settings

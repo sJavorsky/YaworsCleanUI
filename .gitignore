@@ -1,6 +1,9 @@
 # deploy config with local paths
 deploy/deploy.conf
 
+# release zips
+dist/
+
 # local reference addons and WAs
 reference/
 
