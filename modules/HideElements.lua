@@ -36,6 +36,31 @@ local function hookBagFrame(frame)
     end)
 end
 
+-- Blizzard re-shows the group indicator on group/role changes, so hook OnShow
+-- and read the live setting each time rather than capturing it at hook time.
+local function getGroupIndicator()
+    return PlayerFrame
+        and PlayerFrame.PlayerFrameContent
+        and PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual
+        and PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.GroupIndicator
+end
+
+local function applyGroupIndicatorSettings()
+    local frame = getGroupIndicator()
+    if not frame then return end
+    if not frame.__yawors_hooked then
+        frame.__yawors_hooked = true
+        frame:HookScript("OnShow", function(self)
+            if YaworsCleanUIDB.hideElements.groupIndicator then
+                self:Hide()
+            end
+        end)
+    end
+    if YaworsCleanUIDB.hideElements.groupIndicator then
+        frame:Hide()
+    end
+end
+
 local function applyLootSettings()
     if YaworsCleanUIDB.hideElements.looting and LootFrame and LootFrame:IsShown() then
         LootFrame:Hide()
@@ -63,4 +88,5 @@ end
 function module.applySettings()
     applyLootSettings()
     applyBagSettings()
+    applyGroupIndicatorSettings()
 end
