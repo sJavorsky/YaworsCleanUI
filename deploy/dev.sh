@@ -15,11 +15,11 @@ while IFS= read -r line; do
     [[ -z "${line// }" ]] && continue
     key="${line%%=*}"
     value="${line#*=}"
-    [[ "$key" == "LINUX_DEST" ]] && DEST="$value"
+    [[ "$key" == "DEST" ]] && DEST="$value"
 done < "$CONFIG"
 
 if [[ -z "$DEST" ]]; then
-    echo "Error: LINUX_DEST not found in deploy.conf"
+    echo "Error: DEST not found in deploy.conf"
     exit 1
 fi
 

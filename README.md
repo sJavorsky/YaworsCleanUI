@@ -1,6 +1,6 @@
 # Yawor's Clean UI
 
-Get your ultimate UI altering addon!
+Get your ultimate UI-altering addon!
 
 
 
@@ -18,13 +18,15 @@ Get your ultimate UI altering addon!
 
 
 
-fr... This is primarily private addon aming to fill void (pun intended) left after Blizzard's addon purge in Midnight. With them went also WeakAuras, which whole combat UI I created around. Beside that it may provide some usefull tweaks for anyone.
+fr... This is primarily a private addon aiming to fill the void (pun intended) left after Blizzard's addon purge in Midnight. With them also went WeakAuras, around which I created my whole combat UI. Besides that, it may provide some useful tweaks for anyone.
 
 
 
 ## Features
 
-\<AI generated overview\>
+Each feature can be applied separately. Open **Interface Options → AddOns → YaworsCleanUI**. Changes apply instantly, no reload needed.
+
+\<AI generated overview>
 
 #### Hide UI elements
 
@@ -64,39 +66,27 @@ fr... This is primarily private addon aming to fill void (pun intended) left aft
 - **Radial trackers** — outer and inner rings fill for your spell cast or the global cooldown
 - Configurable size, ring widths and colors; preview mode for setup; optionally combat-only
 
-\<\/ai generated overview\>
-
-
-
-## Settings
-
-Each feature can be applied separately. Open **Interface Options → AddOns → YaworsCleanUI**. Changes apply instantly, no reload needed.
-
-
-
-## Authorship
-
-The codebase was written by Anthropic's [Claude](https://claude.ai) under Yawor's supervision and direction.
+\</AI generated overview>
 
 
 
 ## Q&A:
 
-**Q:** Why "clean" when it's total mess?
+**Q:** Why "clean" when it's a total mess?
 
-**A:** It started as small addon replacing WA functioanlities, specifically hiding loot window and bag menu. That was all.
+**A:** It started as a small addon replacing WA functionalities, specifically hiding the loot window and bag menu. That was all.
 
 **Q:** Is this another AI slop addon?
 
-**A:** Yes and no. Although addon is openly written with Claude Code, part of code base originated from my WeakAuras, which were hand written. I do understand addon's code (except some math stuff which I have no idea what is calculated there) and even applied some optimisations.
+**A:** Yes and no. Although the addon is openly written with Claude Code, part of the codebase originated from my WeakAuras, which were handwritten. I do understand the addon's code (except some math stuff where I have no idea what is being calculated) and even applied some optimisations.
 
 **Q:** Some configuration ranges are quite silly.
 
-**A:** Not a question but yes. I prefer customisation over limited options.
+**A:** Not a question, but yes. I prefer customisation over limited options.
 
-**Q:** Will it ever be renamed to "aaa Yawor's Clean UI" so it's not at bottom of addon settings?
+**Q:** Will it ever be renamed to "aaa Yawor's Clean UI" so it's not at the bottom of the settings, under the huge pile of addons I have installed?
 
-**A:** No. You should just install addon and use defaults, because that's what I'm using and it's best way to use this addon.
+**A:** No. You should just install the addon and use the defaults, because that's what I'm using and it's the best way to use this addon.
 
 **Q:** How many addons does Nikaia have?
 
@@ -104,15 +94,33 @@ The codebase was written by Anthropic's [Claude](https://claude.ai) under Yawor'
 
 
 
+## Recommended Addons
+
+Having this addon is not enough to reach an enlightened UI. I also recommend installing:
+- [Mouseover Action Settings - Automatic UI Fader - Mouseover Everything](https://www.curseforge.com/wow/addons/mouseover-action-settings-automtic-ui-fader)
+- [LS: Toasts](https://www.curseforge.com/wow/addons/ls-toasts)
+- [Dialogue UI](https://www.curseforge.com/wow/addons/dialogueui) or...
+- ...or [Immersion](https://www.curseforge.com/wow/addons/immersion)
+- [HidingBar](https://www.curseforge.com/wow/addons/hidingbar)
+- [Cleaner Loot Messages](https://www.curseforge.com/wow/addons/cleanerlootmessages)
+
+And for better gameplay:
+- anything or everything from [plusmouse](https://www.curseforge.com/members/plusmouse)
+- [OPie](https://www.curseforge.com/wow/addons/opie)
+- [Plumber](https://www.curseforge.com/wow/addons/plumber)
+- [Titan Panel](https://www.curseforge.com/wow/addons/titan-panel)
+
+
+
 ## References
 
-I worked with codebases of those addons:
+I worked with the codebases of these addons:
 - [SenseiClassResourceBar](https://www.curseforge.com/wow/addons/senseiclassresourcebar) (MIT) - power type names and API usage
 - [MoveAnything](https://www.curseforge.com/wow/addons/move-anything) - reference for frame position persistence
 - [Auctionator](https://www.curseforge.com/wow/addons/auctionator) - categories structure in settings
-- [NeedToKnow](https://www.curseforge.com/wow/addons/need-to-know) (GPLv3) - colorpicking implementation
+- [NeedToKnow](https://www.curseforge.com/wow/addons/need-to-know) (GPLv3) - color picking implementation
 
-Inspiration took from WAs:
+Inspiration taken from WAs:
 - [Character Position](https://wago.io/aiBdawlHy)
 - [Ultimate Mouse Cursor](https://wago.io/ZbjlsgMkp)
 - [Frogski's mouse fire trail](https://wago.io/RzZVq4F1a)
@@ -126,18 +134,6 @@ Inspiration took from WAs:
 
 
 
-## Recomended Addons
+## Authorship
 
-Having this addon is not enough to reach enlighted UI. I recommend to install also:
-- [Mouseover Action Settings - Automatic UI Fader - Mouseover Everything](https://www.curseforge.com/wow/addons/mouseover-action-settings-automtic-ui-fader)
-- [LS: Toasts](https://www.curseforge.com/wow/addons/ls-toasts)
-- [Dialogue UI](https://www.curseforge.com/wow/addons/dialogueui) or...
-- ...or [Immersion](https://www.curseforge.com/wow/addons/immersion)
-- [HidingBar](https://www.curseforge.com/wow/addons/hidingbar)
-- [Cleaner Loot Messages](https://www.curseforge.com/wow/addons/cleanerlootmessages)
-
-And to better gameplay:
-- anything or everything from [plusmouse](https://www.curseforge.com/members/plusmouse)
-- [OPie](https://www.curseforge.com/wow/addons/opie)
-- [Plumber](https://www.curseforge.com/wow/addons/plumber)
-- [Titan Panel](https://www.curseforge.com/wow/addons/titan-panel)
+The codebase was written by Anthropic's [Claude](https://claude.ai) under Yawor's supervision and direction.

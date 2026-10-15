@@ -104,11 +104,11 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 ## Deploy
 
-`deploy/linux-dev.sh` and `deploy/windows-dev.bat` copy the addon into the live WoW AddOns folder for testing. The destination path is read from `deploy/deploy.conf` (gitignored; copy from `deploy.conf.example`).
+`deploy/dev.sh` copies the addon into the live WoW AddOns folder for testing. The destination path is read from `DEST` in `deploy/deploy.conf` (gitignored; copy from `deploy.conf.example`).
 
-`deploy/linux-deploy.sh` and `deploy/windows-deploy.bat` build the CurseForge release zip at `dist/YaworsCleanUI-<version>.zip`, with the version read from the TOC's `## Version`. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE` and `CHANGELOG.md`.
+`deploy/deploy.sh` builds the CurseForge release zip at `dist/YaworsCleanUI-<version>.zip`, with the version read from the TOC's `## Version`. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working) and is not shipped.
 
-All four scripts mirror the TOC, `Core.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders.
+Both scripts mirror the TOC, `Core.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders.
 
 ## Changelog
 
