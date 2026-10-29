@@ -32,7 +32,7 @@ function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback
             callback()
         end
     )
-    Settings.CreateCheckbox(category, setting, tooltip)
+    return Settings.CreateCheckbox(category, setting, tooltip)
 end
 
 function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, callback)
@@ -57,7 +57,7 @@ function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, 
             callback()
         end
     )
-    Settings.CreateColorSwatch(category, setting, tooltip)
+    return Settings.CreateColorSwatch(category, setting, tooltip)
 end
 
 function YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, maxValue, callback)
@@ -75,14 +75,49 @@ function YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, 
     )
     local options = Settings.CreateSliderOptions(minValue, maxValue, 1)
     options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-    Settings.CreateSlider(category, setting, options, tooltip)
+    return Settings.CreateSlider(category, setting, options, tooltip)
+end
+
+-- choices is a list of { value, label } pairs, shown in that order
+function YaworsCleanUI.addDropdown(category, group, key, name, tooltip, choices, callback)
+    local setting = Settings.RegisterProxySetting(
+        category,
+        "YaworsCleanUI_" .. group .. "_" .. key,
+        Settings.VarType.String,
+        name,
+        YaworsCleanUI.DEFAULTS[group][key],
+        function() return YaworsCleanUIDB[group][key] end,
+        function(value)
+            YaworsCleanUIDB[group][key] = value
+            callback()
+        end
+    )
+    local function getOptions()
+        local container = Settings.CreateControlTextContainer()
+        for _, choice in ipairs(choices) do
+            container:Add(choice[1], choice[2])
+        end
+        return container:GetData()
+    end
+    return Settings.CreateDropdown(category, setting, getOptions, tooltip)
+end
+
+-- A button row for actions that aren't settings, so nothing is saved
+function YaworsCleanUI.addButton(category, buttonText, tooltip, onClick)
+    -- An empty name makes Blizzard drop the label and anchor the button on the left,
+    -- where the label would sit. The final true adds buttonText as a search tag.
+    local initializer = CreateSettingsButtonInitializer("", buttonText, onClick, tooltip, true)
+    SettingsPanel:GetLayout(category):AddInitializer(initializer)
+    return initializer
 end
 
 -- Adds a section subheader within a category, rendered smaller than the category
 -- title. Appends at the current position, so call it between controls to group them.
 function YaworsCleanUI.addSectionHeader(category, name)
     local layout = SettingsPanel:GetLayout(category)
-    layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(name))
+    local initializer = CreateSettingsListSectionHeaderInitializer(name)
+    layout:AddInitializer(initializer)
+    return initializer
 end
 
 -- Defer registration until ADDON_LOADED so that settings/ sub-files, which are

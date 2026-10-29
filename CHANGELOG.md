@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.0 - Unreleased
+
+### Added
+
+- **Move UI elements**: a preview circle for placing the queue eye
+- **Point and bar class resources**: an Enable switch on each page that turns all of its resources on or off at once
+- **Cursor position**: a single-color ring as an alternative to the two-tone ring, with its own color and width
+- **Cursor position**: the inner and outer trackers can each be turned off
+
+### Changed
+
+- **Player position**: the Manual offset checkbox is now a Position dropdown (Dynamic or Manual). Offset sliders only show in Manual mode. Your previous choice carries over.
+- Previews are now buttons instead of checkboxes and turn off when you close the options
+- Settings pages are tidier: class checkboxes, cross styling and ring sections are grouped under headers, and options for turned-off parts are hidden
+
 ## 1.0.0 - 2026-10-11
 
 First public release.

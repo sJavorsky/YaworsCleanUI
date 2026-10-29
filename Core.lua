@@ -11,7 +11,6 @@ local DEFAULTS = {
         eyeDistance = 105,
         eyeAngle = 25,
         bnetToast = true,
-        toastPreview = false,
         toastOffsetX = 915,
         toastOffsetY = -550,
     },
@@ -19,6 +18,7 @@ local DEFAULTS = {
         talentSpam = true,
     },
     classResourcePoints = {
+        enabled = true,
         offsetY = -120,
         offsetX = 0,
         scale = 175,
@@ -32,6 +32,7 @@ local DEFAULTS = {
         paladinHolyPower = true,
     },
     classResourceBars = {
+        enabled = true,
         fancyTextures = true,
         offsetY = -200,
         offsetX = 0,
@@ -58,7 +59,7 @@ local DEFAULTS = {
         height = 40,
         width = 40,
         thickness = 2,
-        manualOffset = false,
+        positionMode = "dynamic",
         offsetY = 0,
         offsetX = 0,
         minZoom = 20,
@@ -66,8 +67,12 @@ local DEFAULTS = {
     cursorPosition = {
         enabled = true,
         combatOnly = true,
-        previewTrackers = false,
         size = 65,
+        twoToneRing = true,
+        ringWidth = 7,
+        ringColor = { r = 1, g = 1, b = 1 },
+        showOuterTracker = true,
+        showInnerTracker = true,
         outerWidth = 4,
         outerColor = { r = 0, g = 0, b = 0 },
         innerWidth = 3,
@@ -109,8 +114,10 @@ frame:SetScript("OnEvent", function(self, event, addonName)
     if addonName ~= "YaworsCleanUI" then return end
 
     if not YaworsCleanUIDB then
-        YaworsCleanUIDB = {}
+        YaworsCleanUIDB = { settingsVersion = YaworsCleanUI.Migrations.SETTINGS_VERSION }
     end
+    -- Before applyDefaults, so migrations see the save as written, not padded with defaults
+    YaworsCleanUI.Migrations.migrate(YaworsCleanUIDB)
     applyDefaults(YaworsCleanUIDB, DEFAULTS)
 
     for _, mod in ipairs(registeredModules) do

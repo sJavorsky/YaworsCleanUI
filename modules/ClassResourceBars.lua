@@ -413,7 +413,7 @@ function module.applySettings()
     local anyVisible = false
     for _, activeBar in ipairs(activeBars) do
         local config = activeBar.config
-        local enabled = settings[config.settingKey]
+        local enabled = settings.enabled and settings[config.settingKey]
         local shouldBeVisible = enabled and (not config.shouldShow or config.shouldShow())
         if shouldBeVisible then
             if config.stacked then

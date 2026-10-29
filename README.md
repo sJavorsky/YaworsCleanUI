@@ -36,7 +36,7 @@ Each feature can be applied separately. Open **Interface Options → AddOns → 
 
 #### Move UI elements
 
-- **Queue eye** — moves the queue status eye onto the minimap, positioned by distance from center and angle
+- **Queue eye** — moves the queue status eye onto the minimap, positioned by distance from center and angle, with a preview circle for exact placement
 - **Battle.net toast** — moves the Battle.net toast popup anywhere on screen, with a preview box for exact placement
 
 #### Filter chat
@@ -46,25 +46,25 @@ Each feature can be applied separately. Open **Interface Options → AddOns → 
 #### Points class resources
 
 - **Move point resources to screen center** — Death Knight Runes, Druid and Rogue Combo Points, Evoker Essence, Monk Chi, Warlock Soul Shards, Mage Arcane Charges, Paladin Holy Power
-- Shared offset and scale, each resource toggled separately
+- One switch for all, shared offset and scale, each resource toggled separately
 
 #### Bars class resources
 
 - **Custom center-screen bars** — Death Knight Runic Power, Druid Energy / Rage / Astral Power, Evoker Ebon Might, Demon Hunter Fury and Soul Fragments, Hunter Focus, Monk Energy, Priest Insanity, Rogue Energy, Shaman Maelstrom, Warrior Rage
 - **Fancy textures** — spec-flavored fill textures for the bars that have them
-- Shared offset and scale, each bar toggled separately, spec- and form-aware
+- One switch for all, shared offset and scale, each bar toggled separately, spec- and form-aware
 
 #### Player position
 
 - **Position cross** — marks your character's position at screen center
 - Configurable size, thickness, inner and border color; optionally combat-only
-- Follows the camera zoom automatically, or sits at a manual offset; hides when zoomed in too close
+- Dynamic position follows the camera zoom and hides when zoomed in too close; manual position sits at a fixed offset
 
 #### Cursor position
 
-- **Position circle** — a two-ring circle that follows the cursor
-- **Radial trackers** — outer and inner rings fill for your spell cast or the global cooldown
-- Configurable size, ring widths and colors; preview mode for setup; optionally combat-only
+- **Position circle** — a single-color or two-tone ring that follows the cursor
+- **Radial trackers** — optional outer and inner rings that fill for your spell cast or the global cooldown
+- Configurable size, ring widths and colors; tracker preview for setup; optionally combat-only
 
 \</AI generated overview>
 
