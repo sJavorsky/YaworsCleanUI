@@ -16,6 +16,7 @@ Each feature is split across two parallel files with the same base name:
 ```
 YaworsCleanUI.toc            -- addon manifest, load order
 Core.lua                     -- global table, SavedVariables defaults, module registry, ADDON_LOADED backbone
+Migrations.lua               -- versioned SavedVariables migrations, run by Core.lua on load
 Settings.lua                 -- root options category + subcategories, shared control helpers
 modules/
   HideElements.lua           -- hide loot window / bag icons
@@ -35,7 +36,7 @@ reference/                   -- other addons cloned for API reference (gitignore
 
 Adding a feature: create `modules/X.lua` and `settings/X.lua`, register both in the TOC (settings files before module files — see load order below), add a subcategory in Settings.lua plus an entry in `settingsCategories`, add its defaults in Core.lua's `DEFAULTS`, and update the dev and deploy scripts if you add a new top-level file or folder.
 
-**Load order** (from the TOC): `Core.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
+**Load order** (from the TOC): `Core.lua` → `Migrations.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
 
 ## Lua conventions
 
@@ -96,7 +97,11 @@ Shared control helpers in Settings.lua:
 - `YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)`
 - `YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, callback)`
 - `YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, maxValue, callback)`
+- `YaworsCleanUI.addDropdown(category, group, key, name, tooltip, choices, callback)` — `choices` is a list of `{ value, label }` pairs
+- `YaworsCleanUI.addButton(category, buttonText, tooltip, onClick)` — a left-aligned action button with no label that saves nothing (used for previews, which hide when the panel closes)
 - `YaworsCleanUI.addSectionHeader(category, name)` — a subheader within a category, for grouping controls
+
+Every helper returns its row's initializer. Call `initializer:AddShownPredicate(function)` on it to hide the row while the function returns false. The panel redraws on every setting change, so the row appears or vanishes immediately.
 
 These build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Each control's framework default (used for reset-to-default and the "modified" indicator) is derived from `YaworsCleanUI.DEFAULTS[group][key]` in Core.lua — the single source of truth — so defaults are never repeated at the call site.
 
@@ -108,7 +113,7 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 `deploy/deploy.sh` builds the CurseForge release zip at `dist/YaworsCleanUI-<version>.zip`, with the version read from the TOC's `## Version`. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working) and is not shipped.
 
-Both scripts mirror the TOC, `Core.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders.
+Both scripts mirror the TOC, `Core.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders.
 
 ## Changelog
 
@@ -125,6 +130,8 @@ Retail WoW, current version. TOC: `## Interface: 120100, 120105` (live plus the 
 ## SavedVariables
 
 Named `YaworsCleanUIDB`. Initialized in Core.lua with defaults before any module reads them.
+
+Migrations: `YaworsCleanUIDB.settingsVersion` holds the addon version (e.g. `"1.1.0"`) of the last migration applied to the save. When a release renames or reshapes a saved key, append `{ version = "<release version>", migrate = function(database) ... end }` to `MIGRATIONS` in Migrations.lua, in ascending order. On load, every migration newer than the save runs in order, before defaults are applied. Releases without an entry are skipped. Adding a new key needs no migration.
 
 ## WoW API Reference
 

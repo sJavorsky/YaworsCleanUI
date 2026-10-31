@@ -59,7 +59,7 @@ local function updateVisibility()
         return
     end
 
-    if not YaworsCleanUIDB.playerPosition.manualOffset and GetCameraZoom() < YaworsCleanUIDB.playerPosition.minZoom then
+    if YaworsCleanUIDB.playerPosition.positionMode == "dynamic" and GetCameraZoom() < YaworsCleanUIDB.playerPosition.minZoom then
         crossFrame:Hide()
         return
     end
@@ -98,7 +98,7 @@ end
 local function updateDynamicPolling()
     local settings = YaworsCleanUIDB.playerPosition
     local needed = settings.enabled
-        and not settings.manualOffset
+        and settings.positionMode == "dynamic"
         and (not settings.combatOnly or UnitAffectingCombat("player"))
     if needed then
         if not pollFrame:GetScript("OnUpdate") then
@@ -159,7 +159,7 @@ function module.applySettings()
     crossFrame.vertical:SetColorTexture(innerColor.r, innerColor.g, innerColor.b, 1)
     crossFrame.vertical:SetSize(thickness, height)
 
-    if settings.manualOffset then
+    if settings.positionMode == "manual" then
         crossFrame:ClearAllPoints()
         crossFrame:SetPoint("CENTER", UIParent, "CENTER", settings.offsetX, settings.offsetY)
     end

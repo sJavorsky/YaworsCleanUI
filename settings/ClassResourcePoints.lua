@@ -1,6 +1,7 @@
 local category = YaworsCleanUI.settingsCategories.points
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addSlider = YaworsCleanUI.addSlider
+local addSectionHeader = YaworsCleanUI.addSectionHeader
 
 local screenHeightHalf = math.floor(GetScreenHeight()*0.75)
 local screenWidthHalf = math.floor(GetScreenWidth()*0.75)
@@ -8,6 +9,9 @@ local screenWidthHalf = math.floor(GetScreenWidth()*0.75)
 local function apply()
     YaworsCleanUI.ClassResourcePoints.applySettings()
 end
+
+addCheckbox(category, "classResourcePoints", "enabled",
+    "Enable", "Move class point resources to the center of the screen. Turn off to leave them all at Blizzard's default position.", apply)
 
 addSlider(category, "classResourcePoints", "offsetY",
     "Vertical offset", "Vertical offset for class resource frames.",
@@ -19,6 +23,7 @@ addSlider(category, "classResourcePoints", "scale",
     "Scale", "Scale of class resource frames (percentage).",
     1, 1000, apply)
 
+addSectionHeader(category, "Resources by class")
 addCheckbox(category, "classResourcePoints", "deathKnightRunes",
     "Death Knight Runes", "Move the Death Knight Runes to the center of the screen.", apply)
 addCheckbox(category, "classResourcePoints", "druidComboPoints",

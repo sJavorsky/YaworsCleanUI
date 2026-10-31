@@ -22,6 +22,7 @@ mkdir -p "$ADDON/textures"
 
 cp "$SRC/YaworsCleanUI.toc" "$ADDON/"
 cp "$SRC/Core.lua"          "$ADDON/"
+cp "$SRC/Migrations.lua"    "$ADDON/"
 cp "$SRC/Settings.lua"      "$ADDON/"
 cp "$SRC/LICENSE"           "$ADDON/"
 cp "$SRC/CHANGELOG.md"      "$ADDON/"

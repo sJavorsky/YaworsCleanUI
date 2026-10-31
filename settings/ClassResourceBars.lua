@@ -1,6 +1,7 @@
 local category = YaworsCleanUI.settingsCategories.bars
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addSlider = YaworsCleanUI.addSlider
+local addSectionHeader = YaworsCleanUI.addSectionHeader
 
 local screenHeightHalf = math.floor(GetScreenHeight()*0.8)
 local screenWidthHalf = math.floor(GetScreenWidth()*0.9)
@@ -9,9 +10,8 @@ local function apply()
     YaworsCleanUI.ClassResourceBars.applySettings()
 end
 
--- Global toggle, kept above the per-class checkboxes so it does not get lost.
-addCheckbox(category, "classResourceBars", "fancyTextures",
-    "Fancy textures", "Show bars with their spec's fancy fill texture (Astral Power, Maelstrom, Insanity, Ebon Might, Fury). Applies to all class bars.", apply)
+addCheckbox(category, "classResourceBars", "enabled",
+    "Enable", "Show class resource bars at the center of the screen. Turn off to hide them all.", apply)
 
 addSlider(category, "classResourceBars", "offsetY",
     "Vertical offset", "Vertical offset for class bar frames.",
@@ -22,6 +22,10 @@ addSlider(category, "classResourceBars", "offsetX",
 addSlider(category, "classResourceBars", "scale",
     "Scale", "Scale of class bar frames (percentage).",
     1, 1000, apply)
+addCheckbox(category, "classResourceBars", "fancyTextures",
+    "Fancy textures", "Show bars with their spec's fancy fill texture (Astral Power, Maelstrom, Insanity, Ebon Might, Fury). Applies to all class bars.", apply)
+
+addSectionHeader(category, "Resources by class")
 addCheckbox(category, "classResourceBars", "deathKnightRunicPower",
     "Death Knight Runic Power", "Add the Death Knight Runic Power bar to the center of the screen.", apply)
 addCheckbox(category, "classResourceBars", "druidEnergy",

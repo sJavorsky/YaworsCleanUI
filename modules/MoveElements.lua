@@ -11,6 +11,19 @@ local managedFrames = {}
 local TOAST_WIDTH = 250
 local TOAST_HEIGHT = 63
 local toastPreview
+local eyePreview
+local isToastPreviewShown = false
+local isEyePreviewShown = false
+
+local function anchorQueueEye(frame)
+    local settings = YaworsCleanUIDB.moveElements
+    -- Polar placement around the minimap center: distance in px, angle
+    -- in degrees (0 = left, counter-clockwise). Distance 0 sits dead center.
+    local angleRadians = math.rad(settings.eyeAngle)
+    local offsetX = -settings.eyeDistance * math.cos(angleRadians)
+    local offsetY = settings.eyeDistance * math.sin(angleRadians)
+    frame:SetPoint("CENTER", Minimap, "CENTER", offsetX, offsetY)
+end
 
 local function anchorToast(frame)
     local settings = YaworsCleanUIDB.moveElements
@@ -69,15 +82,7 @@ function module.init()
     if QueueStatusButton then
         setupPinnedFrame(QueueStatusButton,
             function() return YaworsCleanUIDB.moveElements.queueEye end,
-            function(frame)
-                local settings = YaworsCleanUIDB.moveElements
-                -- Polar placement around the minimap center: distance in px, angle
-                -- in degrees (0 = left, counter-clockwise). Distance 0 sits dead center.
-                local angleRadians = math.rad(settings.eyeAngle)
-                local offsetX = -settings.eyeDistance * math.cos(angleRadians)
-                local offsetY = settings.eyeDistance * math.sin(angleRadians)
-                frame:SetPoint("CENTER", Minimap, "CENTER", offsetX, offsetY)
-            end)
+            anchorQueueEye)
     end
 
     if BNToastFrame then
@@ -95,20 +100,49 @@ function module.init()
     previewTexture:SetAllPoints(toastPreview)
     previewTexture:SetColorTexture(0, 0.4, 1, 0.5)
 
-    -- A lingering preview box across reloads would be confusing; always start off
-    YaworsCleanUIDB.moveElements.toastPreview = false
+    eyePreview = CreateFrame("Frame", "YaworsCleanUI_EyePreview", UIParent)
+    eyePreview:EnableMouse(false)
+    eyePreview:SetFrameStrata("DIALOG")
+    eyePreview:Hide()
+    local eyeTexture = eyePreview:CreateTexture(nil, "OVERLAY")
+    eyeTexture:SetAllPoints(eyePreview)
+    eyeTexture:SetColorTexture(0, 1, 0.2, 0.5)
+    -- Blizzard's round portrait mask clips the square color texture into a circle
+    local eyeMask = eyePreview:CreateMaskTexture()
+    eyeMask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    eyeMask:SetAllPoints(eyePreview)
+    eyeTexture:AddMaskTexture(eyeMask)
+
+    -- Previews are only for positioning, so they never outlive the options panel
+    SettingsPanel:HookScript("OnHide", module.hidePreviews)
 
     module.applySettings()
 end
 
-local function updateToastPreview()
-    if not toastPreview then return end
-    if YaworsCleanUIDB.moveElements.toastPreview then
-        toastPreview:ClearAllPoints()
-        anchorToast(toastPreview)
-        toastPreview:Show()
+function module.toggleEyePreview()
+    isEyePreviewShown = not isEyePreviewShown
+    module.applySettings()
+end
+
+function module.toggleToastPreview()
+    isToastPreviewShown = not isToastPreviewShown
+    module.applySettings()
+end
+
+function module.hidePreviews()
+    isEyePreviewShown = false
+    isToastPreviewShown = false
+    module.applySettings()
+end
+
+local function updatePreview(preview, isShown, anchor)
+    if not preview then return end
+    if isShown then
+        preview:ClearAllPoints()
+        anchor(preview)
+        preview:Show()
     else
-        toastPreview:Hide()
+        preview:Hide()
     end
 end
 
@@ -116,5 +150,10 @@ function module.applySettings()
     for _, state in ipairs(managedFrames) do
         updateAnchor(state)
     end
-    updateToastPreview()
+    if QueueStatusButton then
+        -- Size is read live so the circle tracks the eye even if Blizzard resizes it
+        eyePreview:SetSize(QueueStatusButton:GetSize())
+    end
+    updatePreview(eyePreview, isEyePreviewShown, anchorQueueEye)
+    updatePreview(toastPreview, isToastPreviewShown, anchorToast)
 end

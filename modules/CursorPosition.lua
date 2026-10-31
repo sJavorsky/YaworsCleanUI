@@ -250,7 +250,16 @@ function module.init()
         updateVisibility()
     end)
 
+    -- The demo fill is only for configuring, so it never outlives the options panel
+    SettingsPanel:HookScript("OnHide", function()
+        circleFrame.previewTrackers = false
+    end)
+
     module.applySettings()
+end
+
+function module.toggleTrackerPreview()
+    circleFrame.previewTrackers = not circleFrame.previewTrackers
 end
 
 function module.applySettings()
@@ -258,14 +267,20 @@ function module.applySettings()
 
     local settings          = YaworsCleanUIDB.cursorPosition
     local size              = settings.size
-    local outerWidth        = settings.outerWidth
-    local innerWidth        = settings.innerWidth
-    local outerTrackerWidth = settings.outerTrackerWidth
-    local innerTrackerWidth = settings.innerTrackerWidth
+    local twoTone           = settings.twoToneRing
+    -- The single-color ring is drawn by the outer ring with its own settings; zero
+    -- widths collapse the hidden parts so everything inside them moves outward to
+    -- keep the bands touching
+    local outerWidth        = twoTone and settings.outerWidth or settings.ringWidth
+    local outerColor        = twoTone and settings.outerColor or settings.ringColor
+    local innerWidth        = twoTone and settings.innerWidth or 0
+    local outerTrackerWidth = settings.showOuterTracker and settings.outerTrackerWidth or 0
+    local innerTrackerWidth = settings.showInnerTracker and settings.innerTrackerWidth or 0
 
     circleFrame:SetSize(size + outerTrackerWidth * 2, size + outerTrackerWidth * 2)
 
-    sizeRing(circleFrame.outerRing, size, outerWidth, settings.outerColor)
+    sizeRing(circleFrame.outerRing, size, outerWidth, outerColor)
+    circleFrame.innerRing:SetShown(twoTone)
 
     -- The inner ring's outer edge sits exactly at the outer ring's inner edge so the
     -- two bands touch. They must not overlap: the inner ring draws on top, so any
@@ -281,7 +296,6 @@ function module.applySettings()
 
     circleFrame.outerTracker.source = settings.outerTrackerSource
     circleFrame.innerTracker.source = settings.innerTrackerSource
-    circleFrame.previewTrackers = settings.previewTrackers
 
     updateVisibility()
 end

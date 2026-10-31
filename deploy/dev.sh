@@ -32,6 +32,7 @@ mkdir -p "$DEST/textures"
 
 cp "$SRC/YaworsCleanUI.toc" "$DEST/"
 cp "$SRC/Core.lua"          "$DEST/"
+cp "$SRC/Migrations.lua"    "$DEST/"
 cp "$SRC/Settings.lua"      "$DEST/"
 cp "$SRC"/modules/*.lua     "$DEST/modules/"
 cp "$SRC"/settings/*.lua    "$DEST/settings/"

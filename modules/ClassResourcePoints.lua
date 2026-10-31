@@ -211,6 +211,11 @@ local function restoreFrame(frame, config)
     isRepositioning = false
 end
 
+local function isResourceEnabled(config)
+    local settings = YaworsCleanUIDB.classResourcePoints
+    return settings.enabled and settings[config.settingKey]
+end
+
 -- Attaches the OnShow and SetPoint hooks and captures the frame's pristine state.
 -- Runs at most once per session, the first time the frame exists, because some
 -- frames (the druid combo bar) are created lazily and aren't available in init().
@@ -250,7 +255,7 @@ local function ensureHooked(frame, config)
     -- our position unless the call came from our own code (guarded by isRepositioning).
     hooksecurefunc(frame, "SetPoint", function()
         if isRepositioning then return end
-        if not YaworsCleanUIDB.classResourcePoints[config.settingKey] then return end
+        if not isResourceEnabled(config) then return end
         centerFrame(frame, config)
     end)
 end
@@ -261,7 +266,7 @@ local function applyClassResources(config)
 
     ensureHooked(frame, config)
 
-    if YaworsCleanUIDB.classResourcePoints[config.settingKey] then
+    if isResourceEnabled(config) then
         frame:SetScale(YaworsCleanUIDB.classResourcePoints.scale / 100)
         frame:SetScript("OnEnter", nil)
         frame:SetScript("OnLeave", nil)
