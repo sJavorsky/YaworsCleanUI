@@ -115,7 +115,7 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 Releases are uploaded to CurseForge (project `1740029`) by `.github/workflows/release.yml`, which runs the BigWigsMods packager. The git tag is the version: the TOC says `## Version: @project-version@` and the packager fills it in. Triggers:
 
-- **Push to `main` (a merged PR):** CI reads the version from the top `## x.y.z` heading of `CHANGELOG.md`. If that tag doesn't exist yet, CI creates it as an annotated tag on the merge commit, then starts a `workflow_dispatch` run on the tag, which uploads it to CurseForge. If the tag already exists, the push releases nothing. The `main` run itself never packages. Two reasons force the separate run: the packager refuses to build a branch push whose head is tagged, and a tag pushed with `GITHUB_TOKEN` starts no run of its own. No GitHub release is created.
+- **Push to `main` (a merged PR):** CI reads the version from the top `## x.y.z` heading of `CHANGELOG.md`. If that tag doesn't exist yet, CI creates it as an annotated tag on the merge commit, then starts a `workflow_dispatch` run on the tag, which uploads it to CurseForge. If the tag already exists, the push releases nothing. Either way, CI then fast-forwards `develop` to `main`, so `develop` contains the tagged merge commit and alphas are named from the new tag. That push starts no alpha run. If `develop` has commits that aren't in `main`, the step fails and changes nothing. The `main` run itself never packages. Two reasons force the separate run: the packager refuses to build a branch push whose head is tagged, and a tag pushed with `GITHUB_TOKEN` starts no run of its own. No GitHub release is created.
 - **Push to `develop`:** uploads an alpha named `<last tag>-<commits>-g<hash>`. If the head commit is tagged, the packager skips it, so the tag's run alone uploads it.
 - **Manual tag push** (e.g. `1.2.0-beta1`), or **Run workflow** on a tag from the Actions tab: uploads a release, or a beta or alpha if the tag contains that word.
 
@@ -124,8 +124,8 @@ The packager reads `.pkgmeta` (package name, changelog file, ignored paths) and 
 Release checklist:
 
 1. On `develop`, set the new version in `CHANGELOG.md` (see Changelog below). For a patch, bump the top heading. For a minor or major version, add a new section at the top. Do this only when you're ready to release, because the next merge to `main` releases it.
-2. Merge `develop` into `main` with a PR. CI tags the merge commit and uploads the release.
-3. Fast-forward `develop` to `main` and push it: `git checkout develop && git merge --ff-only origin/main && git push`. Without this, `develop` can't see the tag, and alphas get named from an older one. The push uploads nothing, because its head commit is tagged.
+2. Merge `develop` into `main` with a PR. CI tags the merge commit, uploads the release, and fast-forwards `develop` on GitHub.
+3. Update your local `develop`: `git pull`. Commit nothing to `develop` between the merge and this pull, or the fast-forward fails.
 4. If the README changed, paste `README.html` into CurseForge by hand.
 
 `deploy/deploy.sh` builds the same zip locally at `dist/YaworsCleanUI-<version>.zip`, with the version from `git describe --tags`. It's for checking a package without uploading. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. Both scripts replace `@project-version@` in the copied TOC.

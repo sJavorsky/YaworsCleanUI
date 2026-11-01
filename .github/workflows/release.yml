@@ -1,7 +1,8 @@
 name: Package and upload
 
 # develop push: uploads an alpha.
-# main push (a merged PR): tags the top CHANGELOG.md version if it is new, then starts a run on that tag.
+# main push (a merged PR): tags the top CHANGELOG.md version if it is new, starts a run on that tag,
+#   and fast-forwards develop to main.
 # Tag push or a run started on a tag: uploads as beta/alpha/release by the tag name.
 on:
   push:
@@ -52,6 +53,18 @@ jobs:
           git tag -a "$version" -m "$version"
           git push origin "$version"
           gh workflow run release.yml --ref "$version"
+
+      # PR merges leave a merge commit on main that develop lacks; without it, develop can't
+      # see the release tag and alphas get named from an older one. Pushed with GITHUB_TOKEN,
+      # so it starts no alpha run. Fails rather than merging if develop has moved on.
+      - name: Fast-forward develop to main
+        if: github.ref_type == 'branch' && github.ref_name == 'main'
+        run: |
+          if ! git merge-base --is-ancestor origin/develop HEAD; then
+            echo "::error::develop has commits not in main; merge main into develop by hand."
+            exit 1
+          fi
+          git push origin HEAD:refs/heads/develop
 
       # CurseForge gets only this build's changes plus a link to the full CHANGELOG.md, which
       # ships in the zip. The dotfile name keeps the packager from shipping this one.
