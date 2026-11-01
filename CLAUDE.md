@@ -33,8 +33,9 @@ deploy/                      -- dev.sh (copy into live AddOns folder) and deploy
 dist/                        -- zips built by deploy.sh (gitignored)
 .github/workflows/           -- release.yml: CurseForge packaging and upload (see Deploy)
 .pkgmeta                     -- packager config: package name, changelog file, ignored paths
-reference/                   -- other addons cloned for API reference (gitignored, read-only)
 ```
+
+Reference material lives outside the repo, in `_reference/` inside the smart-vault project folder that the SessionStart hook names (read-only). `wa/` holds the WeakAuras 5.21.1 addon source and Yawor's own auras: saved variables (`WeakAuras.lua.bak`), wago.io links (`urls`) and `trail.json`. `old-code/` holds the original WeakAuras code this addon replaces. `logos/` holds another addon's logo files.
 
 Adding a feature: create `modules/X.lua` and `settings/X.lua`, register both in the TOC (settings files before module files — see load order below), add a subcategory in Settings.lua plus an entry in `settingsCategories`, add its defaults in Core.lua's `DEFAULTS`, and update the dev and deploy scripts if you add a new top-level file or folder.
 

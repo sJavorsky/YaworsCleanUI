@@ -6,7 +6,6 @@ manual-changelog:
 
 ignore:
   - media
-  - reference
   - deploy
   - dist
   - CLAUDE.md
