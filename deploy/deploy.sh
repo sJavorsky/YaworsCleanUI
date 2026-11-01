@@ -5,9 +5,10 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC="$(cd "$DIR/.." && pwd)"
 OUT="$SRC/dist"
 
-VERSION="$(sed -n 's/^## Version:[[:space:]]*//p' "$SRC/YaworsCleanUI.toc" | tr -d '\r')"
+# Same naming as the CI packager: the tag on a tagged commit, otherwise <tag>-<commits>-g<hash>.
+VERSION="$(git -C "$SRC" describe --tags --abbrev=7 2>/dev/null || true)"
 if [[ -z "$VERSION" ]]; then
-    echo "Error: ## Version not found in YaworsCleanUI.toc"
+    echo "Error: no git tag found to version the zip"
     exit 1
 fi
 
@@ -20,7 +21,7 @@ mkdir -p "$ADDON/modules"
 mkdir -p "$ADDON/settings"
 mkdir -p "$ADDON/textures"
 
-cp "$SRC/YaworsCleanUI.toc" "$ADDON/"
+sed "s/@project-version@/$VERSION/" "$SRC/YaworsCleanUI.toc" > "$ADDON/YaworsCleanUI.toc"
 cp "$SRC/Core.lua"          "$ADDON/"
 cp "$SRC/Migrations.lua"    "$ADDON/"
 cp "$SRC/Settings.lua"      "$ADDON/"
