@@ -29,8 +29,10 @@ modules/
 settings/                    -- one options file per module, same base names
 textures/                    -- bar fill masks / atlases, addon icon
 media/                       -- CurseForge logo and screenshots (not deployed)
-deploy/                      -- dev scripts (copy into live AddOns folder) and deploy scripts (build release zip)
-dist/                        -- release zips built by the deploy scripts (gitignored)
+deploy/                      -- dev.sh (copy into live AddOns folder) and deploy.sh (build the release zip locally; CI uploads the real one)
+dist/                        -- zips built by deploy.sh (gitignored)
+.github/workflows/           -- release.yml: CurseForge packaging and upload (see Deploy)
+.pkgmeta                     -- packager config: package name, changelog file, ignored paths
 reference/                   -- other addons cloned for API reference (gitignored, read-only)
 ```
 
@@ -113,19 +115,18 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 Releases are uploaded to CurseForge (project `1740029`) by `.github/workflows/release.yml`, which runs the BigWigsMods packager. The git tag is the version: the TOC says `## Version: @project-version@` and the packager fills it in. Triggers:
 
+- **Push to `main` (a merged PR):** CI reads the version from the top `## x.y.z` heading of `CHANGELOG.md`. If that tag doesn't exist yet, CI creates it as an annotated tag on the merge commit and uploads it to CurseForge as a release in the same run. No GitHub release is created. A tag pushed by a workflow wouldn't start a run of its own. If the tag already exists, the push releases nothing.
 - **Push to `develop`:** uploads an alpha named `<last tag>-<commits>-g<hash>`. If the head commit is tagged, the push is skipped, so the tag's run alone uploads it.
-- **Tag push:** uploads a release. A tag containing `beta` or `alpha` uploads as that type instead.
-- **`main`:** ignored.
+- **Manual tag push** (e.g. `1.2.0-beta1`): uploads a release, or a beta or alpha if the tag contains that word.
 
-The packager reads `.pkgmeta` (package name, changelog file, ignored paths) and skips dotfiles. CI writes `.changelog-latest.md` as the CurseForge file's changelog. For a tag, it's the newest `## ` section of `CHANGELOG.md`. For an alpha, it's the commit subjects since the last tag. Both end with a link to the full `CHANGELOG.md` on GitHub. The full file ships in the zip. The token is the `CF_API_KEY` repo secret. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working). It is not shipped or synced.
+The packager reads `.pkgmeta` (package name, changelog file, ignored paths) and skips dotfiles. CI writes `.changelog-latest.md` as the CurseForge file's changelog. For a tagged commit, it's the newest `## ` section of `CHANGELOG.md`. For an alpha, it's the commit subjects since the last tag. Both end with a link to the full `CHANGELOG.md` on GitHub. The full file ships in the zip. The token is the `CF_API_KEY` repo secret. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working). It is not shipped or synced.
 
 Release checklist:
 
-1. Add the new version's section at the top of `CHANGELOG.md` on `develop`.
-2. Merge `develop` into `main` with a PR.
-3. Tag the merge commit and push the tag. This uploads the release: `git fetch && git tag -a 1.2.0 -m 1.2.0 origin/main && git push origin 1.2.0`.
-4. Fast-forward `develop` to `main` and push it: `git checkout develop && git merge --ff-only origin/main && git push`. Without this, `develop` can't see the tag, and alphas get named from an older one. The push uploads nothing, because its head commit is tagged.
-5. If the README changed, paste `README.html` into CurseForge by hand.
+1. On `develop`, set the new version in `CHANGELOG.md` (see Changelog below). For a patch, bump the top heading. For a minor or major version, add a new section at the top. Do this only when you're ready to release, because the next merge to `main` releases it.
+2. Merge `develop` into `main` with a PR. CI tags the merge commit and uploads the release.
+3. Fast-forward `develop` to `main` and push it: `git checkout develop && git merge --ff-only origin/main && git push`. Without this, `develop` can't see the tag, and alphas get named from an older one. The push uploads nothing, because its head commit is tagged.
+4. If the README changed, paste `README.html` into CurseForge by hand.
 
 `deploy/deploy.sh` builds the same zip locally at `dist/YaworsCleanUI-<version>.zip`, with the version from `git describe --tags`. It's for checking a package without uploading. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. Both scripts replace `@project-version@` in the copied TOC.
 
@@ -133,7 +134,7 @@ Both scripts mirror the TOC, `Core.lua`, `Migrations.lua`, `Settings.lua`, and t
 
 ## Changelog
 
-`CHANGELOG.md` is hand-written for players, newest version first, with Added / Changed / Fixed lists. Before tagging a release, add a section for the new version (patches too) summarizing user-visible changes from the commits since the last tag. Skip internal-only changes. Sections don't accumulate: each one lists only its own version's changes. The newest section must be at the top, because CI uploads it as that file's CurseForge changelog.
+`CHANGELOG.md` is hand-written for players, newest version first, with Added / Changed / Fixed lists. There is one section per minor version. A minor or major release (`1.3.0`, `2.0.0`) adds a new section at the top. Patches accumulate in it: on each patch release, bump the section's heading to the new patch version and date (`## 1.2.0 - ...` becomes `## 1.2.1 - ...`), and add that patch's user-visible changes to its lists. Skip internal-only changes. The top heading's version is the one CI tags on merge, and CI uploads the whole top section as the CurseForge changelog, so players see everything since the minor version started.
 
 ## Debugging frame names
 
