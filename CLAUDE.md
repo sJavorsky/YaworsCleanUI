@@ -115,9 +115,9 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 Releases are uploaded to CurseForge (project `1740029`) by `.github/workflows/release.yml`, which runs the BigWigsMods packager. The git tag is the version: the TOC says `## Version: @project-version@` and the packager fills it in. Triggers:
 
-- **Push to `main` (a merged PR):** CI reads the version from the top `## x.y.z` heading of `CHANGELOG.md`. If that tag doesn't exist yet, CI creates it as an annotated tag on the merge commit and uploads it to CurseForge as a release in the same run. No GitHub release is created. A tag pushed by a workflow wouldn't start a run of its own. If the tag already exists, the push releases nothing.
-- **Push to `develop`:** uploads an alpha named `<last tag>-<commits>-g<hash>`. If the head commit is tagged, the push is skipped, so the tag's run alone uploads it.
-- **Manual tag push** (e.g. `1.2.0-beta1`): uploads a release, or a beta or alpha if the tag contains that word.
+- **Push to `main` (a merged PR):** CI reads the version from the top `## x.y.z` heading of `CHANGELOG.md`. If that tag doesn't exist yet, CI creates it as an annotated tag on the merge commit, then starts a `workflow_dispatch` run on the tag, which uploads it to CurseForge. If the tag already exists, the push releases nothing. The `main` run itself never packages. Two reasons force the separate run: the packager refuses to build a branch push whose head is tagged, and a tag pushed with `GITHUB_TOKEN` starts no run of its own. No GitHub release is created.
+- **Push to `develop`:** uploads an alpha named `<last tag>-<commits>-g<hash>`. If the head commit is tagged, the packager skips it, so the tag's run alone uploads it.
+- **Manual tag push** (e.g. `1.2.0-beta1`), or **Run workflow** on a tag from the Actions tab: uploads a release, or a beta or alpha if the tag contains that word.
 
 The packager reads `.pkgmeta` (package name, changelog file, ignored paths) and skips dotfiles. CI writes `.changelog-latest.md` as the CurseForge file's changelog. For a tagged commit, it's the newest `## ` section of `CHANGELOG.md`. For an alpha, it's the commit subjects since the last tag. Both end with a link to the full `CHANGELOG.md` on GitHub. The full file ships in the zip. The token is the `CF_API_KEY` repo secret. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working). It is not shipped or synced.
 

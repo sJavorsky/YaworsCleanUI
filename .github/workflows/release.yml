@@ -1,8 +1,8 @@
 name: Package and upload
 
 # develop push: uploads an alpha.
-# main push (a merged PR): tags the top CHANGELOG.md version if it is new and uploads it as a release.
-# Tag push (manual, e.g. 1.2.0-beta1): uploads as beta/alpha/release by the tag name.
+# main push (a merged PR): tags the top CHANGELOG.md version if it is new, then starts a run on that tag.
+# Tag push or a run started on a tag: uploads as beta/alpha/release by the tag name.
 on:
   push:
     branches:
@@ -10,9 +10,11 @@ on:
       - main
     tags:
       - "*"
+  workflow_dispatch:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   release:
@@ -28,11 +30,13 @@ jobs:
           # The packager needs the full tag history to name builds and diff changelogs.
           fetch-depth: 0
 
-      # A tag pushed with GITHUB_TOKEN doesn't start another workflow run, so the release is
-      # tagged and uploaded here in the same run.
+      # The packager refuses to build a branch push whose head is tagged, and a tag pushed with
+      # GITHUB_TOKEN starts no run of its own. A workflow_dispatch is the one event this token
+      # can start, so the release is packaged by a new run on the tag.
       - name: Tag release on main
-        id: autotag
         if: github.ref_type == 'branch' && github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           version="$(awk '/^## /{ print $2; exit }' CHANGELOG.md)"
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -47,26 +51,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$version" -m "$version"
           git push origin "$version"
-          echo "tagged=true" >> "$GITHUB_OUTPUT"
-
-      # On develop, a tagged head means a tag was pushed with it, and that tag's run uploads it.
-      # On main, only a commit tagged above in this run is uploaded here; any other tag got its own run.
-      - name: Decide upload
-        id: decide
-        run: |
-          upload=true
-          if [[ "${{ github.ref_name }}" == "develop" ]] && git describe --tags --exact-match HEAD >/dev/null 2>&1; then
-            upload=false
-          fi
-          if [[ "${{ github.ref_name }}" == "main" && "${{ steps.autotag.outputs.tagged }}" != "true" ]]; then
-            upload=false
-          fi
-          echo "upload=$upload" >> "$GITHUB_OUTPUT"
+          gh workflow run release.yml --ref "$version"
 
       # CurseForge gets only this build's changes plus a link to the full CHANGELOG.md, which
       # ships in the zip. The dotfile name keeps the packager from shipping this one.
       - name: Write CurseForge changelog
-        if: steps.decide.outputs.upload == 'true'
+        if: github.ref_name != 'main'
         run: |
           {
             if git describe --tags --exact-match HEAD >/dev/null 2>&1; then
@@ -81,6 +71,7 @@ jobs:
             echo "[Full changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)"
           } > .changelog-latest.md
 
+      # Skips a develop push whose head is tagged by itself; that tag's run uploads it.
       - name: Package and upload
-        if: steps.decide.outputs.upload == 'true'
+        if: github.ref_name != 'main'
         uses: BigWigsMods/packager@v2
