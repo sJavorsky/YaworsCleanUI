@@ -1,11 +1,15 @@
 # Changelog
 
-## 1.2.1 - 2026-11-01
+## 1.2.2 - 2026-11-01
 
 ### Changed
 
 - New versions are now built and uploaded to CurseForge automatically. The addon itself is unchanged.
 - Releases are now tagged automatically.
+
+### Fixed
+
+- A release bug kept version 1.2.1 from reaching CurseForge.
 
 ## 1.1.0 - 2026-10-31
 
