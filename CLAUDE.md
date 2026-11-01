@@ -111,13 +111,29 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 `deploy/dev.sh` copies the addon into the live WoW AddOns folder for testing. The destination path is read from `DEST` in `deploy/deploy.conf` (gitignored; copy from `deploy.conf.example`).
 
-`deploy/deploy.sh` builds the CurseForge release zip at `dist/YaworsCleanUI-<version>.zip`, with the version read from the TOC's `## Version`. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working) and is not shipped.
+Releases are uploaded to CurseForge (project `1740029`) by `.github/workflows/release.yml`, which runs the BigWigsMods packager. The git tag is the version: the TOC says `## Version: @project-version@` and the packager fills it in. Triggers:
 
-Both scripts mirror the TOC, `Core.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders.
+- **Push to `develop`:** uploads an alpha named `<last tag>-<commits>-g<hash>`. If the head commit is tagged, the push is skipped, so the tag's run alone uploads it.
+- **Tag push:** uploads a release. A tag containing `beta` or `alpha` uploads as that type instead.
+- **`main`:** ignored.
+
+The packager reads `.pkgmeta` (package name, changelog file, ignored paths) and skips dotfiles. CI writes `.changelog-latest.md` as the CurseForge file's changelog. For a tag, it's the newest `## ` section of `CHANGELOG.md`. For an alpha, it's the commit subjects since the last tag. Both end with a link to the full `CHANGELOG.md` on GitHub. The full file ships in the zip. The token is the `CF_API_KEY` repo secret. `README.html` is the CurseForge project description (pasted by hand; HTML keeps the spoiler section working). It is not shipped or synced.
+
+Release checklist:
+
+1. Add the new version's section at the top of `CHANGELOG.md` on `develop`.
+2. Merge `develop` into `main` with a PR.
+3. Tag the merge commit and push the tag. This uploads the release: `git fetch && git tag -a 1.2.0 -m 1.2.0 origin/main && git push origin 1.2.0`.
+4. Fast-forward `develop` to `main` and push it: `git checkout develop && git merge --ff-only origin/main && git push`. Without this, `develop` can't see the tag, and alphas get named from an older one. The push uploads nothing, because its head commit is tagged.
+5. If the README changed, paste `README.html` into CurseForge by hand.
+
+`deploy/deploy.sh` builds the same zip locally at `dist/YaworsCleanUI-<version>.zip`, with the version from `git describe --tags`. It's for checking a package without uploading. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. Both scripts replace `@project-version@` in the copied TOC.
+
+Both scripts mirror the TOC, `Core.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders, and add anything that must not ship to `ignore` in `.pkgmeta`.
 
 ## Changelog
 
-`CHANGELOG.md` is hand-written for players, newest version first, with Added / Changed / Fixed lists. When the TOC's `## Version` is bumped, add a section for the new version summarizing user-visible changes from the commits since the last release. Skip internal-only changes. The section is pasted into CurseForge's changelog field on upload.
+`CHANGELOG.md` is hand-written for players, newest version first, with Added / Changed / Fixed lists. Before tagging a release, add a section for the new version (patches too) summarizing user-visible changes from the commits since the last tag. Skip internal-only changes. Sections don't accumulate: each one lists only its own version's changes. The newest section must be at the top, because CI uploads it as that file's CurseForge changelog.
 
 ## Debugging frame names
 

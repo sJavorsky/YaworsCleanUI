@@ -1,0 +1,56 @@
+name: Package and upload
+
+# A push to develop uploads an alpha; a tag uploads a release (or a beta/alpha if the tag says so).
+on:
+  push:
+    branches:
+      - develop
+    tags:
+      - "*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_KEY }}
+
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v7
+        with:
+          # The packager needs the full tag history to name builds and diff changelogs.
+          fetch-depth: 0
+
+      # Pushing a branch and a tag together fires two runs on the same commit. The packager
+      # would upload the branch run as the tagged version too, so leave that commit to the tag run.
+      - name: Decide upload
+        id: decide
+        run: |
+          upload=true
+          if [[ "${{ github.ref_type }}" == "branch" ]] && git describe --tags --exact-match HEAD >/dev/null 2>&1; then
+            upload=false
+          fi
+          echo "upload=$upload" >> "$GITHUB_OUTPUT"
+
+      # CurseForge gets only this build's changes plus a link to the full CHANGELOG.md, which
+      # ships in the zip. The dotfile name keeps the packager from shipping this one.
+      - name: Write CurseForge changelog
+        if: steps.decide.outputs.upload == 'true'
+        run: |
+          {
+            if git describe --tags --exact-match HEAD >/dev/null 2>&1; then
+              awk '/^## /{ section++ } section == 1' CHANGELOG.md
+            else
+              lastTag="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+              echo "Alpha build. Commits since ${lastTag:-the first commit}:"
+              echo
+              git log --no-merges --format='- %s' "${lastTag:+$lastTag..}HEAD"
+            fi
+            echo
+            echo "[Full changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)"
+          } > .changelog-latest.md
+
+      - name: Package and upload
+        if: steps.decide.outputs.upload == 'true'
+        uses: BigWigsMods/packager@v2

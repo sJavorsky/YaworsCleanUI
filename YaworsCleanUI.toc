@@ -2,8 +2,9 @@
 ## Title: Yawor's Clean UI
 ## Notes: Cleans up the UI by hiding elements and filtering chat spam.
 ## Author: Yawor
-## Version: 1.1.0
+## Version: @project-version@
 ## X-License: GPL-3.0-or-later
+## X-Curse-Project-ID: 1740029
 ## IconTexture: Interface\AddOns\YaworsCleanUI\textures\YCUI_logo_tga
 ## SavedVariables: YaworsCleanUIDB
 

@@ -1,0 +1,13 @@
+package-as: YaworsCleanUI
+
+manual-changelog:
+  filename: .changelog-latest.md
+  markup-type: markdown
+
+ignore:
+  - media
+  - reference
+  - deploy
+  - dist
+  - CLAUDE.md
+  - README.html
