@@ -65,6 +65,7 @@ local DEFAULTS = {
         minZoom = 20,
     },
     cursorPosition = {
+        settingsMode = "common",
         enabled = true,
         combatOnly = true,
         size = 65,
