@@ -231,6 +231,15 @@ function module.getActiveSettings()
     return YaworsCleanUIDB.cursorPosition.settings[module.getActiveSetKey()]
 end
 
+function module.resetAllSets()
+    local settings = YaworsCleanUIDB.cursorPosition.settings
+    for setKey, setDefaults in pairs(YaworsCleanUI.DEFAULTS.cursorPosition.settings) do
+        -- CopyTable is Blizzard's deep copy; the colors are nested tables
+        settings[setKey] = CopyTable(setDefaults)
+    end
+    module.applySettings()
+end
+
 local function updateVisibility()
     if not circleFrame then return end
 

@@ -7,8 +7,8 @@ local CURSOR_POSITION_SET_DEFAULTS = {
     twoToneRing = true,
     ringWidth = 7,
     ringColor = { r = 1, g = 1, b = 1 },
-    showOuterTracker = true,
-    showInnerTracker = true,
+    showOuterTracker = false,
+    showInnerTracker = false,
     outerWidth = 4,
     outerColor = { r = 0, g = 0, b = 0 },
     innerWidth = 3,
@@ -39,7 +39,7 @@ local DEFAULTS = {
         talentSpam = true,
     },
     classResourcePoints = {
-        enabled = true,
+        enabled = false,
         offsetY = -120,
         offsetX = 0,
         scale = 175,
@@ -53,7 +53,7 @@ local DEFAULTS = {
         paladinHolyPower = true,
     },
     classResourceBars = {
-        enabled = true,
+        enabled = false,
         fancyTextures = true,
         offsetY = -200,
         offsetX = 0,

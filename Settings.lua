@@ -18,7 +18,8 @@ YaworsCleanUI.settingsCategories = {
 }
 
 -- group is a key of YaworsCleanUIDB, or a table for values stored elsewhere:
--- { id = name unique within the addon, defaults = table, getValues = function returning the live table }
+-- { id = name unique within the addon, defaults = table, getValues = function returning
+-- the live table, registeredSettings = {} }
 local function resolveGroup(group)
     if type(group) == "table" then
         return group
@@ -27,7 +28,16 @@ local function resolveGroup(group)
         id = group,
         defaults = YaworsCleanUI.DEFAULTS[group],
         getValues = function() return YaworsCleanUIDB[group] end,
+        registeredSettings = {},
     }
+end
+
+-- For a table group whose live table was swapped. The panel's RepairDisplay only updates
+-- which rows are visible; NotifyUpdate makes each row re-read its value.
+function YaworsCleanUI.notifyGroupChanged(group)
+    for _, setting in ipairs(group.registeredSettings) do
+        setting:NotifyUpdate()
+    end
 end
 
 function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)
@@ -46,6 +56,7 @@ function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback
             callback()
         end
     )
+    table.insert(source.registeredSettings, setting)
     return Settings.CreateCheckbox(category, setting, tooltip)
 end
 
@@ -72,6 +83,7 @@ function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, 
             callback()
         end
     )
+    table.insert(source.registeredSettings, setting)
     return Settings.CreateColorSwatch(category, setting, tooltip)
 end
 
@@ -89,6 +101,7 @@ function YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, 
             callback()
         end
     )
+    table.insert(source.registeredSettings, setting)
     local options = Settings.CreateSliderOptions(minValue, maxValue, 1)
     options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
     return Settings.CreateSlider(category, setting, options, tooltip)
@@ -109,6 +122,7 @@ function YaworsCleanUI.addDropdown(category, group, key, name, tooltip, choices,
             callback()
         end
     )
+    table.insert(source.registeredSettings, setting)
     local function getOptions()
         local container = Settings.CreateControlTextContainer()
         for _, choice in ipairs(choices) do

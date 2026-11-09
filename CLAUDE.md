@@ -109,7 +109,7 @@ Every helper returns its row's initializer. Call `initializer:AddShownPredicate(
 
 These build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Each control's framework default (used for reset-to-default and the "modified" indicator) is derived from `YaworsCleanUI.DEFAULTS[group][key]` in Core.lua — the single source of truth — so defaults are never repeated at the call site.
 
-`group` is normally a key of `YaworsCleanUIDB`. For values stored elsewhere, pass a table instead: `{ id, defaults, getValues }`, where `getValues` returns the live table. Cursor Position uses this so one set of controls edits whichever settings set is active.
+`group` is normally a key of `YaworsCleanUIDB`. For values stored elsewhere, pass a table instead: `{ id, defaults, getValues, registeredSettings = {} }`, where `getValues` returns the live table. Cursor Position uses this so one set of controls edits whichever settings set is active. When the live table changes underneath open rows, call `YaworsCleanUI.notifyGroupChanged(group)` so they re-read their values.
 
 Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `applySettings()`. Everything applies instantly; there is no reload-required path or Reload UI button today. If a future setting genuinely needs a reload, enable a "Reload UI" button only when pending changes exist.
 

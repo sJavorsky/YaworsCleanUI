@@ -26,6 +26,7 @@ local ACTIVE_SET_GROUP = {
     id = "cursorPosition",
     defaults = YaworsCleanUI.DEFAULTS.cursorPosition.settings.common,
     getValues = getActiveSettings,
+    registeredSettings = {},
 }
 
 local function isTwoTone()
@@ -52,9 +53,37 @@ local function showWhile(isShown, ...)
     end
 end
 
+local function refreshRows()
+    YaworsCleanUI.notifyGroupChanged(ACTIVE_SET_GROUP)
+end
+
+local function resetAllSets()
+    YaworsCleanUI.CursorPosition.resetAllSets()
+    refreshRows()
+end
+
+-- Blizzard's Defaults only resets the set that's active while it runs, and it resets the
+-- mode too, so the role sets would be left untouched. These fire once it has finished.
+-- A callback receives its owner first, then the event's arguments.
+EventRegistry:RegisterCallback("Settings.Defaulted", resetAllSets, ACTIVE_SET_GROUP)
+EventRegistry:RegisterCallback("Settings.CategoryDefaulted", function(_, defaultedCategory)
+    if defaultedCategory == category then
+        resetAllSets()
+    end
+end, ACTIVE_SET_GROUP)
+
+-- Keeps an open panel showing the new role's values
+local specChangeFrame = CreateFrame("Frame")
+-- Fires when the player changes spec; RegisterUnitEvent ignores other units
+specChangeFrame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
+specChangeFrame:SetScript("OnEvent", refreshRows)
+
 addDropdown(category, "cursorPosition", "mode", "Use settings",
     "Common uses one set of settings for every role. Role specific keeps a separate set for melee, range, tank and healer.",
-    SETTINGS_MODES, apply)
+    SETTINGS_MODES, function()
+        apply()
+        refreshRows()
+    end)
 
 -- One header per title because a section header's text is fixed once created
 for _, header in ipairs(SET_HEADERS) do
