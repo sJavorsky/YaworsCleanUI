@@ -25,6 +25,25 @@ local MIGRATIONS = {
             end
         end,
     },
+    {
+        version = "1.3.0",
+        migrate = function(database)
+            -- Cursor Position: flat values became one set per role. Every set starts
+            -- as a copy of the old values, so switching mode changes nothing at first.
+            local values = database.cursorPosition
+            if not values then return end
+            database.cursorPosition = {
+                settings = {
+                    common = values,
+                    -- CopyTable is Blizzard's deep copy; the colors are nested tables
+                    melee = CopyTable(values),
+                    range = CopyTable(values),
+                    tank = CopyTable(values),
+                    healer = CopyTable(values),
+                },
+            }
+        end,
+    },
 }
 
 Migrations.SETTINGS_VERSION = MIGRATIONS[#MIGRATIONS].version

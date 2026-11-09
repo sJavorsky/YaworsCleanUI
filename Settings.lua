@@ -17,18 +17,32 @@ YaworsCleanUI.settingsCategories = {
     cursor   = cursorCategory,
 }
 
+-- group is a key of YaworsCleanUIDB, or a table for values stored elsewhere:
+-- { id = name unique within the addon, defaults = table, getValues = function returning the live table }
+local function resolveGroup(group)
+    if type(group) == "table" then
+        return group
+    end
+    return {
+        id = group,
+        defaults = YaworsCleanUI.DEFAULTS[group],
+        getValues = function() return YaworsCleanUIDB[group] end,
+    }
+end
+
 function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback)
+    local source = resolveGroup(group)
     -- RegisterProxySetting delegates storage to our own getter/setter rather
     -- than a CVar; the key must be globally unique across all addons.
     local setting = Settings.RegisterProxySetting(
         category,
-        "YaworsCleanUI_" .. group .. "_" .. key,
+        "YaworsCleanUI_" .. source.id .. "_" .. key,
         Settings.VarType.Boolean,
         name,
-        YaworsCleanUI.DEFAULTS[group][key],
-        function() return YaworsCleanUIDB[group][key] end,
+        source.defaults[key],
+        function() return source.getValues()[key] end,
         function(value)
-            YaworsCleanUIDB[group][key] = value
+            source.getValues()[key] = value
             callback()
         end
     )
@@ -36,21 +50,22 @@ function YaworsCleanUI.addCheckbox(category, group, key, name, tooltip, callback
 end
 
 function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, callback)
-    local defaultColor = YaworsCleanUI.DEFAULTS[group][colorKey]
+    local source = resolveGroup(group)
+    local defaultColor = source.defaults[colorKey]
     local defaultHex = CreateColor(defaultColor.r, defaultColor.g, defaultColor.b):GenerateHexColor()
     local setting = Settings.RegisterProxySetting(
         category,
-        "YaworsCleanUI_" .. group .. "_" .. colorKey,
+        "YaworsCleanUI_" .. source.id .. "_" .. colorKey,
         Settings.VarType.String,
         name,
         defaultHex,
         function()
-            local colorTable = YaworsCleanUIDB[group][colorKey]
+            local colorTable = source.getValues()[colorKey]
             return CreateColor(colorTable.r, colorTable.g, colorTable.b):GenerateHexColor()
         end,
         function(value)
             local color = CreateColorFromHexString(value)
-            local colorTable = YaworsCleanUIDB[group][colorKey]
+            local colorTable = source.getValues()[colorKey]
             colorTable.r = color.r
             colorTable.g = color.g
             colorTable.b = color.b
@@ -61,15 +76,16 @@ function YaworsCleanUI.addColorPicker(category, group, colorKey, name, tooltip, 
 end
 
 function YaworsCleanUI.addSlider(category, group, key, name, tooltip, minValue, maxValue, callback)
+    local source = resolveGroup(group)
     local setting = Settings.RegisterProxySetting(
         category,
-        "YaworsCleanUI_" .. group .. "_" .. key,
+        "YaworsCleanUI_" .. source.id .. "_" .. key,
         Settings.VarType.Number,
         name,
-        YaworsCleanUI.DEFAULTS[group][key],
-        function() return YaworsCleanUIDB[group][key] end,
+        source.defaults[key],
+        function() return source.getValues()[key] end,
         function(value)
-            YaworsCleanUIDB[group][key] = value
+            source.getValues()[key] = value
             callback()
         end
     )
@@ -80,15 +96,16 @@ end
 
 -- choices is a list of { value, label } pairs, shown in that order
 function YaworsCleanUI.addDropdown(category, group, key, name, tooltip, choices, callback)
+    local source = resolveGroup(group)
     local setting = Settings.RegisterProxySetting(
         category,
-        "YaworsCleanUI_" .. group .. "_" .. key,
+        "YaworsCleanUI_" .. source.id .. "_" .. key,
         Settings.VarType.String,
         name,
-        YaworsCleanUI.DEFAULTS[group][key],
-        function() return YaworsCleanUIDB[group][key] end,
+        source.defaults[key],
+        function() return source.getValues()[key] end,
         function(value)
-            YaworsCleanUIDB[group][key] = value
+            source.getValues()[key] = value
             callback()
         end
     )

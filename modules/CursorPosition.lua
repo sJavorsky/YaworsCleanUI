@@ -223,15 +223,24 @@ local function createCircleFrame()
     return frame
 end
 
+function module.getActiveSetKey()
+    return YaworsCleanUIDB.cursorPosition.mode == "role" and YaworsCleanUI.Utils.getPlayerRole() or "common"
+end
+
+function module.getActiveSettings()
+    return YaworsCleanUIDB.cursorPosition.settings[module.getActiveSetKey()]
+end
+
 local function updateVisibility()
     if not circleFrame then return end
 
-    if not YaworsCleanUIDB.cursorPosition.enabled then
+    local settings = module.getActiveSettings()
+    if not settings.enabled then
         circleFrame:Hide()
         return
     end
 
-    if YaworsCleanUIDB.cursorPosition.combatOnly and not UnitAffectingCombat("player") then
+    if settings.combatOnly and not UnitAffectingCombat("player") then
         circleFrame:Hide()
         return
     end
@@ -246,8 +255,16 @@ function module.init()
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-    eventFrame:SetScript("OnEvent", function()
-        updateVisibility()
+    -- Spec data may not be ready at ADDON_LOADED, so the role is resolved again at login
+    eventFrame:RegisterEvent("PLAYER_LOGIN")
+    -- Fires when the player changes spec; RegisterUnitEvent ignores other units
+    eventFrame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
+    eventFrame:SetScript("OnEvent", function(_, event)
+        if event == "PLAYER_REGEN_DISABLED" or event == "PLAYER_REGEN_ENABLED" then
+            updateVisibility()
+        else
+            module.applySettings()
+        end
     end)
 
     -- The demo fill is only for configuring, so it never outlives the options panel
@@ -265,7 +282,7 @@ end
 function module.applySettings()
     if not circleFrame then return end
 
-    local settings          = YaworsCleanUIDB.cursorPosition
+    local settings          = module.getActiveSettings()
     local size              = settings.size
     local twoTone           = settings.twoToneRing
     -- The single-color ring is drawn by the outer ring with its own settings; zero
