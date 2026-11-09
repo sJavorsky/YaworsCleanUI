@@ -9,6 +9,7 @@
 ## SavedVariables: YaworsCleanUIDB
 
 Core.lua
+Utils.lua
 Migrations.lua
 Settings.lua
 settings/HideElements.lua

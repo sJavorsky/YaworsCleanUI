@@ -23,6 +23,7 @@ mkdir -p "$ADDON/textures"
 
 sed "s/@project-version@/$VERSION/" "$SRC/YaworsCleanUI.toc" > "$ADDON/YaworsCleanUI.toc"
 cp "$SRC/Core.lua"          "$ADDON/"
+cp "$SRC/Utils.lua"         "$ADDON/"
 cp "$SRC/Migrations.lua"    "$ADDON/"
 cp "$SRC/Settings.lua"      "$ADDON/"
 cp "$SRC/LICENSE"           "$ADDON/"

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 - 2026-11-09
+
+### Added
+
+- **Cursor position**: settings can now be separate for each role. A new dropdown at the top of the page switches between Common, with one set for every role, and Role specific, with separate settings for melee, range, tank and healer. The ring switches automatically with your specialization, and your current settings carry over to every role.
+
+### Changed
+
+- The cursor trackers and the point and bar class resources are now off by default for new installs and after pressing Defaults. Your saved settings stay as they are.
+
 ## 1.2.3 - 2026-11-01
 
 ### Changed

@@ -65,6 +65,7 @@ Each feature can be applied separately. Open **Interface Options → AddOns → 
 - **Position circle** — a single-color or two-tone ring that follows the cursor
 - **Radial trackers** — optional outer and inner rings that fill for your spell cast or the global cooldown
 - Configurable size, ring widths and colors; tracker preview for setup; optionally combat-only
+- One set of settings for everything, or a separate set for melee, range, tank and healer
 
 \</AI generated overview>
 

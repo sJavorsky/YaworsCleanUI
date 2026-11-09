@@ -16,6 +16,7 @@ Each feature is split across two parallel files with the same base name:
 ```
 YaworsCleanUI.toc            -- addon manifest, load order
 Core.lua                     -- global table, SavedVariables defaults, module registry, ADDON_LOADED backbone
+Utils.lua                    -- shared helpers, not tied to one feature (player role detection)
 Migrations.lua               -- versioned SavedVariables migrations, run by Core.lua on load
 Settings.lua                 -- root options category + subcategories, shared control helpers
 modules/
@@ -33,12 +34,13 @@ deploy/                      -- dev.sh (copy into live AddOns folder) and deploy
 dist/                        -- zips built by deploy.sh (gitignored)
 .github/workflows/           -- release.yml: CurseForge packaging and upload (see Deploy)
 .pkgmeta                     -- packager config: package name, changelog file, ignored paths
-reference/                   -- other addons cloned for API reference (gitignored, read-only)
 ```
+
+Reference material lives outside the repo, in `_reference/` inside the smart-vault project folder that the SessionStart hook names (read-only). `wa/` holds the WeakAuras 5.21.1 addon source and Yawor's own auras: saved variables (`WeakAuras.lua.bak`), wago.io links (`urls`) and `trail.json`. `old-code/` holds the original WeakAuras code this addon replaces. `logos/` holds another addon's logo files.
 
 Adding a feature: create `modules/X.lua` and `settings/X.lua`, register both in the TOC (settings files before module files — see load order below), add a subcategory in Settings.lua plus an entry in `settingsCategories`, add its defaults in Core.lua's `DEFAULTS`, and update the dev and deploy scripts if you add a new top-level file or folder.
 
-**Load order** (from the TOC): `Core.lua` → `Migrations.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
+**Load order** (from the TOC): `Core.lua` → `Utils.lua` → `Migrations.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
 
 ## Lua conventions
 
@@ -107,6 +109,8 @@ Every helper returns its row's initializer. Call `initializer:AddShownPredicate(
 
 These build on `Settings.RegisterProxySetting` (storage delegated to our own getter/setter, not a CVar). The proxy key must be globally unique across all addons, hence the `YaworsCleanUI_<group>_<key>` prefix. Each control's framework default (used for reset-to-default and the "modified" indicator) is derived from `YaworsCleanUI.DEFAULTS[group][key]` in Core.lua — the single source of truth — so defaults are never repeated at the call site.
 
+`group` is normally a key of `YaworsCleanUIDB`. For values stored elsewhere, pass a table instead: `{ id, defaults, getValues, registeredSettings = {} }`, where `getValues` returns the live table. Cursor Position uses this so one set of controls edits whichever settings set is active. When the live table changes underneath open rows, call `YaworsCleanUI.notifyGroupChanged(group)` so they re-read their values.
+
 Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `applySettings()`. Everything applies instantly; there is no reload-required path or Reload UI button today. If a future setting genuinely needs a reload, enable a "Reload UI" button only when pending changes exist.
 
 ## Deploy
@@ -130,7 +134,7 @@ Release checklist:
 
 `deploy/deploy.sh` builds the same zip locally at `dist/YaworsCleanUI-<version>.zip`, with the version from `git describe --tags`. It's for checking a package without uploading. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. Both scripts replace `@project-version@` in the copied TOC.
 
-Both scripts mirror the TOC, `Core.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders, and add anything that must not ship to `ignore` in `.pkgmeta`.
+Both scripts mirror the TOC, `Core.lua`, `Utils.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders, and add anything that must not ship to `ignore` in `.pkgmeta`.
 
 ## Changelog
 

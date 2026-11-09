@@ -1,5 +1,26 @@
 YaworsCleanUI = {}
 
+local CURSOR_POSITION_SET_DEFAULTS = {
+    enabled = true,
+    combatOnly = true,
+    size = 65,
+    twoToneRing = true,
+    ringWidth = 7,
+    ringColor = { r = 1, g = 1, b = 1 },
+    showOuterTracker = false,
+    showInnerTracker = false,
+    outerWidth = 4,
+    outerColor = { r = 0, g = 0, b = 0 },
+    innerWidth = 3,
+    innerColor = { r = 1, g = 1, b = 1 },
+    outerTrackerWidth = 5,
+    outerTrackerColor = { r = 0.7333, g = 0.7333, b = 0.7333 },
+    outerTrackerSource = "cast",
+    innerTrackerWidth = 5,
+    innerTrackerColor = { r = 0.7333, g = 0.7333, b = 0.7333 },
+    innerTrackerSource = "gcd",
+}
+
 local DEFAULTS = {
     hideElements = {
         looting = true,
@@ -18,7 +39,7 @@ local DEFAULTS = {
         talentSpam = true,
     },
     classResourcePoints = {
-        enabled = true,
+        enabled = false,
         offsetY = -120,
         offsetX = 0,
         scale = 175,
@@ -32,7 +53,7 @@ local DEFAULTS = {
         paladinHolyPower = true,
     },
     classResourceBars = {
-        enabled = true,
+        enabled = false,
         fancyTextures = true,
         offsetY = -200,
         offsetX = 0,
@@ -65,24 +86,15 @@ local DEFAULTS = {
         minZoom = 20,
     },
     cursorPosition = {
-        enabled = true,
-        combatOnly = true,
-        size = 65,
-        twoToneRing = true,
-        ringWidth = 7,
-        ringColor = { r = 1, g = 1, b = 1 },
-        showOuterTracker = true,
-        showInnerTracker = true,
-        outerWidth = 4,
-        outerColor = { r = 0, g = 0, b = 0 },
-        innerWidth = 3,
-        innerColor = { r = 1, g = 1, b = 1 },
-        outerTrackerWidth = 5,
-        outerTrackerColor = { r = 0.7333, g = 0.7333, b = 0.7333 },
-        outerTrackerSource = "cast",
-        innerTrackerWidth = 5,
-        innerTrackerColor = { r = 0.7333, g = 0.7333, b = 0.7333 },
-        innerTrackerSource = "gcd",
+        mode = "common",
+        -- Sharing one table is safe: applyDefaults builds separate tables in the save
+        settings = {
+            common = CURSOR_POSITION_SET_DEFAULTS,
+            melee = CURSOR_POSITION_SET_DEFAULTS,
+            range = CURSOR_POSITION_SET_DEFAULTS,
+            tank = CURSOR_POSITION_SET_DEFAULTS,
+            healer = CURSOR_POSITION_SET_DEFAULTS,
+        },
     },
 }
 

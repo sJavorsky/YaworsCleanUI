@@ -11,46 +11,102 @@ local function apply()
 end
 
 local TRACKER_SOURCES = {{"cast", "Spell cast"}, {"gcd", "Global cooldown"}}
+local SETTINGS_MODES = {{"common", "Common"}, {"role", "Role specific"}}
+local SET_HEADERS = {
+    {"common", "Common settings"}, {"melee", "Melee settings"}, {"range", "Range settings"},
+    {"tank", "Tank settings"}, {"healer", "Healer settings"},
+}
+
+local function getActiveSettings()
+    return YaworsCleanUI.CursorPosition.getActiveSettings()
+end
+
+-- Controls read and write whichever set is active, so one row serves all five sets
+local ACTIVE_SET_GROUP = {
+    id = "cursorPosition",
+    defaults = YaworsCleanUI.DEFAULTS.cursorPosition.settings.common,
+    getValues = getActiveSettings,
+    registeredSettings = {},
+}
 
 local function isTwoTone()
-    return YaworsCleanUIDB.cursorPosition.twoToneRing
+    return getActiveSettings().twoToneRing
 end
 
 local function isSingleColor()
-    return not YaworsCleanUIDB.cursorPosition.twoToneRing
+    return not getActiveSettings().twoToneRing
 end
 
 local function isOuterTrackerShown()
-    return YaworsCleanUIDB.cursorPosition.showOuterTracker
+    return getActiveSettings().showOuterTracker
 end
 
 local function isInnerTrackerShown()
-    return YaworsCleanUIDB.cursorPosition.showInnerTracker
+    return getActiveSettings().showInnerTracker
 end
 
 -- Hides every row of a section, header included, while isShown returns false.
 -- The panel redraws on every setting change, so sections toggle immediately.
 local function showWhile(isShown, ...)
-    for i = 1, select("#", ...) do
-        select(i, ...):AddShownPredicate(isShown)
+    for _, row in ipairs({...}) do
+        row:AddShownPredicate(isShown)
     end
 end
 
-addCheckbox(category, "cursorPosition", "enabled", "Show position circle",
+local function refreshRows()
+    YaworsCleanUI.notifyGroupChanged(ACTIVE_SET_GROUP)
+end
+
+local function resetAllSets()
+    YaworsCleanUI.CursorPosition.resetAllSets()
+    refreshRows()
+end
+
+-- Blizzard's Defaults only resets the set that's active while it runs, and it resets the
+-- mode too, so the role sets would be left untouched. These fire once it has finished.
+-- A callback receives its owner first, then the event's arguments.
+EventRegistry:RegisterCallback("Settings.Defaulted", resetAllSets, ACTIVE_SET_GROUP)
+EventRegistry:RegisterCallback("Settings.CategoryDefaulted", function(_, defaultedCategory)
+    if defaultedCategory == category then
+        resetAllSets()
+    end
+end, ACTIVE_SET_GROUP)
+
+-- Keeps an open panel showing the new role's values
+local specChangeFrame = CreateFrame("Frame")
+-- Fires when the player changes spec; RegisterUnitEvent ignores other units
+specChangeFrame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
+specChangeFrame:SetScript("OnEvent", refreshRows)
+
+addDropdown(category, "cursorPosition", "mode", "Use settings",
+    "Common uses one set of settings for every role. Role specific keeps a separate set for melee, range, tank and healer.",
+    SETTINGS_MODES, function()
+        apply()
+        refreshRows()
+    end)
+
+-- One header per title because a section header's text is fixed once created
+for _, header in ipairs(SET_HEADERS) do
+    local setKey, title = header[1], header[2]
+    showWhile(function() return YaworsCleanUI.CursorPosition.getActiveSetKey() == setKey end,
+        addSectionHeader(category, title))
+end
+
+addCheckbox(category, ACTIVE_SET_GROUP, "enabled", "Show position circle",
     "Draws a circle at the cursor to mark its position.", apply)
 
-addCheckbox(category, "cursorPosition", "combatOnly", "Show only in combat",
+addCheckbox(category, ACTIVE_SET_GROUP, "combatOnly", "Show only in combat",
     "Hides the position circle when not in combat.", apply)
 
-addSlider(category, "cursorPosition", "size", "Size", "Diameter of the position circle.", 10, 300, apply)
+addSlider(category, ACTIVE_SET_GROUP, "size", "Size", "Diameter of the position circle.", 10, 300, apply)
 
 addSectionHeader(category, "Components")
-addCheckbox(category, "cursorPosition", "twoToneRing", "Two-tone ring",
+addCheckbox(category, ACTIVE_SET_GROUP, "twoToneRing", "Two-tone ring",
     "Splits the ring into an outer and an inner band, each with its own color and width. Off draws a single-color ring.",
     apply)
-addCheckbox(category, "cursorPosition", "showInnerTracker", "Inner tracker",
+addCheckbox(category, ACTIVE_SET_GROUP, "showInnerTracker", "Inner tracker",
     "Shows a tracker ring along the inside of the circle.", apply)
-addCheckbox(category, "cursorPosition", "showOuterTracker", "Outer tracker",
+addCheckbox(category, ACTIVE_SET_GROUP, "showOuterTracker", "Outer tracker",
     "Shows a tracker ring around the outside of the circle.", apply)
 showWhile(function() return isInnerTrackerShown() or isOuterTrackerShown() end,
     addButton(category, "Preview trackers",
@@ -58,26 +114,26 @@ showWhile(function() return isInnerTrackerShown() or isOuterTrackerShown() end,
         function() YaworsCleanUI.CursorPosition.toggleTrackerPreview() end))
 
 showWhile(isSingleColor, addSectionHeader(category, "Ring"),
-    addColorPicker(category, "cursorPosition", "ringColor", "Color", "Color of the ring.", apply),
-    addSlider(category, "cursorPosition", "ringWidth", "Width", "Thickness of the ring.", 1, 75, apply))
+    addColorPicker(category, ACTIVE_SET_GROUP, "ringColor", "Color", "Color of the ring.", apply),
+    addSlider(category, ACTIVE_SET_GROUP, "ringWidth", "Width", "Thickness of the ring.", 1, 75, apply))
 
 showWhile(isTwoTone, addSectionHeader(category, "Inner ring"),
-    addColorPicker(category, "cursorPosition", "innerColor", "Color", "Color of the inner ring.", apply), addSlider(
-        category, "cursorPosition", "innerWidth", "Width", "Thickness of the inner ring.", 1, 75, apply))
+    addColorPicker(category, ACTIVE_SET_GROUP, "innerColor", "Color", "Color of the inner ring.", apply), addSlider(
+        category, ACTIVE_SET_GROUP, "innerWidth", "Width", "Thickness of the inner ring.", 1, 75, apply))
 showWhile(isTwoTone, addSectionHeader(category, "Outer ring"),
-    addColorPicker(category, "cursorPosition", "outerColor", "Color", "Color of the outer ring.", apply), addSlider(
-        category, "cursorPosition", "outerWidth", "Width", "Thickness of the outer ring.", 1, 75, apply))
+    addColorPicker(category, ACTIVE_SET_GROUP, "outerColor", "Color", "Color of the outer ring.", apply), addSlider(
+        category, ACTIVE_SET_GROUP, "outerWidth", "Width", "Thickness of the outer ring.", 1, 75, apply))
 
-showWhile(isInnerTrackerShown, addSectionHeader(category, "Inner tracker"), addColorPicker(category, "cursorPosition",
+showWhile(isInnerTrackerShown, addSectionHeader(category, "Inner tracker"), addColorPicker(category, ACTIVE_SET_GROUP,
     "innerTrackerColor", "Color", "Color of the inner tracker ring.", apply),
-    addSlider(category, "cursorPosition", "innerTrackerWidth", "Width",
+    addSlider(category, ACTIVE_SET_GROUP, "innerTrackerWidth", "Width",
         "Thickness of the inner tracker ring (0 hides it).", 0, 75, apply),
-    addDropdown(category, "cursorPosition", "innerTrackerSource", "Source", "What the inner tracker ring fills for.",
+    addDropdown(category, ACTIVE_SET_GROUP, "innerTrackerSource", "Source", "What the inner tracker ring fills for.",
         TRACKER_SOURCES, apply))
 
-showWhile(isOuterTrackerShown, addSectionHeader(category, "Outer tracker"), addColorPicker(category, "cursorPosition",
+showWhile(isOuterTrackerShown, addSectionHeader(category, "Outer tracker"), addColorPicker(category, ACTIVE_SET_GROUP,
     "outerTrackerColor", "Color", "Color of the outer tracker ring.", apply),
-    addSlider(category, "cursorPosition", "outerTrackerWidth", "Width",
+    addSlider(category, ACTIVE_SET_GROUP, "outerTrackerWidth", "Width",
         "Thickness of the outer tracker ring (0 hides it).", 0, 75, apply),
-    addDropdown(category, "cursorPosition", "outerTrackerSource", "Source", "What the outer tracker ring fills for.",
+    addDropdown(category, ACTIVE_SET_GROUP, "outerTrackerSource", "Source", "What the outer tracker ring fills for.",
         TRACKER_SOURCES, apply))
