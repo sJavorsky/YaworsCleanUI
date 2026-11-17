@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0 - 2026-11-17
+
+### Added
+
+- **WoW Forever**: the addon now loads on Forever with a smaller set of features: hide loot window, hide bag icons, Battle.net toast and cursor position. Cursor position uses one set of settings for every role there.
+
 ## 1.3.0 - 2026-11-09
 
 ### Added
