@@ -5,7 +5,9 @@ YaworsCleanUI.registerModule(module)
 
 -- Individual bag bar button names. Targeting the container frame alone is not
 -- sufficient because Blizzard re-shows children independently.
-local BAG_FRAME_NAMES = {
+-- Forever's bag slots are unnamed children of BagsBar, so Forever hides the whole bar.
+-- A hidden parent hides its children even when Blizzard re-shows them.
+local BAG_FRAME_NAMES = YaworsCleanUI.isRetail and {
     "MainMenuBarBackpackButton",
     "CharacterBag0Slot",
     "CharacterBag1Slot",
@@ -13,7 +15,7 @@ local BAG_FRAME_NAMES = {
     "CharacterBag3Slot",
     "CharacterReagentBag0Slot",
     "BagBarExpandToggle",
-}
+} or { "BagsBar" }
 
 local eventFrame = CreateFrame("Frame")
 -- LOOT_OPENED fires each time the game opens the loot window
@@ -88,5 +90,7 @@ end
 function module.applySettings()
     applyLootSettings()
     applyBagSettings()
-    applyGroupIndicatorSettings()
+    if YaworsCleanUI.isRetail then
+        applyGroupIndicatorSettings()
+    end
 end

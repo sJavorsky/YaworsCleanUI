@@ -1,4 +1,4 @@
-local category = YaworsCleanUI.settingsCategories.points
+local category = YaworsCleanUI.addCategory("Points Class Resources")
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addSlider = YaworsCleanUI.addSlider
 local addSectionHeader = YaworsCleanUI.addSectionHeader

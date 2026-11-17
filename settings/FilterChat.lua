@@ -1,4 +1,4 @@
-local category = YaworsCleanUI.settingsCategories.chat
+local category = YaworsCleanUI.addCategory("Filter chat")
 local addCheckbox = YaworsCleanUI.addCheckbox
 
 addCheckbox(category, "filterChat", "talentSpam",

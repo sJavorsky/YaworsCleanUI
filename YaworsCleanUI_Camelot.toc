@@ -1,0 +1,19 @@
+## Interface: 16001
+## Title: Yawor's Clean UI
+## Notes: Cleans up the UI by hiding elements and moving popups.
+## Author: Yawor
+## Version: @project-version@
+## X-License: GPL-3.0-or-later
+## X-Curse-Project-ID: 1740029
+## IconTexture: Interface\AddOns\YaworsCleanUI\textures\YCUI_logo_tga
+## SavedVariables: YaworsCleanUIDB
+
+Core.lua
+Migrations.lua
+Settings.lua
+settings/HideElements.lua
+settings/MoveElements.lua
+settings/CursorPosition.lua
+modules/HideElements.lua
+modules/MoveElements.lua
+modules/CursorPosition.lua

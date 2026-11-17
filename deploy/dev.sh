@@ -9,35 +9,47 @@ if [[ ! -f "$CONFIG" ]]; then
     exit 1
 fi
 
-DEST=""
+RETAIL=""
+FOREVER=""
 while IFS= read -r line; do
     [[ "$line" =~ ^[[:space:]]*# ]] && continue
     [[ -z "${line// }" ]] && continue
     key="${line%%=*}"
     value="${line#*=}"
-    [[ "$key" == "DEST" ]] && DEST="$value"
+    [[ "$key" == "RETAIL" ]] && RETAIL="$value"
+    [[ "$key" == "FOREVER" ]] && FOREVER="$value"
 done < "$CONFIG"
 
-if [[ -z "$DEST" ]]; then
-    echo "Error: DEST not found in deploy.conf"
+if [[ -z "$RETAIL" && -z "$FOREVER" ]]; then
+    echo "Error: neither RETAIL nor FOREVER found in deploy.conf"
     exit 1
 fi
 
 SRC="$DIR/.."
-
-rm -rf "$DEST"
-mkdir -p "$DEST/modules"
-mkdir -p "$DEST/settings"
-mkdir -p "$DEST/textures"
-
 VERSION="$(git -C "$SRC" describe --tags --abbrev=7 2>/dev/null || echo dev)_$(date '+%F_%H:%M')"
-sed "s/@project-version@/$VERSION/" "$SRC/YaworsCleanUI.toc" > "$DEST/YaworsCleanUI.toc"
-cp "$SRC/Core.lua"          "$DEST/"
-cp "$SRC/Utils.lua"         "$DEST/"
-cp "$SRC/Migrations.lua"    "$DEST/"
-cp "$SRC/Settings.lua"      "$DEST/"
-cp "$SRC"/modules/*.lua     "$DEST/modules/"
-cp "$SRC"/settings/*.lua    "$DEST/settings/"
-cp "$SRC"/textures/*        "$DEST/textures/"
+
+# Both games get the same files, like the release zip; each client picks its own TOC.
+copy_addon() {
+    local dest="$1"
+    rm -rf "$dest"
+    mkdir -p "$dest/modules"
+    mkdir -p "$dest/settings"
+    mkdir -p "$dest/textures"
+
+    sed "s/@project-version@/$VERSION/" "$SRC/YaworsCleanUI.toc"         > "$dest/YaworsCleanUI.toc"
+    sed "s/@project-version@/$VERSION/" "$SRC/YaworsCleanUI_Camelot.toc" > "$dest/YaworsCleanUI_Camelot.toc"
+    cp "$SRC/Core.lua"          "$dest/"
+    cp "$SRC/Retail.lua"        "$dest/"
+    cp "$SRC/Utils.lua"         "$dest/"
+    cp "$SRC/Migrations.lua"    "$dest/"
+    cp "$SRC/Settings.lua"      "$dest/"
+    cp "$SRC"/modules/*.lua     "$dest/modules/"
+    cp "$SRC"/settings/*.lua    "$dest/settings/"
+    cp "$SRC"/textures/*        "$dest/textures/"
+    echo "Copied to $dest"
+}
+
+[[ -n "$RETAIL" ]] && copy_addon "$RETAIL"
+[[ -n "$FOREVER" ]] && copy_addon "$FOREVER"
 
 echo "Done."

@@ -1,4 +1,4 @@
-local category = YaworsCleanUI.settingsCategories.cursor
+local category = YaworsCleanUI.addCategory("Cursor Position")
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addColorPicker = YaworsCleanUI.addColorPicker
 local addSlider = YaworsCleanUI.addSlider
@@ -78,18 +78,21 @@ local specChangeFrame = CreateFrame("Frame")
 specChangeFrame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
 specChangeFrame:SetScript("OnEvent", refreshRows)
 
-addDropdown(category, "cursorPosition", "mode", "Use settings",
-    "Common uses one set of settings for every role. Role specific keeps a separate set for melee, range, tank and healer.",
-    SETTINGS_MODES, function()
-        apply()
-        refreshRows()
-    end)
+-- Forever always uses the common set, so only retail gets the mode and the set headers
+if YaworsCleanUI.isRetail then
+    addDropdown(category, "cursorPosition", "mode", "Use settings",
+        "Common uses one set of settings for every role. Role specific keeps a separate set for melee, range, tank and healer.",
+        SETTINGS_MODES, function()
+            apply()
+            refreshRows()
+        end)
 
--- One header per title because a section header's text is fixed once created
-for _, header in ipairs(SET_HEADERS) do
-    local setKey, title = header[1], header[2]
-    showWhile(function() return YaworsCleanUI.CursorPosition.getActiveSetKey() == setKey end,
-        addSectionHeader(category, title))
+    -- One header per title because a section header's text is fixed once created
+    for _, header in ipairs(SET_HEADERS) do
+        local setKey, title = header[1], header[2]
+        showWhile(function() return YaworsCleanUI.CursorPosition.getActiveSetKey() == setKey end,
+            addSectionHeader(category, title))
+    end
 end
 
 addCheckbox(category, ACTIVE_SET_GROUP, "enabled", "Show position circle",

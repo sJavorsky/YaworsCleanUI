@@ -14,8 +14,10 @@ Each feature is split across two parallel files with the same base name:
 - `settings/<Feature>.lua` — the Blizzard options UI for that feature. Registers checkboxes/sliders/color swatches whose setters write to SavedVariables and call the module's `applySettings()`.
 
 ```
-YaworsCleanUI.toc            -- addon manifest, load order
+YaworsCleanUI.toc            -- addon manifest, load order (retail)
+YaworsCleanUI_Camelot.toc    -- manifest for WoW Forever (see WoW Forever below)
 Core.lua                     -- global table, SavedVariables defaults, module registry, ADDON_LOADED backbone
+Retail.lua                   -- sets YaworsCleanUI.isRetail; loaded only by the retail TOC
 Utils.lua                    -- shared helpers, not tied to one feature (player role detection)
 Migrations.lua               -- versioned SavedVariables migrations, run by Core.lua on load
 Settings.lua                 -- root options category + subcategories, shared control helpers
@@ -38,9 +40,24 @@ dist/                        -- zips built by deploy.sh (gitignored)
 
 Reference material lives outside the repo, in `_reference/` inside the smart-vault project folder that the SessionStart hook names (read-only). `wa/` holds the WeakAuras 5.21.1 addon source and Yawor's own auras: saved variables (`WeakAuras.lua.bak`), wago.io links (`urls`) and `trail.json`. `old-code/` holds the original WeakAuras code this addon replaces. `logos/` holds another addon's logo files.
 
-Adding a feature: create `modules/X.lua` and `settings/X.lua`, register both in the TOC (settings files before module files — see load order below), add a subcategory in Settings.lua plus an entry in `settingsCategories`, add its defaults in Core.lua's `DEFAULTS`, and update the dev and deploy scripts if you add a new top-level file or folder.
+Adding a feature: create `modules/X.lua` and `settings/X.lua`, register both in the TOC (settings files before module files — see load order below), start the settings file with `local category = YaworsCleanUI.addCategory("<Page name>")`, add its defaults in Core.lua's `DEFAULTS`, and update the dev and deploy scripts if you add a new top-level file or folder.
 
-**Load order** (from the TOC): `Core.lua` → `Utils.lua` → `Migrations.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
+**Load order** (from the TOC): `Core.lua` → `Retail.lua` → `Utils.lua` → `Migrations.lua` → `Settings.lua` → `settings/*.lua` → `modules/*.lua`. Settings files load before modules but only reference module tables inside callbacks (which run later), so the ordering is safe.
+
+## WoW Forever
+
+WoW Forever is a Mainline client (interface `16001`, includes modern API changes up to 12.1.5), so the retail code runs there unchanged. It loads `YaworsCleanUI_Camelot.toc` instead of the base TOC. Use the `_Camelot` suffix: the BigWigs packager doesn't recognise `_Forever`. Never add a `_Mainline.toc`, since both games would load it.
+
+The Forever TOC lists only a subset of features: hide loot window, hide bag icons, Battle.net toast, cursor position. The retail TOC adds `Retail.lua` after `Core.lua`, plus `Utils.lua`, which Forever leaves out. Shared files check `YaworsCleanUI.isRetail` to add the retail-only parts:
+
+- the group indicator (not yet checked whether Forever has one)
+- the queue eye (Forever already places it on the minimap)
+- bag icons: retail hides the named slots; Forever's slots are unnamed children of `BagsBar` (plus `KeyRingButton`), so Forever hides the whole `BagsBar`
+- cursor position's role mode (Forever has one spec per class, e.g. Druid spec 1484 "DAMAGER", so melee and range can't be told apart); Forever always uses the `common` set
+
+Talent swap spam is dropped too: the retail spell IDs don't apply, and Forever's respecs and dual spec (level 40) were not testable.
+
+Both games ship in one zip with both TOCs. Each install has its own `WTF` folder, so saved settings never mix.
 
 ## Lua conventions
 
@@ -94,7 +111,7 @@ Do NOT comment what code does. Comment why it does it, only when that isn't obvi
 
 ## Settings
 
-Settings.lua builds the panel with `Settings.RegisterVerticalLayoutCategory` (root) and one `Settings.RegisterVerticalLayoutSubcategory` per feature, exposed via `YaworsCleanUI.settingsCategories`. Category registration is deferred to `ADDON_LOADED` so all `settings/*.lua` controls are added first. The panel lives inside the standard Blizzard options (Interface Options → AddOns) — no separate window, no minimap button.
+Settings.lua builds the panel with `Settings.RegisterVerticalLayoutCategory` (root) and one subcategory per feature, created by that feature's settings file with `YaworsCleanUI.addCategory(name)`. Pages appear in TOC load order, and a TOC that leaves a feature out gets no empty page. Category registration is deferred to `ADDON_LOADED` so all `settings/*.lua` controls are added first. The panel lives inside the standard Blizzard options (Interface Options → AddOns) — no separate window, no minimap button.
 
 Shared control helpers in Settings.lua:
 
@@ -115,7 +132,7 @@ Every setter writes to `YaworsCleanUIDB` and then calls the owning module's `app
 
 ## Deploy
 
-`deploy/dev.sh` copies the addon into the live WoW AddOns folder for testing. The destination path is read from `DEST` in `deploy/deploy.conf` (gitignored; copy from `deploy.conf.example`).
+`deploy/dev.sh` copies the addon into the live WoW AddOns folder for testing. The destination paths are read from `RETAIL` and `FOREVER` in `deploy/deploy.conf` (gitignored; copy from `deploy.conf.example`). Either can be left out. Both get the same files.
 
 Releases are uploaded to CurseForge (project `1740029`) by `.github/workflows/release.yml`, which runs the BigWigsMods packager. The git tag is the version: the TOC says `## Version: @project-version@` and the packager fills it in. Triggers:
 
@@ -132,9 +149,9 @@ Release checklist:
 3. Update your local `develop`: `git pull`. Commit nothing to `develop` between the merge and this pull, or the fast-forward fails.
 4. If the README changed, paste `README.html` into CurseForge by hand.
 
-`deploy/deploy.sh` builds the same zip locally at `dist/YaworsCleanUI-<version>.zip`, with the version from `git describe --tags`. It's for checking a package without uploading. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. Both scripts replace `@project-version@` in the copied TOC.
+`deploy/deploy.sh` builds the same zip locally at `dist/YaworsCleanUI-<version>.zip`, with the version from `git describe --tags`. It's for checking a package without uploading. The zip has a `YaworsCleanUI/` folder at its root and also includes `LICENSE`, `CHANGELOG.md` and `README.md`. Both scripts replace `@project-version@` in both copied TOCs.
 
-Both scripts mirror the TOC, `Core.lua`, `Utils.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders, and add anything that must not ship to `ignore` in `.pkgmeta`.
+Both scripts mirror both TOCs, `Core.lua`, `Retail.lua`, `Utils.lua`, `Migrations.lua`, `Settings.lua`, and the `modules/`, `settings/`, `textures/` folders. Keep them in sync when adding new top-level files or folders, and add anything that must not ship to `ignore` in `.pkgmeta`.
 
 ## Changelog
 
@@ -147,6 +164,8 @@ If unsure what a UI element's frame is called, ask the user to hover over it in-
 ## Target version
 
 Retail WoW, current version. TOC: `## Interface: 120100, 120105` (live plus the upcoming patch, so the addon isn't flagged out of date on patch day). Drop old values once a patch goes live.
+
+WoW Forever: `YaworsCleanUI_Camelot.toc` with `## Interface: 16001` (see WoW Forever).
 
 ## SavedVariables
 
