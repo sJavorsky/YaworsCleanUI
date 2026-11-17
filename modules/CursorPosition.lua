@@ -224,7 +224,11 @@ local function createCircleFrame()
 end
 
 function module.getActiveSetKey()
-    return YaworsCleanUIDB.cursorPosition.mode == "role" and YaworsCleanUI.Utils.getPlayerRole() or "common"
+    -- Forever doesn't load Utils.lua: it has one spec per class, so roles can't tell melee from range
+    if YaworsCleanUI.isRetail and YaworsCleanUIDB.cursorPosition.mode == "role" then
+        return YaworsCleanUI.Utils.getPlayerRole()
+    end
+    return "common"
 end
 
 function module.getActiveSettings()

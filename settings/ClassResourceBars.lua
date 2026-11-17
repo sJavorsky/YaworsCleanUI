@@ -1,4 +1,4 @@
-local category = YaworsCleanUI.settingsCategories.bars
+local category = YaworsCleanUI.addCategory("Bars Class Resources")
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addSlider = YaworsCleanUI.addSlider
 local addSectionHeader = YaworsCleanUI.addSectionHeader

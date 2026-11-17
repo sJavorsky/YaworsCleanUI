@@ -9,6 +9,7 @@
 ## SavedVariables: YaworsCleanUIDB
 
 Core.lua
+Retail.lua
 Utils.lua
 Migrations.lua
 Settings.lua

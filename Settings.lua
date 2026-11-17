@@ -1,21 +1,13 @@
-local category       = Settings.RegisterVerticalLayoutCategory("Yawor's Clean UI")
-local hideCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Hide UI elements")
-local moveCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Move UI elements")
-local chatCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Filter chat")
-local pointsCategory = Settings.RegisterVerticalLayoutSubcategory(category, "Points Class Resources")
-local barsCategory   = Settings.RegisterVerticalLayoutSubcategory(category, "Bars Class Resources")
-local posCategory    = Settings.RegisterVerticalLayoutSubcategory(category, "Player Position")
-local cursorCategory = Settings.RegisterVerticalLayoutSubcategory(category, "Cursor Position")
+local rootCategory = Settings.RegisterVerticalLayoutCategory("Yawor's Clean UI")
+local subcategories = {}
 
-YaworsCleanUI.settingsCategories = {
-    hide     = hideCategory,
-    move     = moveCategory,
-    chat     = chatCategory,
-    points   = pointsCategory,
-    bars     = barsCategory,
-    position = posCategory,
-    cursor   = cursorCategory,
-}
+-- Each settings/ file creates its own subcategory, so a TOC that leaves a feature out
+-- (the Forever build) gets no empty page. Pages appear in TOC load order.
+function YaworsCleanUI.addCategory(name)
+    local subcategory = Settings.RegisterVerticalLayoutSubcategory(rootCategory, name)
+    table.insert(subcategories, subcategory)
+    return subcategory
+end
 
 -- group is a key of YaworsCleanUIDB, or a table for values stored elsewhere:
 -- { id = name unique within the addon, defaults = table, getValues = function returning
@@ -157,13 +149,9 @@ local registrationFrame = CreateFrame("Frame")
 registrationFrame:RegisterEvent("ADDON_LOADED")
 registrationFrame:SetScript("OnEvent", function(self, event, addonName)
     if addonName ~= "YaworsCleanUI" then return end
-    Settings.RegisterAddOnCategory(category)
-    Settings.RegisterAddOnCategory(hideCategory)
-    Settings.RegisterAddOnCategory(moveCategory)
-    Settings.RegisterAddOnCategory(chatCategory)
-    Settings.RegisterAddOnCategory(pointsCategory)
-    Settings.RegisterAddOnCategory(barsCategory)
-    Settings.RegisterAddOnCategory(posCategory)
-    Settings.RegisterAddOnCategory(cursorCategory)
+    Settings.RegisterAddOnCategory(rootCategory)
+    for _, subcategory in ipairs(subcategories) do
+        Settings.RegisterAddOnCategory(subcategory)
+    end
     self:UnregisterEvent("ADDON_LOADED")
 end)

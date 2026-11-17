@@ -79,7 +79,7 @@ local function setupPinnedFrame(frame, isEnabled, anchor)
 end
 
 function module.init()
-    if QueueStatusButton then
+    if QueueStatusButton and YaworsCleanUI.isRetail then
         setupPinnedFrame(QueueStatusButton,
             function() return YaworsCleanUIDB.moveElements.queueEye end,
             anchorQueueEye)

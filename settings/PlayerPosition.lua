@@ -1,4 +1,4 @@
-local category = YaworsCleanUI.settingsCategories.position
+local category = YaworsCleanUI.addCategory("Player Position")
 local addCheckbox = YaworsCleanUI.addCheckbox
 local addColorPicker = YaworsCleanUI.addColorPicker
 local addSlider = YaworsCleanUI.addSlider

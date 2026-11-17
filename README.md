@@ -67,6 +67,10 @@ Each feature can be applied separately. Open **Interface Options → AddOns → 
 - Configurable size, ring widths and colors; tracker preview for setup; optionally combat-only
 - One set of settings for everything, or a separate set for melee, range, tank and healer
 
+#### WoW Forever
+
+A lite version loads on Forever: hide loot window, hide bag icons, Battle.net toast and cursor position (one set of settings for everything).
+
 \</AI generated overview>
 
 
